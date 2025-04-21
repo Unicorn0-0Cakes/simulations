@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/unicorn0_0cakes/Documents/GitHub/Universe-25/universe25_simulation/env"
+VIRTUAL_ENV="/Users/unicorn0_0cakes/Documents/GitHub/simulations/universe-25/env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
