@@ -14,8 +14,15 @@ class Simulation:
         'BREAKDOWN': 2,
         'COLLAPSE': 3
     }
+
+    PHASE_COLORS = {
+        0: (100, 200, 100),  # EXPLORATION - Green
+        1: (100, 200, 200),  # GROWTH - Cyan
+        2: (200, 200, 100),  # BREAKDOWN - Yellow
+        3: (200, 100, 100)   # COLLAPSE - Red
+    }
     
-    def __init__(self, width, height, initial_population=10):
+    def __init__(self, width, height, initial_population=10, cell_size=8):
         """
         Initialize the simulation with grid dimensions and initial population.
         
@@ -23,9 +30,11 @@ class Simulation:
             width (int): Width of the simulation grid
             height (int): Height of the simulation grid
             initial_population (int): Number of mice to start with
+            cell_size (int): Size of a grid cell (default: 8)
         """
         self.width = width
         self.height = height
+        self.cell_size = cell_size
         self.grid = np.zeros((height, width), dtype=int)
         self.mice = []
         self.dead_mice = []

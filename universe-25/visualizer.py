@@ -15,13 +15,6 @@ class Visualizer:
     BUTTON_HOVER_COLOR = (150, 150, 150)
     BUTTON_TEXT_COLOR = (0, 0, 0)
 
-    PHASE_COLORS = {
-        0: (100, 200, 100),
-        1: (100, 200, 200),
-        2: (200, 200, 100),
-        3: (200, 100, 100)
-    }
-
     def __init__(self, simulation, width=1200, height=800, cell_size=8):
         self.simulation = simulation
         self.width = width
@@ -100,7 +93,7 @@ class Visualizer:
     def reset_simulation(self):
         width = self.simulation.width
         height = self.simulation.height
-        self.simulation = Simulation(width, height, 10)
+        self.simulation = Simulation(width, height, 10, cell_size=self.cell_size)
         self.selected_mouse = None
 
     def toggle_fullscreen(self):

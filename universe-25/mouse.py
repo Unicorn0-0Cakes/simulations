@@ -1,7 +1,8 @@
 import random
 import numpy as np
+import pygame # Added import
 
-class Mouse:
+class Mouse(pygame.sprite.Sprite): # Modified class definition
     """
     Represents a mouse agent in the Universe 25 simulation.
     Each mouse has basic needs, social traits, and states that evolve based on
@@ -32,7 +33,7 @@ class Mouse:
         'BEAUTIFUL_ONE': 4
     }
     
-    def __init__(self, x, y, simulation, parent1=None, parent2=None):
+    def __init__(self, x, y, simulation, cell_size, parent1=None, parent2=None): # Added cell_size
         """
         Initialize a new mouse with position and optional parent information.
         
@@ -40,12 +41,16 @@ class Mouse:
             x (int): X-coordinate in the grid
             y (int): Y-coordinate in the grid
             simulation: Reference to the main simulation
+            cell_size (int): Size of a grid cell for rendering
             parent1 (Mouse, optional): First parent for trait inheritance
             parent2 (Mouse, optional): Second parent for trait inheritance
         """
+        super().__init__() # Call Sprite initializer
+
         self.x = x
         self.y = y
         self.simulation = simulation
+        self.cell_size = cell_size # Store cell_size
         self.age = 0
         self.is_alive = True
         self.gender = random.choice(['male', 'female'])
@@ -86,6 +91,11 @@ class Mouse:
         self.last_interaction_time = 0
         self.nest_location = None
         self.target_location = None
+
+        self.image = pygame.Surface([self.cell_size, self.cell_size])
+        self.image.fill(self.get_color()) # Initial color
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x * self.cell_size, self.y * self.cell_size)
         
     def _inherit_trait(self, trait1, trait2):
         """
@@ -146,7 +156,13 @@ class Mouse:
         self._update_mental_state()
         
         # Determine and perform action
-        self._perform_action()
+        self._perform_action() # This might call _move_to, which updates rect.topleft
+
+        # Ensure color is updated based on current state
+        if self.is_alive: # Only fill if alive, otherwise color is set by get_color already for dead mice
+             self.image.fill(self.get_color()) 
+        else: # Handle color for dead sprite if not already done by get_color
+             self.image.fill(self.get_color())
         
         return True
     
@@ -480,6 +496,7 @@ class Mouse:
         if self.simulation.is_valid_position(new_x, new_y):
             self.x = new_x
             self.y = new_y
+            self.rect.topleft = (self.x * self.cell_size, self.y * self.cell_size) # Update rect
     
     def get_color(self):
         """
