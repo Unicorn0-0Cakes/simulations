@@ -2,6 +2,51 @@
 
 A simulation game based on John B. Calhoun's famous behavioral experiment from the 1960s-70s that explores how population density affects social behavior in a "mouse utopia" with unlimited resources but limited space.
 
+## ▶ Easiest way to run it: `universe25.html`
+
+Just **double-click `universe25.html`** — it opens in any web browser with no install, no Python, nothing to set up. It's a single self-contained file, so you can also email it, drop it on a USB stick, or later host it on a website for anyone to use.
+
+The dashboard includes a live animated grid (mice colored by mental state), real-time population and mental-state charts, a phase tracker with dramatic on-screen callouts as the society hits Growth → Breakdown → Collapse, adjustable starting population and world size, scenario presets, and a click-to-inspect any creature inspector.
+
+### Predators & Prey
+
+The world now includes a **predator species (cats)** alongside the mice. Predators stay dormant until the colony establishes, then hunt: they stalk the nearest mouse, pounce when adjacent, gain food energy from each kill, breed when well-fed, and starve when prey run short. Mice sense nearby predators and flee — but in a crowded crush, escape often fails, tying predation back to the density theme. Both species are tracked on the population chart (blue = mice, orange = predators).
+
+The emergent result is a genuine predator-prey balance: with the right predator pressure, hunting holds mouse density *below* the behavioral-sink threshold and can stave off the Universe 25 collapse entirely — the colony and its hunters oscillate and coexist. Too many predators, and the mice are hunted to extinction; too few (or the "Classic (no cats)" preset), and the original overcrowding collapse plays out. Use the **Predators** slider and the **Predator & Prey / Classic / Instant Crowding / Wide Open** presets to explore the outcomes.
+
+### Terrain: vegetation, water bodies & a flowing river
+
+The map is now real terrain. **Vegetation** grows in green patches of varying size that animals walk through and graze on. **Water** forms bodies of varying size — tiny puddles up to full lakes — that are **impassable**: animals can't enter them, only drink from the edges, so lakes act as barriers that shape movement, hunting, and escape routes. A winding **river** flows across the map with a central "ford" so it never fully splits the colony off. **Mice need both food and water; cats need mice (for food) and water (for drinking).** Animals route around water automatically (via distance-field pathfinding) and weaken then die if they can't reach what they need in time.
+
+Two controls govern resources:
+
+- **Infinite vs Finite.** Infinite keeps everything pristine and full (Calhoun's original premise — the constraint is space, not resources). Finite makes it a living system: **vegetation depletes as it's eaten, then regrows and spreads**; standing ponds slowly **recede**; and the **river has a steady inflow but can be drawn down by overuse** — a big, thirsty colony drains it toward empty, while a smaller one lets it refill. A live "% full" readout tracks the river.
+- **River On/Off**, plus the **Food & water bodies** slider for how many of each to generate.
+
+The emergent lesson is striking: in finite mode **without predators, the colony overshoots, strips the vegetation and drinks the river dry, and collapses** — the tragedy of unchecked growth. **With predators holding the population below the land's carrying capacity, the river stays full and the ecosystem sustains.** Predation, crowding, and resource limits all interact. Click any animal to see its hunger and thirst.
+
+**Vegetation is cover.** Only mice can enter the grass — predators can't follow, and a mouse that slips into vegetation can't be caught. This makes the green patches a refuge, but mice still have to break into the open to reach water, where the cats hunt. It also has a twist: good cover lets the colony escape predation and boom — straight into overcrowding collapse. Escape the cats, meet the behavioral sink.
+
+### Fish & Birds (optional modes)
+
+Two more species can be switched on independently:
+
+- **Fish** live and breed only in the water and can't leave it — if their pool dries up in finite mode, they're stranded and die. They don't need anything to survive, but their numbers are drawn down by **both cats and birds** hunting them at the water's edge (only a fraction of attempts land, so stocks persist rather than being wiped out). Fish give cats an alternative to hunting mice — handy when the mice are hiding in the grass.
+- **Birds** nest and live in the **vegetation**, and only leave the grass to chase a mouse that's come within range — swooping fast to run down fleeing prey, then returning to cover. They eat mice (and snatch the occasional fish beside the grass) but **do not touch cats**. Birds require prey to survive: with mice and fish around they persist and breed; when their prey collapses, so do they. Like the cats, they stay dormant until the colony establishes so they don't wipe out the founders. Mice flee birds as they do cats — and since birds live in the grass, cover from cats is no longer safe from above.
+
+Each is a separate on/off toggle. **All four populations — mice, cats, fish, and birds — are tracked on the population-over-time chart** (cats, fish, and birds share a secondary scale), shown as live counts in the metrics, and clickable in the inspector.
+
+### Interface
+
+- **Click any animal** for a floating info popup with live stats (state, age, health, hunger, thirst, traits; for cats, food reserve and kills). Close it with the ×.
+- **Fullscreen** button (in the control bar or the ⛶ at the corner of the view) expands the simulation to fill the screen.
+- **Resolution** — four world sizes that change how many animals fit: **Burrow** (small), **Colony** (the standard size), **City** (large), and **Metropolis** (x-large, ~8,000 mouse capacity).
+
+> Note: the original Python/pygame version (`main.py`) was incomplete — `visualizer.py` was missing its `update()` and `draw()` methods, so it crashed on launch. The web dashboard is the working, easy-to-use version. The Python files are kept for reference.
+
+---
+
+
 ## About the Experiment
 
 Universe 25 was a real behavioral experiment conducted by ethologist John B. Calhoun. The experiment involved creating a "mouse utopia" - an environment with unlimited food, water, and nesting material, but with physical space constraints. Despite the abundance of resources, the mouse society eventually collapsed due to behavioral changes triggered by increasing population density.
