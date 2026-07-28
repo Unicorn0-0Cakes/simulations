@@ -4,7 +4,8 @@ A hands-on guide to operating the simulator. Open `commons.html` in a browser to
 
 ## Getting started in 30 seconds
 
-1. Press **▶ Run** in the top toolbar. The society begins playing out round by round.
+1. Press **▶ Run** in the top toolbar. The society begins playing out year by year. Use the
+   speed control (Slow / Normal / Fast / Turbo) — pick Turbo for long runs of many years.
 2. Watch the **central reservoir** in the world view — its fill is the health of the shared
    infrastructure. Watch the **people** change color as they shift between contributing
    (green), hedging (yellow), and free-riding (red).
@@ -13,7 +14,8 @@ A hands-on guide to operating the simulator. Open `commons.html` in a browser to
 4. Press **↻ Reset** to run again, or open **⚙ Rules** to change the world first.
 
 Use the speed control (Slow / 1× / Fast / Turbo) to slow things down or blast through a run.
-**Step ▸** advances exactly one round so you can watch a single decision cycle.
+**Step ▸** advances exactly one year so you can watch a single decision cycle. The **🌙 / ☀**
+button toggles a night or day (dark or light) theme.
 
 ## Reading the world view
 
@@ -24,7 +26,7 @@ Use the speed control (Slow / 1× / Fast / Turbo) to slow things down or blast t
   information accuracy is low, the ring and the true color can disagree — that gap is where
   false accusations come from.
 - **Colored halo** — which faction they belong to. Unhappy people may switch factions.
-- **Lines to the center** — this round's contribution flowing into the commons; thicker
+- **Lines to the center** — this year's contribution flowing into the commons; thicker
   means more given.
 - **Faded gray dots** — people who have left or died.
 
@@ -36,7 +38,7 @@ punished.
 
 Open the **⚙ Rules** drawer. Sliders take effect on the next **Reset**.
 
-**Resource abundance** — the endowment each person receives per round. Low abundance creates
+**Resource abundance** — the endowment each person receives per year. Low abundance creates
 real scarcity and squeezes cooperation.
 
 **Regeneration** — how fast the commons and pool renew versus decay. Low regeneration means
@@ -46,7 +48,7 @@ the infrastructure erodes quickly and demands constant upkeep.
 genuinely pays; push it up and generosity becomes self-sustaining.
 
 **Initial inequality** — the spread of starting wealth. High values create a gilded few and
-a struggling many from round one.
+a struggling many from year one.
 
 **Contribution visibility** — how openly each person's choices are seen. High visibility lets
 reputation and status incentives work; low visibility hides free-riding.
@@ -55,7 +57,7 @@ reputation and status incentives work; low visibility hides free-riding.
 about each other are. Drop it and honest contributors get misread as cheats, punished, and
 embittered — a healthy society can tear itself apart over rumors that aren't true.
 
-**Reputation memory** — how many rounds of history people carry about each other. Short
+**Reputation memory** — how many years of history people carry about each other. Short
 memory means yesterday's cooperator is quickly forgotten; long memory makes reputations
 sticky.
 
@@ -70,10 +72,12 @@ for sustaining cooperation.
 and how readily the unhappy switch between them. More factions plus low mobility can lock in
 polarization.
 
-**Emergency frequency** — the odds each round of a shock that damages infrastructure. Shocks
+**Emergency frequency** — the odds each year of a shock that damages infrastructure. Shocks
 test whether a society can surge to recover or hoards and collapses.
 
-**Rounds** — the length of the run.
+**Simulation length** — how many years the society runs: 4, 8, 20, 50, 100, 250, 500, or 1000.
+Short runs show founding dynamics; long runs reveal whether a society is truly stable or just
+slow to fail.
 
 **Toggles** — whether people can *communicate* (coordinate expectations), whether a
 *leadership structure* emerges (a leader pulls conformists toward its behavior), whether
@@ -100,7 +104,7 @@ actually ample, but people act as if they're scarce).
 
 ## What to watch on the dashboard
 
-The **Trends** tab plots every metric across rounds; click legend items to toggle series, and
+The **Trends** tab plots every metric across years; click legend items to toggle series, and
 the red dashed lines mark emergencies. The **Dashboard** tab gives the live snapshot. The
 number to watch most is not cooperation or even infrastructure, but the pairing on the
 **Verdict** screen: *what kind of society survived, and what it cost.* Two runs can both

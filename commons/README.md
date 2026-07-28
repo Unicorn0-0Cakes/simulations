@@ -1,7 +1,7 @@
 # The Commons — A Cooperation Collapse Simulator
 
 A single-file, browser-based agent simulation of the classic **public-goods dilemma**: a
-population of 24 people each receive private resources every round, but their long-term
+population of 24 people each receive private resources every year, but their long-term
 survival depends on a shared system — the *commons* — that no one is forced to maintain.
 You don't command the people. You write the rules of their society and watch what kind of
 world emerges, and what its survival costs.
@@ -10,22 +10,23 @@ Open `commons.html` in any modern browser. Nothing to install, no dependencies, 
 
 ## The core idea
 
-Each round every person gets an endowment and privately decides how much to put into the
+Each year every person gets an endowment and privately decides how much to put into the
 shared pool. The pool is multiplied by the society's productivity and split equally among
 everyone — so the group is best off if all contribute, but each individual is *personally*
 best off keeping their share while others give. That tension is the whole game.
 
 A separate **infrastructure** stock represents the commons itself. It decays a little every
-round and is only replenished when average contribution rises above a maintenance line.
+year and is only replenished when average contribution rises above a maintenance line.
 Because production is wasted when infrastructure is broken, **private wealth alone cannot
 save a society** — a town full of rich hoarders still collapses if the shared system fails.
 
 The most interesting question the simulator poses is not *"did society survive?"* but
 **"what kind of society survived, and what did survival cost it?"**
 
-## The round loop
+## The yearly loop
 
-Every round runs the sequence from the design spec:
+You choose how long the society runs — 4, 8, 20, 50, 100, 250, 500, or 1000 years — and
+each year runs the sequence from the design spec:
 
 1. **Endowment** — each living person receives resources scaled by *abundance*.
 2. **Contribution** — each decides how much to give, weighing their dispositions, what they

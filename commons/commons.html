@@ -14,9 +14,20 @@
     --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
+  /* light ("day") theme */
+  body.light{
+    --bg:#eef1f6; --panel:#ffffff; --panel2:#f2f5fa; --line:#dbe1ec;
+    --ink:#1a2030; --muted:#5b6478; --accent:#2f6fe0;
+    --coop:#2e9e57; --mid:#c99a1e; --defect:#d83b40;
+  }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
-    -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.5}
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.5;
+    transition:background .25s,color .25s}
+  body.light{background-image:radial-gradient(900px 500px at 15% -10%,rgba(47,111,224,.08),transparent 60%),
+                             radial-gradient(700px 500px at 100% 0%,rgba(201,107,216,.06),transparent 55%)}
+  body.light .toolbar{background:rgba(244,246,250,.92)}
+  body.light #world{background:transparent}
   header{padding:18px 24px 12px;border-bottom:1px solid var(--line);
     display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
   header h1{font-size:20px;margin:0;letter-spacing:.3px;font-weight:700}
@@ -67,13 +78,14 @@
 
   /* config drawer */
   .drawer{margin-top:16px;transition:.2s}
-  .drawer.collapsed .setup{display:none}
+  .drawer.collapsed .setup, .drawer.collapsed .presets{display:none}
   .drawer-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .drawer-head .title{font-size:13px;font-weight:700}
   .drawer-head .summary{font-size:12.5px;color:var(--muted);flex:1;min-width:120px}
   .presets{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:12px}
   .presets .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-right:2px}
   .presets button{font-size:12px;padding:7px 11px}
+  .presets button.on{background:var(--accent);color:#08101f;border-color:var(--accent);font-weight:700}
   .setup{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:14px 18px;
     margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
   .setup label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:5px}
@@ -83,6 +95,11 @@
   .setup .hint{font-size:10.5px;color:#6a7488;line-height:1.35}
   .setup .toggle{display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:2px}
   .setup .toggle input{width:auto;accent-color:var(--accent);cursor:pointer}
+  .setup label.spanfull{grid-column:1/-1}
+  .seg.segwrap{display:flex;flex-wrap:wrap;border:0;gap:6px}
+  .seg.segwrap button{border:1px solid var(--line);border-radius:9px;padding:7px 13px;min-width:52px;
+    background:var(--panel2);color:var(--muted)}
+  .seg.segwrap button.on{background:var(--accent);color:#08101f;border-color:var(--accent)}
 
   /* right column */
   .side{display:flex;flex-direction:column;gap:12px}
@@ -147,17 +164,18 @@
 </header>
 
 <div class="toolbar">
-  <span class="tb-day">Round <b id="roundLbl">0</b><span style="color:var(--muted)"> / <span id="roundMax">30</span></span></span>
+  <span class="tb-day">Year <b id="roundLbl">0</b><span style="color:var(--muted)"> / <span id="roundMax">50</span></span></span>
   <span class="tb-phase" id="phaseLbl">Founding</span>
   <button class="btn primary" id="playBtn">▶ Run</button>
   <button class="btn" id="stepBtn">Step ▸</button>
   <div class="seg" id="speedSeg">
-    <button data-s="900">Slow</button>
-    <button data-s="420" class="on">1×</button>
-    <button data-s="180">Fast</button>
-    <button data-s="40">Turbo</button>
+    <button data-s="2600" class="on">Slow</button>
+    <button data-s="1300">Normal</button>
+    <button data-s="550">Fast</button>
+    <button data-s="120">Turbo</button>
   </div>
   <span class="spacer"></span>
+  <button class="btn" id="themeBtn" title="Toggle day / night">🌙 Night</button>
   <button class="btn" id="resetBtn">↻ Reset</button>
   <button class="btn" id="setupToggle">⚙ Rules</button>
 </div>
@@ -173,7 +191,8 @@
       <div class="item"><span class="dot" style="background:var(--coop)"></span>Contributor</div>
       <div class="item"><span class="dot" style="background:var(--mid)"></span>Hedger</div>
       <div class="item"><span class="dot" style="background:var(--defect)"></span>Free rider</div>
-      <div class="item"><span class="dot" style="border:2px solid var(--status);background:transparent"></span>Reputation ring</div>
+      <div class="item"><span class="dot" style="background:#7fb2dd"></span>Child (under 18) — takes, can't contribute yet</div>
+      <div class="item"><span class="dot" style="border:2px solid var(--accent);background:transparent"></span>Ring: color = faction, brightness = reputation</div>
       <div class="item">size = private wealth · center pool = infrastructure health · click a person to inspect</div>
     </div>
 
@@ -213,7 +232,7 @@
         <div class="metric wide">
           <div class="k">Society status</div>
           <div class="v big" id="mStatus">—</div>
-          <div class="sub" id="mStatusSub">Press Run to begin the first round.</div>
+          <div class="sub" id="mStatusSub">Press Run to begin the first year.</div>
         </div>
         <div class="metric"><div class="k">Cooperation rate</div><div class="v" id="mCoop">—</div><div class="sub" id="mCoopSub"></div></div>
         <div class="metric"><div class="k">Infrastructure health</div><div class="v" id="mHealth">—</div><div class="sub" id="mHealthSub"></div></div>
@@ -228,7 +247,7 @@
 
     <!-- TRENDS -->
     <div class="tabpane card" data-pane="trends" hidden>
-      <div class="sec-title">History across rounds</div>
+      <div class="sec-title">History across years</div>
       <div class="chart-wrap">
         <canvas id="chart" class="chart" width="760" height="300"></canvas>
         <div class="chart-tip" id="chartTip"></div>
@@ -251,7 +270,7 @@
     </div>
 
     <div class="card">
-      <div class="sec-title">Round log</div>
+      <div class="sec-title">Timeline</div>
       <div class="log" id="log"><div class="ln">Waiting to begin…</div></div>
     </div>
   </div>
@@ -283,16 +302,19 @@ const CONTROLS = [
   {id:"inequality",  label:"Initial inequality",  min:0, max:100, step:5, val:15, fmt:v=>v+"%", hint:"Spread of starting wealth. 0 = everyone equal"},
   {id:"visibility",  label:"Contribution visibility", min:0, max:100, step:5, val:75, fmt:v=>v+"%", hint:"How openly each person's choices are seen"},
   {id:"infoAcc",     label:"Information accuracy", min:20, max:100, step:5, val:85, fmt:v=>v+"%", hint:"Truth of what people believe about others. Low = rumor & error"},
-  {id:"repMemory",   label:"Reputation memory",   min:1, max:12, step:1, val:5, fmt:v=>v+" rounds", hint:"Rounds of history people remember about each other"},
+  {id:"repMemory",   label:"Reputation memory",   min:1, max:12, step:1, val:5, fmt:v=>v+" yrs", hint:"Years of history people remember about each other"},
   {id:"punishCost",  label:"Punishment cost",     min:0, max:50, step:5, val:15, fmt:v=>v+"%", hint:"What it costs a punisher to sanction someone"},
   {id:"punishSev",   label:"Punishment severity", min:0, max:100, step:5, val:45, fmt:v=>v+"%", hint:"How much a sanction hurts its target"},
   {id:"reward",      label:"Reward strength",     min:0, max:100, step:5, val:20, fmt:v=>v+"%", hint:"Bonus given to visible top contributors"},
-  {id:"factions",    label:"Number of factions",  min:1, max:4, step:1, val:2, fmt:v=>v, hint:"Subgroups people feel loyal to"},
+  {id:"factions",    label:"Number of factions",  type:"seg", options:[1,2,3,4], val:2, fmt:v=>v+(v>1?" groups":" group"), hint:"Subgroups people feel loyal to"},
   {id:"mobility",    label:"Social mobility",     min:0, max:100, step:5, val:30, fmt:v=>v+"%", hint:"Chance an unhappy person switches faction"},
-  {id:"emergency",   label:"Emergency frequency", min:0, max:100, step:5, val:25, fmt:v=>v+"%", hint:"Odds each round of a shock that damages infrastructure"},
-  {id:"rounds",      label:"Rounds",              min:15, max:60, step:5, val:30, fmt:v=>v, hint:"Length of the run"},
+  {id:"emergency",   label:"Emergency frequency", min:0, max:100, step:5, val:25, fmt:v=>v+"%", hint:"Odds each year of a shock that damages infrastructure"},
+  {id:"birthRate",   label:"Birth rate",          min:0, max:100, step:5, val:40, fmt:v=>v+"%", hint:"How readily comfortable adults have children"},
+  {id:"lifespan",    label:"Life expectancy",     min:40, max:100, step:5, val:75, fmt:v=>v+" yrs", hint:"Typical age people live to"},
+  {id:"years",       label:"Simulation length",   type:"seg", options:[4,8,20,50,100,250,500,1000], val:50, fmt:v=>v+" yr", hint:"How many years the society runs"},
 ];
 const TOGGLES = [
+  {id:"lifecycle",     label:"Aging · births · deaths", val:true, hint:"People age each year; comfortable adults have children; elders pass on. Under-18s draw from the commons but cannot contribute yet."},
   {id:"communication", label:"People can communicate", val:true,  hint:"Coordinate expectations before deciding"},
   {id:"leadership",    label:"Leadership structure",   val:false, hint:"A leader emerges and pulls conformists toward its behavior"},
   {id:"exit",          label:"People may exit",        val:true,  hint:"The chronically miserable can leave the society"},
@@ -314,11 +336,23 @@ const FIRST_NAMES = ["Ada","Bo","Cyra","Dax","Esen","Fen","Gio","Hana","Ivo","Ju
 /* ---------- global state ---------- */
 let CFG = {};
 let S = null;               // simulation state
-let timer = null, speed = 420, running = false;
+let timer = null, speed = 2600, running = false;
 let selected = null;
 
 /* faction palette */
 const FCOLORS = ["#6ea8fe","#c96bd8","#3fb9a8","#e8a24a"];
+
+/* canvas palettes for night / day — the page CSS handles the DOM,
+   these handle everything drawn on the <canvas> */
+const THEMES = {
+  night:{ worldBg:"#080a0e", resInner:"#0c1016", resHalo:"#080a0e", resRing:"#2c3644",
+          text:"#ffffff", textDim:"rgba(255,255,255,.72)", link:"110,168,254",
+          dead:"#5a6472", grid:"#20272f", axis:"#6a7488", terrAlpha:1 },
+  day:{   worldBg:"#eef1f6", resInner:"#e4e9f2", resHalo:"#d7deea", resRing:"#b7c1d4",
+          text:"#141a28", textDim:"rgba(20,28,45,.6)", link:"58,110,200",
+          dead:"#aab2c4", grid:"#dde3ee", axis:"#8994a8", terrAlpha:1.7 },
+};
+let THEME = THEMES.night;
 
 /* ---------- helpers ---------- */
 const clamp=(x,a=0,b=1)=>x<a?a:x>b?b:x;
@@ -338,11 +372,15 @@ function gini(vals){
    ============================================================ */
 function readCfg(){
   const c={};
-  CONTROLS.forEach(k=>{ const el=document.getElementById("c_"+k.id); c[k.id]=el?+el.value:k.val; });
+  CONTROLS.forEach(k=>{ const el=document.getElementById("c_"+k.id);
+    if(k.type==="seg"){ c[k.id]=el&&el.dataset.val!==undefined?+el.dataset.val:k.val; }
+    else c[k.id]=el?+el.value:k.val; });
   TOGGLES.forEach(k=>{ const el=document.getElementById("c_"+k.id); c[k.id]=el?el.checked:k.val; });
   return c;
 }
 
+function nameFor(i){ return FIRST_NAMES[i%FIRST_NAMES.length]+(i>=FIRST_NAMES.length?("·"+i):""); }
+function lifespanFor(cfg){ return Math.max(30, Math.round(cfg.lifespan + rnd(-12,12))); }
 function makeAgent(i, cfg){
   // dispositions — probabilities along several dimensions
   const d = {
@@ -362,8 +400,10 @@ function makeAgent(i, cfg){
   const baseW = cfg.abundance*2.2;
   const wealth = Math.max(1, baseW*(1 + spread*rnd(-1,1)*2.2));
   return {
-    id:i, name:FIRST_NAMES[i%FIRST_NAMES.length]+(i>=FIRST_NAMES.length?("·"+i):""),
+    id:i, name:nameFor(i),
     d, faction:i%nf,
+    age: Math.round(rnd(19,55)),        // founding generation of adults
+    lifespan: lifespanFor(cfg), born:0,
     wealth, wealth0:wealth,
     alive:true,
     coop: d.condCoop,          // current cooperation propensity (evolves)
@@ -380,11 +420,32 @@ function makeAgent(i, cfg){
   };
 }
 
+/* a newborn — inherits a parent's dispositions with mutation, born into their faction */
+function makeChild(parent){
+  const i=S.nextId++, pd=parent.d, d={};
+  for(const k in pd){
+    if(k==="memory") d.memory=Math.max(1,Math.round(pd.memory+rnd(-1,1)));
+    else d[k]=clamp(pd[k]+rnd(-0.18,0.18));
+  }
+  // cultural transmission: children lean toward the cooperation they were raised around
+  const coop=clamp(parent.coop*0.55 + d.condCoop*0.25 + rnd(-0.05,0.2));
+  return {
+    id:i, name:nameFor(i), d, faction:parent.faction,
+    age:0, lifespan:lifespanFor(CFG), born:S.round,
+    wealth:Math.max(1,parent.wealth*0.12+2), wealth0:Math.max(4,parent.wealth0*0.6),
+    alive:true, coop, coop0:coop,
+    reputation:0.5, trust:0.5, resentment:0, wellbeing:0.6,
+    contribHist:[], lastContribFrac:0,
+    timesExploited:0, timesPunished:0, wronglyPunished:0,
+    x:parent.x+rnd(-18,18), y:parent.y+rnd(-18,18), vx:0, vy:0,
+  };
+}
+
 function buildWorld(){
   CFG = readCfg();
   const N=24;
   S = {
-    round:0, maxRounds:CFG.rounds, phase:"Founding", over:false,
+    round:0, maxRounds:CFG.years, phase:"Founding", over:false,
     agents:Array.from({length:N},(_,i)=>makeAgent(i,CFG)),
     infra:0.7,                 // infrastructure health 0..1  (the commons)
     pool:0,
@@ -392,27 +453,36 @@ function buildWorld(){
     events:[],                 // shocks/log entries
     shocks:[],                 // rounds where an emergency struck
     peakInfra:0.7, minInfraSinceShock:1, lastShockRound:-99,
-    recoverySamples:[],
+    recoverySamples:[], layoutDirty:false,
+    nextId:N, totalBorn:0, totalDied:0, yearBirths:0, yearDeaths:0, sizeScale:1,
   };
   layoutAgents();
+  settleLayout(180);           // settle into a clean, stable arrangement up front
   snapshot();                  // round 0 baseline
   render();
   updateReadouts();
-  log(`<b>Round 0</b> · society founded with ${N} people across ${CFG.factions} faction${CFG.factions>1?"s":""}.`, true);
+  log(`<b>Year 0</b> · society founded with ${N} people across ${CFG.factions} faction${CFG.factions>1?"s":""}.`, true);
 }
 
 /* place agents in faction clusters */
-function layoutAgents(){
-  const W=920,H=600, nf=CFG.factions;
+/* shared faction cluster centers — spread across the canvas width so
+   groups sit side by side around the commons rather than stacking */
+function factionCenters(){
+  const W=cv.width,H=cv.height,nf=CFG.factions,cx=W/2,cy=H/2;
   const centers=[];
+  if(nf===1){ centers.push({x:cx,y:cy}); return centers; }
+  const rx=W*0.315, ry=H*0.30;
   for(let f=0;f<nf;f++){
-    const ang = -Math.PI/2 + f/nf*Math.PI*2;
-    const r = nf===1?0:190;
-    centers.push({x:W/2+Math.cos(ang)*r, y:H/2+Math.sin(ang)*r*0.82});
+    const ang = Math.PI + f/nf*Math.PI*2;   // start on the left, go around
+    centers.push({x:cx+Math.cos(ang)*rx, y:cy+Math.sin(ang)*ry});
   }
+  return centers;
+}
+function layoutAgents(){
+  const centers=factionCenters();
   S.agents.forEach(a=>{
     const c=centers[a.faction];
-    a.x=c.x+rnd(-70,70); a.y=c.y+rnd(-70,70);
+    a.x=c.x+rnd(-64,64); a.y=c.y+rnd(-56,56);
   });
 }
 
@@ -424,26 +494,30 @@ function step(){
   S.round++;
   const cfg=CFG, A=S.agents.filter(a=>a.alive);
   const N=A.length;
+  // adults (18+) are the producers; under-18s draw from the commons but cannot contribute
+  const isAdult = a => !cfg.lifecycle || a.age>=18;
+  const adults = A.filter(isAdult);
   const trulyScarce = cfg.abundance<=7 && !cfg.perceivedScarcity;
   // perceived scarcity: people ACT scarce even when resources are fine
   const perceivedScarce = cfg.perceivedScarcity || cfg.abundance<=7;
 
-  /* -- 1. endowment -- */
+  /* -- 1. endowment -- only working adults earn; children are dependents -- */
   const endow = cfg.abundance;
-  A.forEach(a=>a.income=endow);
+  A.forEach(a=>a.income = isAdult(a) ? endow : 0);
 
   /* -- coordination signal (communication lets conditional cooperators read the room) -- */
-  const priorCoop = S.history.length ? S.history[S.history.length-1].coop : mean(A.map(a=>a.coop));
+  const priorCoop = S.history.length ? S.history[S.history.length-1].coop : mean(adults.map(a=>a.coop));
 
   /* -- leadership: pick highest-reputation contributor as leader -- */
   let leader=null;
   if(cfg.leadership){
-    leader = A.slice().sort((x,y)=>(y.reputation*0.6+y.coop*0.4)-(x.reputation*0.6+x.coop*0.4))[0];
+    leader = adults.slice().sort((x,y)=>(y.reputation*0.6+y.coop*0.4)-(x.reputation*0.6+x.coop*0.4))[0];
   }
 
   /* -- 2. contribution decisions -- */
   let totalContrib=0;
   A.forEach(a=>{
+    if(!isAdult(a)){ a.contribFrac=0; a.contrib=0; return; }   // children take, don't give
     const d=a.d;
     // expectation of others: communication -> accurate prior; else noisy reputation read
     let expect;
@@ -451,9 +525,9 @@ function step(){
     else { expect = clamp(priorCoop + rnd(-1,1)*(1-cfg.infoAcc/100)*0.5); }
     // base propensity is the evolving coop, pulled by conditional cooperation toward expectation
     let frac = a.coop*(1-d.condCoop*0.6) + expect*(d.condCoop*0.6);
-    // conformity pulls toward faction/leader behaviour
-    const factionMates=A.filter(o=>o.faction===a.faction);
-    const factionCoop=mean(factionMates.map(o=>o.coop));
+    // conformity pulls toward faction/leader behaviour (adults set the norm)
+    const factionMates=adults.filter(o=>o.faction===a.faction);
+    const factionCoop=factionMates.length?mean(factionMates.map(o=>o.coop)):a.coop;
     frac = frac*(1-d.conformity*0.4) + factionCoop*(d.conformity*0.4);
     if(leader && a!==leader) frac = frac*(1-d.conformity*0.35) + leader.coop*(d.conformity*0.35);
     // scarcity makes self-preservers hoard
@@ -476,19 +550,23 @@ function step(){
   const grown = totalContrib*(cfg.multiplier/100)*infraEff;
   S.pool = grown;
 
-  /* -- 4. distribute public good equally -- */
-  const share = N? S.pool/N : 0;
-  A.forEach(a=>{ a.wealth += a.income + share; a.roundGain = a.income + share; });
+  /* -- 4. distribute the public good — children draw a reduced dependent's share -- */
+  const consumeW = a => (isAdult(a)?1:0.55);
+  const totW = A.reduce((s,a)=>s+consumeW(a),0) || 1;
+  const shareUnit = S.pool/totW;
+  A.forEach(a=>{ const sh=shareUnit*consumeW(a); a.wealth += a.income + sh; a.roundGain = a.income + sh; });
 
-  /* -- infrastructure update: contribution above a maintenance line renews it -- */
-  const perCapContrib = totalContrib/Math.max(1,N);
-  const maintenance = endow*0.42;              // needed just to hold steady — upkeep is demanding
+  /* -- infrastructure reflects how well the PRODUCERS maintain the commons
+     (a big dependent generation still strains it, by thinning everyone's return above) -- */
+  const perCapContrib = totalContrib/Math.max(1,adults.length);
+  const maintenance = endow*0.40;              // needed just to hold steady — upkeep is demanding
   const regen = cfg.regen/100;
   let infraDelta = (perCapContrib-maintenance)/(endow) * (0.30+regen*0.45);
   S.infra = clamp(S.infra + infraDelta, 0, 1);
 
-  /* -- 5. reputation, trust, resentment, strategy drift -- */
+  /* -- 5. reputation, trust, resentment, strategy drift (adults only) -- */
   A.forEach(a=>{
+    if(!isAdult(a)) return;
     // observed contribution (noisy unless visible + accurate)
     const noise = (1-cfg.visibility/100)*0.5 + (1-cfg.infoAcc/100)*0.6;
     a.observed = clamp(a.contribFrac + rnd(-1,1)*noise*0.6);
@@ -499,8 +577,9 @@ function step(){
     a.contribHist.push(a.contribFrac);
     if(a.contribHist.length>Math.max(mem,cfg.repMemory)) a.contribHist.shift();
   });
-  const avgCoopNow = mean(A.map(a=>a.contribFrac));
+  const avgCoopNow = adults.length?mean(adults.map(a=>a.contribFrac)):0;
   A.forEach(a=>{
+    if(!isAdult(a)) return;
     // exploited: I gave a lot, the field gave little
     const exploitation = clamp(a.contribFrac - avgCoopNow);
     if(exploitation>0.18){ a.timesExploited++; a.resentment=clamp(a.resentment + exploitation*a.d.fairness*0.5); }
@@ -527,10 +606,10 @@ function step(){
   /* -- 6. punishment & reward -- */
   S.roundPunish=0; S.roundFalse=0; S.roundReward=0;
   if(cfg.punishSev>0){
-    A.forEach(p=>{
+    adults.forEach(p=>{
       if(rand() > p.d.punish) return;                 // this person willing to punish?
-      // find a suspected free rider by REPUTATION (which may be wrong)
-      const suspects=A.filter(o=>o!==p && o.reputation<0.4);
+      // find a suspected free rider by REPUTATION (which may be wrong) — children can't be blamed
+      const suspects=adults.filter(o=>o!==p && o.reputation<0.4);
       if(!suspects.length) return;
       const target=suspects.sort((x,y)=>x.reputation-y.reputation)[0];
       const cost=endow*(cfg.punishCost/100);
@@ -546,8 +625,8 @@ function step(){
         target.coop=clamp(target.coop + cfg.punishSev/100*0.18*(1-target.d.selfPreserve*0.5)); }
     });
   }
-  if(cfg.reward>0){
-    const top=A.slice().sort((x,y)=>y.reputation-x.reputation).slice(0,Math.max(1,Math.round(N*0.2)));
+  if(cfg.reward>0 && adults.length){
+    const top=adults.slice().sort((x,y)=>y.reputation-x.reputation).slice(0,Math.max(1,Math.round(adults.length*0.2)));
     top.forEach(t=>{ const b=endow*(cfg.reward/100)*0.9; t.wealth+=b; S.roundReward++;
       t.coop=clamp(t.coop+0.03); });
   }
@@ -559,7 +638,7 @@ function step(){
     const dmg = rnd(0.12,0.28);
     S.infra=clamp(S.infra-dmg,0,1);
     shockNow=true; S.shocks.push(S.round); S.lastShockRound=S.round; S.minInfraSinceShock=S.infra;
-    log(`<b>Round ${S.round}</b> · <span class="d">emergency</span> — a shock struck the commons (−${Math.round(dmg*100)}% health). Recovery depends on whether people surge or hoard.`);
+    log(`<b>Year ${S.round}</b> · <span class="d">emergency</span> — a shock struck the commons (−${Math.round(dmg*100)}% health). Recovery depends on whether people surge or hoard.`);
     // people respond to emergency per scarcity disposition
     A.forEach(a=>{ if(rand()<a.d.condCoop*0.6) a.coop=clamp(a.coop+0.06); });
   }
@@ -569,46 +648,90 @@ function step(){
   A.forEach(a=>{
     const wealthNorm=clamp(a.wealth/(a.wealth0*2.2));
     a.wellbeing = clamp(0.30*wealthNorm + 0.28*a.trust + 0.24*S.infra + 0.18*(1-a.resentment));
+    // exit & mobility apply to adults only (children stay with their family)
+    if(!isAdult(a)){
+      // a child with no resources in a broken commons may not make it
+      if(a.wealth<=0.4 && S.infra<0.12 && rand()<0.3){ a.alive=false; a.diedRound=S.round; a.cause="hardship"; S.layoutDirty=true; }
+      return;
+    }
     // exit: chronically miserable people may leave
     if(cfg.exit && a.wellbeing<0.22 && rand()<0.25){
-      a.alive=false; a.leftRound=S.round;
-      log(`<b>Round ${S.round}</b> · ${a.name} left the society (wellbeing collapsed).`);
+      a.alive=false; a.leftRound=S.round; a.cause="left"; S.layoutDirty=true;
+      log(`<b>Year ${S.round}</b> · ${a.name} left the society (wellbeing collapsed).`);
     } else if(a.wealth<=0.5 && S.infra<0.15 && rand()<0.4){
-      a.alive=false; a.leftRound=S.round;
-      log(`<b>Round ${S.round}</b> · ${a.name} could not survive the failing commons.`);
+      a.alive=false; a.leftRound=S.round; a.cause="hardship"; S.layoutDirty=true;
+      log(`<b>Year ${S.round}</b> · ${a.name} could not survive the failing commons.`);
     }
     // mobility: unhappy people switch faction toward a happier one
     if(cfg.factions>1 && cfg.mobility>0 && a.alive && a.wellbeing<0.4 && rand()<cfg.mobility/100){
       const others=[...Array(cfg.factions).keys()].filter(f=>f!==a.faction);
       a.faction=others[Math.floor(rand()*others.length)];
-      moveTowardFaction(a);
+      moveTowardFaction(a); S.layoutDirty=true;
     }
   });
+
+  /* -- 8. lifecycle: aging, births, natural deaths -- */
+  S.yearBirths=0; S.yearDeaths=0;
+  if(cfg.lifecycle){
+    S.agents.forEach(a=>{ if(a.alive) a.age++; });
+    // natural death — mortality climbs steeply past one's expected lifespan
+    S.agents.forEach(a=>{
+      if(!a.alive || a.age<18) return;
+      const over=a.age-(a.lifespan-16);
+      let p=0.004 + (over>0 ? Math.min(0.9, Math.pow(over/22,2)*0.14) : 0);
+      if(a.age>a.lifespan+14) p=1;
+      if(rand()<p){ a.alive=false; a.diedRound=S.round; a.cause="age"; S.yearDeaths++; S.layoutDirty=true;
+        log(`<b>Year ${S.round}</b> · ${a.name} died of old age at ${a.age}.`); }
+    });
+    // births — comfortable fertile adults may welcome a child (society has a soft carrying cap)
+    const CAP=60, aliveArr=S.agents.filter(a=>a.alive);
+    if(aliveArr.length<CAP){
+      aliveArr.filter(a=>a.age>=20 && a.age<=45).forEach(a=>{
+        const slack=clamp(0.4+0.6*S.infra) * clamp(a.wellbeing/0.55);
+        const p=(cfg.birthRate/100)*0.15*slack;
+        if(rand()<p && S.agents.filter(x=>x.alive).length<CAP){
+          const kid=makeChild(a); S.agents.push(kid); S.yearBirths++; S.totalBorn++; S.layoutDirty=true;
+          log(`<b>Year ${S.round}</b> · a child, ${kid.name}, was born into Faction ${a.faction+1}.`);
+        }
+      });
+    }
+    S.totalDied += S.yearDeaths;
+  }
 
   // recovery sampling after shocks
   if(S.lastShockRound>0 && S.round-S.lastShockRound<=4){
     S.recoverySamples.push({from:S.minInfraSinceShock,to:S.infra});
   }
 
+  const aliveArr=S.agents.filter(a=>a.alive);
+  S.sizeScale = clamp(Math.sqrt(24/Math.max(1,aliveArr.length)), 0.5, 1);
+
   updatePhase();
   snapshot();
-  softLayout();
+  // keep positions stable — only relax lightly for growing/shrinking dots,
+  // and re-settle harder when someone was born, died, or switched faction (no per-year jitter)
+  if(S.layoutDirty){ settleLayout(60); S.layoutDirty=false; } else settleLayout(6);
   render();
   updateReadouts();
 
   // termination
-  const aliveN=S.agents.filter(a=>a.alive).length;
+  const adultsN=aliveArr.filter(isAdult).length;
   if(S.infra<=0.001){ endRun("collapse"); }
-  else if(aliveN<=Math.ceil(24*0.34)){ endRun("depopulated"); }
+  else if(aliveArr.length===0 || adultsN<3){ endRun("depopulated"); }
   else if(S.round>=S.maxRounds){ endRun("survived"); }
 }
 
+function isAdultA(a){ return !CFG.lifecycle || a.age>=18; }
 function updatePhase(){
-  const h=S.infra, coop=mean(S.agents.filter(a=>a.alive).map(a=>a.contribFrac||a.coop));
+  const adults=S.agents.filter(a=>a.alive && isAdultA(a));
+  const h=S.infra, coop=adults.length?mean(adults.map(a=>a.contribFrac!==undefined?a.contribFrac:a.coop)):0;
+  const kids=S.agents.filter(a=>a.alive && !isAdultA(a)).length, aliveN=S.agents.filter(a=>a.alive).length;
+  const depRatio = aliveN? kids/aliveN : 0;
   let p="Steady State", d="The commons holds; people mostly meet their obligations.";
   if(S.round<=2){p="Founding";d="Norms are still forming; nobody knows who to trust.";}
   else if(h<0.22){p="Breakdown";d="Infrastructure is failing faster than people will maintain it.";}
   else if(coop<0.3){p="Free-Rider Cascade";d="Contribution is unraveling as people stop giving.";}
+  else if(depRatio>0.45){p="Dependency Strain";d="A large young generation is drawing on a commons few can maintain.";}
   else if(h>0.75&&coop>0.6){p="Flourishing";d="Strong upkeep and high trust reinforce each other.";}
   S.phase=p; S.phaseDesc=d;
 }
@@ -616,18 +739,20 @@ function updatePhase(){
 /* snapshot metrics for the round */
 function snapshot(){
   const A=S.agents, alive=A.filter(a=>a.alive);
-  const coop=mean(alive.map(a=>a.contribFrac!==undefined?a.contribFrac:a.coop));
-  const trust=mean(alive.map(a=>a.trust));
+  const adults=alive.filter(isAdultA), kids=alive.length-adults.length;
+  const coop=adults.length?mean(adults.map(a=>a.contribFrac!==undefined?a.contribFrac:a.coop)):0;
+  const trust=adults.length?mean(adults.map(a=>a.trust)):0;
   const well=mean(alive.map(a=>a.wellbeing));
   const wealth=mean(alive.map(a=>a.wealth));
-  const g=gini(alive.map(a=>a.wealth));
-  // factional polarization: spread of mean coop across factions
+  const g=gini(adults.map(a=>a.wealth));
+  // factional polarization: spread of mean coop across factions (adults set the norm)
   const nf=CFG.factions; const fmeans=[];
-  for(let f=0;f<nf;f++){ const grp=alive.filter(a=>a.faction===f); if(grp.length) fmeans.push(mean(grp.map(a=>a.coop))); }
+  for(let f=0;f<nf;f++){ const grp=adults.filter(a=>a.faction===f); if(grp.length) fmeans.push(mean(grp.map(a=>a.coop))); }
   const polar = fmeans.length>1 ? (Math.max(...fmeans)-Math.min(...fmeans)) : 0;
   S.history.push({
     round:S.round, coop, infra:S.infra, trust, well, wealth, gini:g,
-    pop:alive.length, polar,
+    pop:alive.length, adults:adults.length, children:kids, popN:clamp(alive.length/48), polar,
+    births:S.yearBirths||0, deaths:S.yearDeaths||0,
     punish:S.roundPunish||0, falseAcc:S.roundFalse||0, reward:S.roundReward||0,
   });
   S.peakInfra=Math.max(S.peakInfra,S.infra);
@@ -642,11 +767,11 @@ function endRun(kind){
   document.getElementById("playBtn").disabled=true;
   const alive=S.agents.filter(a=>a.alive).length;
   let title,sub;
-  if(kind==="survived"){ title=S.infra>0.6?"Endured":"Survived, frayed"; sub=`Reached round ${S.round} with the commons intact.`; }
-  else if(kind==="collapse"){ title="Commons collapsed"; sub=`Infrastructure failed on round ${S.round}. Private wealth couldn't replace it.`; }
-  else { title="Depopulated"; sub=`Too many left or perished by round ${S.round}.`; }
+  if(kind==="survived"){ title=S.infra>0.6?"Endured":"Survived, frayed"; sub=`Reached year ${S.round} with the commons intact.`; }
+  else if(kind==="collapse"){ title="Commons collapsed"; sub=`Infrastructure failed in year ${S.round}. Private wealth couldn't replace it.`; }
+  else { title="Depopulated"; sub=`Too many left or perished by year ${S.round}.`; }
   banner(title, sub);
-  log(`<b>Round ${S.round}</b> · <span class="${kind==='survived'?'c':'d'}">${title}</span> — ${sub}`);
+  log(`<b>Year ${S.round}</b> · <span class="${kind==='survived'?'c':'d'}">${title}</span> — ${sub}`);
   buildVerdict(kind);
   updateReadouts();
 }
@@ -657,7 +782,10 @@ function buildVerdict(kind){
   const A=S.agents, alive=A.filter(a=>a.alive);
   const totalPun=H.reduce((s,h)=>s+h.punish,0);
   const totalFalse=H.reduce((s,h)=>s+h.falseAcc,0);
-  const left=A.length-alive.length;
+  const born=S.totalBorn||0, died=S.totalDied||0;
+  const departed=A.filter(a=>!a.alive && a.cause==="left").length;
+  const lost=A.filter(a=>!a.alive).length;      // everyone no longer present
+  const peakPop=Math.max(...H.map(h=>h.pop),1);
   const avgCoop=mean(H.map(h=>h.coop));
   const finalGini=last.gini, finalTrust=last.trust, finalWell=last.well, finalPolar=last.polar;
 
@@ -685,7 +813,7 @@ function buildVerdict(kind){
     {k:"Coercion",   v:clamp(totalPun/(S.maxRounds*2)), c:"var(--defect)"},
     {k:"Injustice",  v:clamp(totalFalse/Math.max(1,totalPun)), c:"var(--status)"},
     {k:"Inequality", v:finalGini, c:"var(--mid)"},
-    {k:"Attrition",  v:clamp(left/24), c:"var(--defect)"},
+    {k:"Attrition",  v:clamp((departed+ (CFG.lifecycle?0:lost))/Math.max(24,peakPop)), c:"var(--defect)"},
     {k:"Polarization",v:clamp(finalPolar/0.6), c:"var(--trust)"},
     {k:"Lost trust", v:clamp(first.trust-finalTrust+0.2), c:"var(--coop)"},
   ];
@@ -706,7 +834,7 @@ function buildVerdict(kind){
         <span class="bar"><span style="width:${Math.round(c.v*100)}%;background:${c.c}"></span></span>
         <span class="num">${Math.round(c.v*100)}</span></div>`).join("")}
     </div>
-    <p style="margin-top:12px;font-size:12.5px">${totalPun} sanctions were issued over the run, <b>${totalFalse}</b> of them against people who had actually contributed. ${left} of 24 people ${left===1?"left":"left or died"}.</p>`;
+    <p style="margin-top:12px;font-size:12.5px">${totalPun} sanctions were issued over the run, <b>${totalFalse}</b> of them against people who had actually contributed.${CFG.lifecycle?` Over these ${S.round} years <b>${born}</b> ${born===1?"child was":"children were"} born and <b>${died}</b> died of old age; ${last.pop} ${last.pop===1?"person is":"people are"} alive at the end${departed?`, and ${departed} left`:""}.`:` ${lost} of 24 people ${lost===1?"left":"left or died"}.`}</p>`;
 }
 
 /* ============================================================
@@ -718,91 +846,134 @@ function coopColor(v){
   if(v<0.5){ const t=v/0.5; return `rgb(${229},${72+ (196-72)*t},${77+(71-77)*t})`; }
   const t=(v-0.5)/0.5; return `rgb(${229+(63-229)*t},${196+(185-196)*t},${71+(107-71)*t})`;
 }
+function hexA(hex,a){ const n=parseInt(hex.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
+function roundRect(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r);
+  c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+function agentR(a){   // shared render radius; children are smaller, and everyone shrinks as population grows
+  const s=(S&&S.sizeScale)||1;
+  if(CFG.lifecycle && a.age!==undefined && a.age<18) return (5 + (a.age/18)*4)*s;
+  return (7 + clamp(a.wealth/(a.wealth0*2),0.2,2.0)*7)*s;
+}
+function isChild(a){ return CFG.lifecycle && a.age!==undefined && a.age<18; }
 function render(){
-  const W=cv.width,H=cv.height;
-  ctx.clearRect(0,0,W,H);
-  // faction wells (subtle)
-  // central commons reservoir
-  const cx=W/2, cy=H/2, R=96;
-  ctx.save();
-  ctx.globalAlpha=1;
-  // reservoir ring
-  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
-  ctx.fillStyle="#0c1016"; ctx.fill();
-  ctx.lineWidth=2; ctx.strokeStyle="#26303e"; ctx.stroke();
-  // fill by infra health
+  const W=cv.width,H=cv.height, cx=W/2, cy=H/2, R=82, T=THEME;
+  ctx.fillStyle=T.worldBg; ctx.fillRect(0,0,W,H);
+
+  // ---- faction territories (soft discs + labels) behind everything ----
+  if(S && CFG.factions>1){
+    const centers=factionCenters();
+    centers.forEach((c,f)=>{
+      const col=FCOLORS[f%FCOLORS.length];
+      const g=ctx.createRadialGradient(c.x,c.y,10,c.x,c.y,168);
+      g.addColorStop(0,hexA(col,0.10*T.terrAlpha)); g.addColorStop(1,hexA(col,0));
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(c.x,c.y,168,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=hexA(col,0.18*T.terrAlpha); ctx.lineWidth=1; ctx.setLineDash([4,5]);
+      ctx.beginPath(); ctx.arc(c.x,c.y,152,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+      // label — high-contrast pill on the outward side of each territory
+      const txt="FACTION "+(f+1);
+      ctx.font="800 13px var(--font)"; ctx.textAlign="center"; ctx.textBaseline="middle";
+      const tw=ctx.measureText(txt).width, pw=tw+22, ph=25;
+      const ang=Math.atan2(c.y-cy,c.x-cx)||-Math.PI/2;
+      let lx=clamp(c.x+Math.cos(ang)*172, pw/2+6, W-pw/2-6);
+      let ly=clamp(c.y+Math.sin(ang)*172, ph/2+6, H-ph/2-6);
+      ctx.fillStyle=T===THEMES.day?"rgba(255,255,255,.94)":"rgba(12,16,22,.94)";
+      roundRect(ctx, lx-pw/2, ly-ph/2, pw, ph, 13); ctx.fill();
+      ctx.strokeStyle=hexA(col,0.95); ctx.lineWidth=1.8; roundRect(ctx, lx-pw/2, ly-ph/2, pw, ph, 13); ctx.stroke();
+      ctx.fillStyle=col; ctx.fillText(txt, lx, ly+0.5);
+      ctx.textBaseline="alphabetic";
+    });
+  }
+
+  if(S){
+    // ---- contribution links from each person to the commons ----
+    S.agents.forEach(a=>{
+      if(!a.alive) return;
+      const frac=a.contribFrac!==undefined?a.contribFrac:a.coop;
+      const dx=cx-a.x, dy=cy-a.y, d=Math.hypot(dx,dy)||1;
+      const ex=a.x+dx/d*(d-R-6), ey=a.y+dy/d*(d-R-6);   // stop at reservoir edge
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(ex,ey);
+      ctx.strokeStyle=`rgba(${T.link},${0.05+frac*0.26})`;
+      ctx.lineWidth=0.5+frac*3.2; ctx.stroke();
+    });
+  }
+
+  // ---- central commons reservoir ----
   const h=S?S.infra:0.7;
+  ctx.beginPath(); ctx.arc(cx,cy,R+3,0,Math.PI*2); ctx.fillStyle=T.resHalo; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fillStyle=T.resInner; ctx.fill();
   ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R-4,0,Math.PI*2); ctx.clip();
   const fillH=(R-4)*2*h;
   const grd=ctx.createLinearGradient(0,cy+R,0,cy-R);
   const col = h>0.55?"#3fb9a8": h>0.25?"#e8c447":"#e5484d";
   grd.addColorStop(0,col); grd.addColorStop(1, h>0.55?"#2b8f83":"#a83a3f");
-  ctx.fillStyle=grd; ctx.globalAlpha=0.85;
+  ctx.fillStyle=grd; ctx.globalAlpha=0.9;
   ctx.fillRect(cx-R, cy+R-4-fillH, R*2, fillH);
+  // waterline highlight
+  ctx.globalAlpha=0.45; ctx.strokeStyle="#fff"; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx-R,cy+R-4-fillH); ctx.lineTo(cx+R,cy+R-4-fillH); ctx.stroke();
   ctx.restore();
-  ctx.globalAlpha=1;
-  ctx.fillStyle="#e8ecf4"; ctx.textAlign="center"; ctx.font="700 26px var(--font)";
-  ctx.fillText(Math.round(h*100)+"%", cx, cy-2);
-  ctx.font="600 11px var(--font)"; ctx.fillStyle="rgba(255,255,255,.75)";
+  ctx.lineWidth=2; ctx.strokeStyle=T.resRing; ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle=T.text; ctx.textAlign="center"; ctx.font="700 27px var(--font)";
+  ctx.fillText(Math.round(h*100)+"%", cx, cy-1);
+  ctx.font="700 10px var(--font)"; ctx.fillStyle=T.textDim;
   ctx.fillText("INFRASTRUCTURE", cx, cy+16);
-  ctx.restore();
 
   if(!S) return;
-  // links from each agent to commons, thickness by last contribution
+  // ---- people ----
   S.agents.forEach(a=>{
-    if(!a.alive) return;
-    const frac=a.contribFrac!==undefined?a.contribFrac:a.coop;
-    ctx.beginPath();
-    ctx.moveTo(a.x,a.y);
-    const mx=cx+(a.x-cx)*0.32, my=cy+(a.y-cy)*0.32;
-    ctx.lineTo(mx,my);
-    ctx.strokeStyle=`rgba(110,168,254,${0.05+frac*0.28})`;
-    ctx.lineWidth=0.5+frac*3.4; ctx.stroke();
-  });
-  // agents
-  S.agents.forEach(a=>{
-    const r = 6 + clamp(a.wealth/(a.wealth0*2),0.2,2.2)*7;
+    const r = agentR(a);
     if(!a.alive){
-      ctx.globalAlpha=0.16; ctx.beginPath(); ctx.arc(a.x,a.y,6,0,Math.PI*2);
-      ctx.fillStyle="#5a6472"; ctx.fill(); ctx.globalAlpha=1; return;
+      ctx.globalAlpha=0.18; ctx.beginPath(); ctx.arc(a.x,a.y,7,0,Math.PI*2);
+      ctx.fillStyle=T.dead; ctx.fill(); ctx.globalAlpha=1; return;
     }
     const frac=a.contribFrac!==undefined?a.contribFrac:a.coop;
-    // reputation ring
-    ctx.beginPath(); ctx.arc(a.x,a.y,r+4,0,Math.PI*2*clamp(a.reputation,0.02,1));
-    ctx.strokeStyle="#c96bd8"; ctx.lineWidth=2.4; ctx.stroke();
-    // faction underlay
-    ctx.beginPath(); ctx.arc(a.x,a.y,r+1.5,0,Math.PI*2);
-    ctx.fillStyle=FCOLORS[a.faction%FCOLORS.length]; ctx.globalAlpha=0.28; ctx.fill(); ctx.globalAlpha=1;
-    // body
+    const fcol=FCOLORS[a.faction%FCOLORS.length];
+    const child=isChild(a);
+    // selection glow
+    if(a===selected){ ctx.beginPath(); ctx.arc(a.x,a.y,r+8,0,Math.PI*2);
+      ctx.fillStyle=T===THEMES.day?"rgba(20,28,45,.10)":"rgba(255,255,255,.12)"; ctx.fill(); }
+    // faction-colored ring (hue = faction, brightness = reputation) drawn first as a halo
+    ctx.beginPath(); ctx.arc(a.x,a.y,r+3.2,0,Math.PI*2);
+    ctx.fillStyle=hexA(fcol, 0.20+0.62*clamp(child?0.5:a.reputation)); ctx.fill();
+    // separating rim so overlapping dots stay distinct
+    ctx.beginPath(); ctx.arc(a.x,a.y,r+1.4,0,Math.PI*2);
+    ctx.fillStyle=T.worldBg; ctx.fill();
+    // body — children are neutral "dependents" (they take but can't contribute yet)
     ctx.beginPath(); ctx.arc(a.x,a.y,r,0,Math.PI*2);
-    ctx.fillStyle=coopColor(frac); ctx.fill();
-    if(a===selected){ ctx.lineWidth=2.5; ctx.strokeStyle="#fff"; ctx.stroke(); }
-    // resentment fleck
-    if(a.resentment>0.4){ ctx.beginPath(); ctx.arc(a.x+r*0.5,a.y-r*0.5,2.2,0,Math.PI*2); ctx.fillStyle="#e5484d"; ctx.fill(); }
+    ctx.fillStyle= child ? "#7fb2dd" : coopColor(frac); ctx.fill();
+    if(child){ ctx.fillStyle=T.worldBg; ctx.beginPath(); ctx.arc(a.x,a.y,Math.max(1.4,r*0.34),0,Math.PI*2); ctx.fill(); }  // hollow center = child
+    if(a===selected){ ctx.beginPath(); ctx.arc(a.x,a.y,r+3.2,0,Math.PI*2); ctx.strokeStyle=T.text; ctx.lineWidth=1.5; ctx.stroke(); }
+    // resentment marker (adults only)
+    if(!child && a.resentment>0.4){ ctx.beginPath(); ctx.arc(a.x+r*0.6,a.y-r*0.6,2.6,0,Math.PI*2); ctx.fillStyle="#e5484d"; ctx.strokeStyle=T.worldBg; ctx.lineWidth=1.4; ctx.fill(); ctx.stroke(); }
   });
 }
 
 /* gentle physics so clusters settle */
-function softLayout(){
-  const A=S.agents.filter(a=>a.alive), nf=CFG.factions, W=cv.width,H=cv.height;
-  const centers=[];
-  for(let f=0;f<nf;f++){ const ang=-Math.PI/2+f/nf*Math.PI*2, r=nf===1?0:190;
-    centers.push({x:W/2+Math.cos(ang)*r,y:H/2+Math.sin(ang)*r*0.82}); }
-  A.forEach(a=>{
-    const c=centers[a.faction];
-    a.vx=(a.vx+(c.x-a.x)*0.02)*0.8; a.vy=(a.vy+(c.y-a.y)*0.02)*0.8;
-    A.forEach(o=>{ if(o===a) return; const dx=a.x-o.x,dy=a.y-o.y,d=Math.hypot(dx,dy)||1;
-      if(d<34){ a.vx+=dx/d*0.5; a.vy+=dy/d*0.5; } });
-    a.x=clamp(a.x+a.vx,20,W-20); a.y=clamp(a.y+a.vy,20,H-20);
-    // keep off the reservoir
-    const dx=a.x-W/2, dy=a.y-H/2, d=Math.hypot(dx,dy);
-    if(d<128){ a.x=W/2+dx/d*128; a.y=H/2+dy/d*128; }
-  });
+/* relax the layout for `iters` passes, then stop dead (velocities zeroed)
+   so agents settle into a stable, non-jittering arrangement */
+function settleLayout(iters){
+  const A=S.agents.filter(a=>a.alive), W=cv.width,H=cv.height, cx=W/2,cy=H/2;
+  const centers=factionCenters();
+  const KEEP=108;                       // clearance around the reservoir
+  A.forEach(a=>a._r=agentR(a));
+  for(let iter=0; iter<iters; iter++){
+    A.forEach(a=>{
+      const c=centers[a.faction];
+      a.vx=(a.vx+(c.x-a.x)*0.02)*0.72; a.vy=(a.vy+(c.y-a.y)*0.02)*0.72;
+      A.forEach(o=>{ if(o===a) return;
+        const dx=a.x-o.x, dy=a.y-o.y, d=Math.hypot(dx,dy)||1;
+        const minD=a._r+o._r+9;          // size-aware: never let two bodies overlap
+        if(d<minD){ const push=(minD-d)/minD*1.2; a.vx+=dx/d*push; a.vy+=dy/d*push; } });
+      a.x=clamp(a.x+a.vx,24,W-24); a.y=clamp(a.y+a.vy,24,H-24);
+      const dx=a.x-cx, dy=a.y-cy, d=Math.hypot(dx,dy)||1;   // keep clear of the reservoir
+      if(d<KEEP+a._r){ a.x=cx+dx/d*(KEEP+a._r); a.y=cy+dy/d*(KEEP+a._r); }
+    });
+  }
+  A.forEach(a=>{ a.vx=0; a.vy=0; });     // no residual motion between years
 }
 function moveTowardFaction(a){
-  const nf=CFG.factions,W=cv.width,H=cv.height,f=a.faction;
-  const ang=-Math.PI/2+f/nf*Math.PI*2, r=nf===1?0:190;
-  a.x=W/2+Math.cos(ang)*r+rnd(-60,60); a.y=H/2+Math.sin(ang)*r*0.82+rnd(-60,60);
+  const c=factionCenters()[a.faction];
+  a.x=c.x+rnd(-56,56); a.y=c.y+rnd(-52,52);
 }
 
 /* ============================================================
@@ -815,6 +986,7 @@ const SERIES=[
   {id:"well",  label:"Wellbeing",   color:"#e8c447", on:true},
   {id:"gini",  label:"Inequality",  color:"#e5484d", on:false},
   {id:"polar", label:"Polarization",color:"#c96bd8", on:false},
+  {id:"popN",  label:"Population",  color:"#9aa4b8", on:false},
 ];
 const chartCv=document.getElementById("chart"), cctx=chartCv.getContext("2d");
 function drawChart(){
@@ -822,7 +994,7 @@ function drawChart(){
   cctx.clearRect(0,0,W,H);
   const H2=S?S.history:[]; const n=H2.length;
   // grid
-  cctx.strokeStyle="#20272f"; cctx.lineWidth=1; cctx.fillStyle="#6a7488"; cctx.font="10px var(--font)"; cctx.textAlign="right";
+  cctx.strokeStyle=THEME.grid; cctx.lineWidth=1; cctx.fillStyle=THEME.axis; cctx.font="10px var(--font)"; cctx.textAlign="right";
   for(let i=0;i<=4;i++){ const y=pad.t+(H-pad.t-pad.b)*i/4; cctx.beginPath(); cctx.moveTo(pad.l,y); cctx.lineTo(W-pad.r,y); cctx.stroke();
     cctx.fillText(Math.round((1-i/4)*100)+"%", pad.l-5, y+3); }
   if(n<1) return;
@@ -838,7 +1010,7 @@ function drawChart(){
     cctx.strokeStyle=s.color; cctx.lineWidth=2; cctx.stroke();
   });
   // x labels
-  cctx.fillStyle="#6a7488"; cctx.textAlign="center";
+  cctx.fillStyle=THEME.axis; cctx.textAlign="center";
   cctx.fillText("0",X(0),H-6); cctx.fillText(maxR+"",X(maxR),H-6);
 }
 function buildLegend(){
@@ -860,8 +1032,10 @@ chartCv.addEventListener("mousemove",e=>{
   if(!h) return;
   const tip=document.getElementById("chartTip");
   tip.style.display="block"; tip.style.left=Math.min(mx+8,W-140)+"px"; tip.style.top="8px";
-  tip.innerHTML=`<b>Round ${h.round}</b><br>`+SERIES.filter(s=>s.on).map(s=>
-    `${s.label}: ${Math.round(h[s.id]*100)}${s.id==="gini"?"":"%"}`).join("<br>");
+  tip.innerHTML=`<b>Year ${h.round}</b><br>`+SERIES.filter(s=>s.on).map(s=>{
+    let v; if(s.id==="popN") v=h.pop+" people"; else if(s.id==="gini") v=h.gini.toFixed(2);
+    else v=Math.round(h[s.id]*100)+"%";
+    return `${s.label}: ${v}`; }).join("<br>");
 });
 chartCv.addEventListener("mouseleave",()=>document.getElementById("chartTip").style.display="none");
 
@@ -872,7 +1046,7 @@ function pct(x){return Math.round(x*100)+"%";}
 function updateReadouts(){
   const H=S?S.history:[]; const last=H[H.length-1];
   document.getElementById("roundLbl").textContent=S?S.round:0;
-  document.getElementById("roundMax").textContent=S?S.maxRounds:30;
+  document.getElementById("roundMax").textContent=S?S.maxRounds:50;
   document.getElementById("phaseLbl").textContent=S?S.phase:"Founding";
   if(!last){ return; }
   const alive=S.agents.filter(a=>a.alive).length;
@@ -886,9 +1060,15 @@ function updateReadouts(){
   set("mWell",pct(last.well),"");
   set("mTrust",pct(last.trust),"");
   document.getElementById("mGini").textContent=last.gini.toFixed(2);
-  set("mPop",alive+" / 24", alive<24?(24-alive)+" gone":"all present");
+  if(CFG.lifecycle){
+    const tb=S.totalBorn||0, td=S.totalDied||0;
+    set("mPop", alive, (last.adults||0)+" adults · "+(last.children||0)+" kids");
+    document.getElementById("mPopSub").innerHTML=(last.adults||0)+" adults · "+(last.children||0)+" kids <span style='color:var(--muted)'>· "+tb+" born, "+td+" died</span>";
+  } else {
+    set("mPop",alive+" / 24", alive<24?(24-alive)+" gone":"all present");
+  }
   const totPun=H.reduce((s,h)=>s+h.punish,0), totFalse=H.reduce((s,h)=>s+h.falseAcc,0);
-  set("mPun",totPun, "this round: "+(last.punish||0));
+  set("mPun",totPun, "this year: "+(last.punish||0));
   document.getElementById("mFalse").textContent=totFalse;
   drawChart();
   if(selected) drawInspect();
@@ -906,18 +1086,26 @@ function drawInspect(){
     ["Fairness",d.fairness],["Status desire",d.status],
     ["Willing to punish",d.punish],["Forgiveness",d.forgiveness],
     ["Conformity",d.conformity],["Loyalty",d.loyalty],
-    ["Scarcity response",d.scarcityResp],["Memory",d.memory+" rounds"],
+    ["Scarcity response",d.scarcityResp],["Memory",d.memory+" yrs"],
   ];
   const drift=a.coop-a.coop0;
+  const child=isChild(a);
+  const ageStr = CFG.lifecycle ? `age ${a.age} · ` : "";
+  const roleTag = !CFG.lifecycle ? "" : child
+    ? `<span style="color:#7fb2dd;font-weight:700">child</span> · `
+    : `<span style="color:var(--muted)">adult</span> · `;
+  const status = a.alive ? "" : (a.cause==="age" ? "<span style='color:var(--muted)'>(died, age)</span>"
+    : a.cause==="left" ? "<span style='color:var(--defect)'>(left)</span>" : "<span style='color:var(--defect)'>(died)</span>");
   el.innerHTML=`
-    <div class="name">${a.name} ${a.alive?"":"<span style='color:var(--defect)'>(left)</span>"}</div>
-    <div style="color:var(--muted);font-size:12px">Faction ${a.faction+1} · wealth ${a.wealth.toFixed(1)} · reputation ${pct(a.reputation)}</div>
+    <div class="name">${a.name} ${status}</div>
+    <div style="color:var(--muted);font-size:12px">${roleTag}${ageStr}Faction ${a.faction+1} · wealth ${a.wealth.toFixed(1)}${child?"":" · reputation "+pct(a.reputation)}</div>
+    ${child ? `<div style="background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-top:9px;font-size:12.5px;color:var(--muted)">Under 18 — draws a share from the commons but cannot contribute yet. Becomes a contributing adult at 18.</div>` : `
     <div class="traits">
       <div class="trow" style="grid-column:1/-1"><span>Contributes now</span><b style="color:${coopColor(a.coop)}">${pct(a.coop)} <span style="color:var(--muted);font-weight:400">(${drift>=0?"+":""}${Math.round(drift*100)} vs. start)</span></b></div>
       <div class="trow" style="grid-column:1/-1"><span>Trust in society</span><b>${pct(a.trust)}</b></div>
       <div class="trow" style="grid-column:1/-1"><span>Resentment</span><b style="color:${a.resentment>0.4?'var(--defect)':'var(--ink)'}">${pct(a.resentment)}</b></div>
       <div class="trow" style="grid-column:1/-1"><span>Wellbeing</span><b>${pct(a.wellbeing)}</b></div>
-    </div>
+    </div>`}
     <div class="sec-title" style="margin-top:14px">Fixed dispositions</div>
     <div class="traits">
       ${traits.map(t=>`<div class="trow"><span>${t[0]}</span><b>${typeof t[1]==="number"?pct(t[1]):t[1]}</b></div>`).join("")}
@@ -979,6 +1167,23 @@ function buildControlsUI(){
   const grid=document.getElementById("setupGrid"); grid.innerHTML="";
   CONTROLS.forEach(k=>{
     const w=document.createElement("label");
+    if(k.type==="seg"){
+      w.className="spanfull";
+      w.innerHTML=`<div class="row"><span>${k.label}</span><span class="val" id="v_${k.id}">${k.fmt(k.val)}</span></div>
+        <span class="seg segwrap" id="c_${k.id}" data-val="${k.val}">
+          ${k.options.map(o=>`<button data-o="${o}" class="${o===k.val?"on":""}">${o}</button>`).join("")}
+        </span>
+        <span class="hint">${k.hint}</span>`;
+      grid.appendChild(w);
+      const box=w.querySelector(".seg");
+      box.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+        box.dataset.val=b.dataset.o;
+        box.querySelectorAll("button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+        document.getElementById("v_"+k.id).textContent=k.fmt(+b.dataset.o); updateSummary();
+        reset();   // length & faction count apply immediately (rebuild the world)
+      });
+      return;
+    }
     w.innerHTML=`<div class="row"><span>${k.label}</span><span class="val" id="v_${k.id}">${k.fmt(k.val)}</span></div>
       <input type="range" id="c_${k.id}" min="${k.min}" max="${k.max}" step="${k.step}" value="${k.val}">
       <span class="hint">${k.hint}</span>`;
@@ -997,16 +1202,23 @@ function buildControlsUI(){
 function updateSummary(){
   const c=readCfg();
   document.getElementById("setupSummary").textContent=
-    `${c.abundance} endowment · ${(c.multiplier/100).toFixed(2)}× · info ${c.infoAcc}% · ${c.factions} faction${c.factions>1?"s":""} · ${c.rounds} rounds`;
+    `${c.abundance} endowment · ${(c.multiplier/100).toFixed(2)}× · info ${c.infoAcc}% · ${c.factions} faction${c.factions>1?"s":""} · ${c.years} years`;
 }
 function applyPreset(name){
   // reset to defaults first
-  CONTROLS.forEach(k=>{ const el=document.getElementById("c_"+k.id); el.value=k.val; document.getElementById("v_"+k.id).textContent=k.fmt(k.val); });
+  CONTROLS.forEach(k=>{ const el=document.getElementById("c_"+k.id);
+    if(k.type==="seg"){ el.dataset.val=k.val;
+      el.querySelectorAll("button").forEach(b=>b.classList.toggle("on",+b.dataset.o===k.val)); }
+    else el.value=k.val;
+    document.getElementById("v_"+k.id).textContent=k.fmt(k.val); });
   TOGGLES.forEach(k=>{ document.getElementById("c_"+k.id).checked=k.val; });
   const p=PRESETS[name]||{};
   Object.entries(p).forEach(([id,val])=>{
     const el=document.getElementById("c_"+id); if(!el) return;
-    if(el.type==="checkbox") el.checked=val; else { el.value=val; const lbl=document.getElementById("v_"+id); const def=CONTROLS.find(c=>c.id===id); if(lbl&&def)lbl.textContent=def.fmt(val); }
+    const def=CONTROLS.find(c=>c.id===id);
+    if(def&&def.type==="seg"){ el.dataset.val=val; el.querySelectorAll("button").forEach(b=>b.classList.toggle("on",+b.dataset.o===val)); }
+    else if(el.type==="checkbox") el.checked=val; else el.value=val;
+    const lbl=document.getElementById("v_"+id); if(lbl&&def)lbl.textContent=def.fmt(val);
   });
   updateSummary(); reset();
 }
@@ -1022,15 +1234,30 @@ function showTab(name){
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 document.getElementById("playBtn").onclick=toggleRun;
 document.getElementById("stepBtn").onclick=()=>{ if(S&&!S.over) step(); };
-document.getElementById("resetBtn").onclick=reset;
+document.getElementById("resetBtn").onclick=()=>{ setActivePreset(null); reset(); };
+function setTheme(mode){
+  THEME = THEMES[mode];
+  document.body.classList.toggle("light", mode==="day");
+  document.getElementById("themeBtn").innerHTML = mode==="day" ? "☀ Day" : "🌙 Night";
+  render(); drawChart();
+}
+document.getElementById("themeBtn").onclick=()=>setTheme(THEME===THEMES.night?"day":"night");
 document.getElementById("speedSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
   document.getElementById("speedSeg").querySelectorAll("button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on"); speed=+b.dataset.s; if(running) startTimer();
 });
 const drawer=document.getElementById("setupDrawer");
-document.getElementById("setupToggle").onclick=()=>drawer.classList.toggle("collapsed");
-document.getElementById("setupClose").onclick=()=>drawer.classList.add("collapsed");
-document.querySelectorAll(".presets button").forEach(b=>b.onclick=()=>applyPreset(b.dataset.preset));
+function setDrawer(collapsed){
+  drawer.classList.toggle("collapsed", collapsed);
+  document.getElementById("setupClose").textContent = collapsed ? "Show ▾" : "Hide ▴";
+  if(!collapsed) drawer.scrollIntoView({behavior:"smooth",block:"start"});
+}
+document.getElementById("setupToggle").onclick=()=>setDrawer(!drawer.classList.contains("collapsed"));
+document.getElementById("setupClose").onclick=()=>setDrawer(!drawer.classList.contains("collapsed"));
+function setActivePreset(name){
+  document.querySelectorAll(".presets button[data-preset]").forEach(b=>b.classList.toggle("on",b.dataset.preset===name));
+}
+document.querySelectorAll(".presets button").forEach(b=>b.onclick=()=>{ applyPreset(b.dataset.preset); setActivePreset(b.dataset.preset); });
 
 /* ---------- boot ---------- */
 buildControlsUI(); updateSummary(); buildLegend();
