@@ -21,9 +21,13 @@ This repository serves as a hub for simulations and games that explore diverse t
 
 An interactive simulation inspired by John B. Calhoun's "Universe 25" experiment, exploring the effects of population density on behavior and societal structures.
 
-![Universe25 Screenshot](path/to/universe25_screenshot.png)
+### The Commons
 
-*Note: As of now, Universe25 is the sole project in this repository. More simulations and interactive experiences will be added over time.*
+A public-goods simulation. Everyone holds their own resources, but survival depends on a shared system nobody is obliged to maintain. Write the rules of the society, then watch which society emerges and what its survival costs.
+
+### Biosphere: Closed World
+
+A scientific systems simulation of a materially closed ecological world — eight people, seven biomes and one atmosphere sealed inside three acres of glass. Built around the documented atmospheric mystery of the first Biosphere 2 closure, where oxygen fell steadily while carbon dioxide failed to rise in proportion. The mechanic is causal diagnosis rather than resource accumulation, and the model's carbon ledger closes to within 0.03 per cent across a simulated year.
 
 ## Getting Started
 

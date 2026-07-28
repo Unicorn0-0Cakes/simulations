@@ -97,6 +97,15 @@ const SIMULATIONS = [
     thumb: null,
     description: "Everyone gets their own resources, but survival depends on a shared system nobody is forced to maintain. Write the rules of the society — abundance, visibility, punishment, information accuracy — then watch what kind of society emerges, and what its survival costs.",
     chips: ["Public-goods game", "Emergent behavior", "Trust & rumor", "Live dashboard"]
+  },
+  {
+    title: "Biosphere: Closed World",
+    tag: "Closed Ecological Systems",
+    href: "biosphere/biosphere.html",
+    preview: "biosphere",
+    thumb: null,
+    description: "Eight people, seven biomes and one atmosphere with nowhere to go, sealed inside three acres of glass. Oxygen starts disappearing and carbon dioxide doesn't rise to match. Diagnose a living machine through imperfect instruments, and decide what you'll break to keep everyone breathing.",
+    chips: ["Causal diagnosis", "Carbon & oxygen budget", "Hypothesis workbench", "Historically informed"]
   }
   // ,{
   //   title: "Next Simulation",
@@ -156,6 +165,55 @@ function previewSVG(key){
       <clipPath id="cm"><circle cx="${cx}" cy="${cy}" r="27"/></clipPath>
       <rect x="${cx-30}" y="${cy-2}" width="60" height="30" fill="#3fb9a8" opacity=".8" clip-path="url(#cm)"/>
       <text x="${cx}" y="${cy+3}" fill="#e8ecf4" font-size="13" font-weight="700" text-anchor="middle" font-family="sans-serif">72%</text>
+    </svg>`;
+  }
+  if(key === "biosphere"){
+    // section through the glass: rainforest, ocean, savanna, desert, farm, habitat
+    let trees = "";
+    let seed = 23;
+    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
+    for(let i=0;i<11;i++){
+      const x = 12 + i*7.6, h = 26 + rnd()*46;
+      trees += `<rect x="${(x-0.7).toFixed(1)}" y="${(122-h*0.42).toFixed(1)}" width="1.4" height="${(h*0.42).toFixed(1)}" fill="#1c5a34"/>`;
+      trees += `<ellipse cx="${x.toFixed(1)}" cy="${(122-h*0.62).toFixed(1)}" rx="${(h*0.17).toFixed(1)}" ry="${(h*0.3).toFixed(1)}" fill="#2f8f52"/>`;
+    }
+    let crops = "";
+    for(let i=0;i<16;i++){
+      const x = 206 + i*4.2, h = 5 + rnd()*16;
+      crops += `<rect x="${x.toFixed(1)}" y="${(122-h).toFixed(1)}" width="2.8" height="${h.toFixed(1)}" fill="#6faa3a"/>`;
+    }
+    let beads = "";
+    for(let i=0;i<40;i++){
+      beads += `<circle cx="${(10+rnd()*300).toFixed(1)}" cy="${(30+rnd()*88).toFixed(1)}" r="${(0.7+rnd()*1.1).toFixed(1)}" fill="#8fc4ea" opacity="${(0.2+rnd()*0.4).toFixed(2)}"/>`;
+    }
+    // the oxygen line: falls, while CO2 stays flat then lifts late
+    let o2 = "M8 44", co2 = "M8 62";
+    for(let i=1;i<=16;i++){
+      o2  += ` L${(8+i*19.5).toFixed(0)} ${(44+i*1.5+Math.sin(i*1.7)*1.4).toFixed(1)}`;
+      co2 += ` L${(8+i*19.5).toFixed(0)} ${(62-Math.max(0,i-11)*2.2+Math.sin(i*2.1)*0.8).toFixed(1)}`;
+    }
+    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <rect width="320" height="176" fill="#0d1117"/>
+      <rect x="0" y="122" width="320" height="54" fill="#161b23"/>
+      <rect x="0" y="132" width="320" height="44" fill="#12161d"/>
+      <path d="M6 122 L6 40 L52 20 L98 40 L98 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
+      <path d="M98 122 L98 66 L128 54 L158 66 L158 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
+      <path d="M158 122 L158 72 L182 60 L206 72 L206 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
+      <path d="M206 122 L206 58 L246 44 L286 58 L286 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
+      <path d="M286 122 L286 62 L302 52 L314 62 L314 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
+      <rect x="98" y="104" width="60" height="18" fill="#2f6fb0" opacity=".8"/>
+      <rect x="158" y="112" width="48" height="10" fill="#c98f6b" opacity=".6"/>
+      ${trees}${crops}
+      <rect x="288" y="86" width="22" height="36" fill="#c08b46" opacity=".5"/>
+      ${beads}
+      <rect x="10" y="140" width="34" height="14" rx="2" fill="#63768c" opacity=".55"/>
+      <rect x="50" y="140" width="34" height="14" rx="2" fill="#63768c" opacity=".55"/>
+      <rect x="90" y="140" width="34" height="14" rx="2" fill="#b3372f" opacity=".55"/>
+      <rect x="130" y="140" width="34" height="14" rx="2" fill="#63768c" opacity=".55"/>
+      <path d="${o2}" stroke="#5a9fd8" stroke-width="1.8" fill="none"/>
+      <path d="${co2}" stroke="#d69a4e" stroke-width="1.6" fill="none" stroke-dasharray="4 3"/>
+      <text x="8" y="16" fill="#5a9fd8" font-size="8" font-family="monospace">O₂ 20.9 → 16.6%</text>
+      <text x="240" y="16" fill="#d69a4e" font-size="8" font-family="monospace">CO₂ flat</text>
     </svg>`;
   }
   // generic fallback
