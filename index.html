@@ -88,6 +88,15 @@ const SIMULATIONS = [
     thumb: null,
     description: "A living recreation of Calhoun's “mouse utopia” — unlimited resources, limited space. Watch a colony rise and collapse through Growth → Breakdown → Collapse, with predators, terrain, water, fish and birds all interacting.",
     chips: ["Mice & predators", "Terrain & water", "Live charts", "Presets"]
+  },
+  {
+    title: "The Commons",
+    tag: "Cooperation & Collapse",
+    href: "commons/commons.html",
+    preview: "commons",
+    thumb: null,
+    description: "Everyone gets their own resources, but survival depends on a shared system nobody is forced to maintain. Write the rules of the society — abundance, visibility, punishment, information accuracy — then watch what kind of society emerges, and what its survival costs.",
+    chips: ["Public-goods game", "Emergent behavior", "Trust & rumor", "Live dashboard"]
   }
   // ,{
   //   title: "Next Simulation",
@@ -119,6 +128,34 @@ function previewSVG(key){
       <ellipse cx="248" cy="120" rx="46" ry="30" fill="#12283f" opacity=".85"/>
       <path d="M0 70 q80 -22 160 6 t160 0" stroke="#1c4a6b" stroke-width="12" fill="none" opacity=".6"/>
       ${dots}
+    </svg>`;
+  }
+  if(key === "commons"){
+    const fc = ["#6ea8fe","#c96bd8","#3fb9a8"];
+    const coop = ["#3fb96b","#e8c447","#e5484d"];
+    let seed = 11;
+    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
+    const cx=160, cy=88;
+    let nodes = "";
+    // three faction clusters around the commons
+    const centers=[[70,52],[250,58],[160,146]];
+    centers.forEach((c,f)=>{
+      for(let i=0;i<8;i++){
+        const x=c[0]+rnd()*46-23, y=c[1]+rnd()*40-20;
+        const col=coop[Math.floor(rnd()*coop.length)];
+        const r=2.4+rnd()*3.4;
+        nodes += `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${(cx+(x-cx)*0.4).toFixed(1)}" y2="${(cy+(y-cy)*0.4).toFixed(1)}" stroke="${fc[f]}" stroke-width="${(0.4+rnd()*1.4).toFixed(1)}" opacity=".28"/>`;
+        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r+1.4).toFixed(1)}" fill="${fc[f]}" opacity=".22"/>`;
+        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${col}"/>`;
+      }
+    });
+    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <rect width="320" height="176" fill="#080a0e"/>
+      ${nodes}
+      <circle cx="${cx}" cy="${cy}" r="30" fill="#0c1016" stroke="#26303e" stroke-width="2"/>
+      <clipPath id="cm"><circle cx="${cx}" cy="${cy}" r="27"/></clipPath>
+      <rect x="${cx-30}" y="${cy-2}" width="60" height="30" fill="#3fb9a8" opacity=".8" clip-path="url(#cm)"/>
+      <text x="${cx}" y="${cy+3}" fill="#e8ecf4" font-size="13" font-weight="700" text-anchor="middle" font-family="sans-serif">72%</text>
     </svg>`;
   }
   // generic fallback
