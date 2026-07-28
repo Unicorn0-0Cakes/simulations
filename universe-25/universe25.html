@@ -123,8 +123,6 @@
       <div class="legend" style="margin-bottom:12px">
         <div class="item"><span class="dot" style="background:#5fbf5a"></span>Vegetation — mice only (cover from cats)</div>
         <div class="item"><span class="dot" style="background:#2f86c9"></span>Water (blocks everyone)</div>
-        <div class="item"><span class="dot" style="background:#8fd9e6"></span>Fish (in water)</div>
-        <div class="item"><span class="dot" style="background:#cfd6e6"></span>Birds (hunt mice &amp; cats)</div>
       </div>
       <div class="controls">
         <button class="btn primary" id="playBtn">⏸ Pause</button>
@@ -334,23 +332,23 @@ const PRED_COLOR = "#ff8c42";
 
 // Fish — live only in water, food for cats. Optional mode.
 const FISH = {
-  ADULT: 30, MAX_AGE: 420, BREED_COOL: 40, BREED_CHANCE: 0.42,
-  CAP_FACTOR: 0.5,    // cap as fraction of water cells
+  ADULT: 30, MAX_AGE: 500, BREED_COOL: 75, BREED_CHANCE: 0.08, DEATH: 0.004,
+  CAP_FACTOR: 0.5,    // soft ceiling; predation is the real limit, not the cap
   CAT_GAIN: 16,       // reserve a cat gains from eating a fish
-  CATCH_CHANCE: 0.4,  // a cat's odds of landing an adjacent fish (so stocks persist)
+  CATCH_CHANCE: 0.28, // a cat's odds of landing an adjacent fish
   MAX_PER_CELL: 2,    // fish won't stack deeper than this in one water cell
 };
 const FISH_COLOR = "#8fd9e6";
 
 // Birds — nest in vegetation, fly anywhere, hunt mice AND cats. Optional mode.
 const BIRD = {
-  ADULT: 55, MAX_AGE: 520, METAB: 0.4,
+  ADULT: 55, MAX_AGE: 520, METAB: 0.28,
   FOOD_MOUSE: 26,     // reserve gained from eating a mouse
-  FISH_GAIN: 13,      // reserve gained from snatching a fish
+  FISH_GAIN: 15,      // reserve gained from snatching a fish
   VISION: 8, FLEE: 5, // vision; how far mice sense a bird
-  START_RESERVE: 55, BREED_RESERVE: 82, BREED_COST: 44, BREED_COOL: 70,
-  CAP_FACTOR: 0.018,  // cap as fraction of world cells
-  ACTIVATE: 90,       // birds circle harmlessly until the colony establishes
+  START_RESERVE: 55, BREED_RESERVE: 88, BREED_COST: 46, BREED_COOL: 85,
+  CAP_FACTOR: 0.03,   // soft ceiling; prey availability is the real limit
+  ACTIVATE: 70,       // birds circle harmlessly until the colony establishes
 };
 const BIRD_COLOR = "#eef1f7";
 
@@ -668,7 +666,10 @@ class Fish {
     if(this.breedCool>0) this.breedCool--;
     // die if stranded (water dried up) or of old age
     const w=this.sim.w;
-    if(!this.sim.isWater(this.x,this.y) || this.age>=FISH.MAX_AGE){ this.sim.fishCount[this.y*w+this.x]--; this.alive=false; return false; }
+    // stranded, old age, or steady natural mortality (keeps births/deaths in flux)
+    if(!this.sim.isWater(this.x,this.y) || this.age>=FISH.MAX_AGE || (this.age>=FISH.ADULT && Math.random()<FISH.DEATH)){
+      this.sim.fishCount[this.y*w+this.x]--; this.alive=false; return false;
+    }
     // swim toward the least-crowded neighbouring water so schools spread out
     const spot=this.sim.leastCrowdedWater(this.x,this.y);
     if(spot && (spot[0]!==this.x || spot[1]!==this.y)){
@@ -676,8 +677,11 @@ class Fish {
       this.x=spot[0]; this.y=spot[1];
       this.sim.fishCount[this.y*w+this.x]++;
     }
-    // breed only into a nearby water cell that still has room (no piling up)
-    if(this.age>=FISH.ADULT && this.breedCool===0 && this.sim.fish.length<this.sim.fishCap && Math.random()<FISH.BREED_CHANCE){
+    // Logistic breeding: the closer to carrying capacity, the less likely to
+    // breed — so the population eases toward an equilibrium and oscillates
+    // around it instead of pinning flat at a hard cap.
+    const room=1-this.sim.fish.length/this.sim.fishCap;
+    if(this.age>=FISH.ADULT && this.breedCool===0 && room>0 && Math.random()<FISH.BREED_CHANCE*room){
       const s2=this.sim.openWaterCell(this.x,this.y);
       if(s2){ this.sim.fish.push(new Fish(s2[0],s2[1],this.sim)); this.sim.fishCount[s2[1]*w+s2[0]]++; this.breedCool=FISH.BREED_COOL; }
     }
@@ -718,8 +722,9 @@ class Bird {
     } else {
       this.stayInVeg(); // no prey in range → remain in the vegetation
     }
-    // nest & breed in the vegetation
-    if(this.reserve>=BIRD.BREED_RESERVE && this.age>=BIRD.ADULT && this.breedCool===0 && this.sim.birds.length<this.sim.birdCap){
+    // nest & breed in the vegetation (logistic: tapers off near the ceiling)
+    if(this.reserve>=BIRD.BREED_RESERVE && this.age>=BIRD.ADULT && this.breedCool===0
+       && Math.random()<(1-this.sim.birds.length/this.sim.birdCap)){
       this.sim.birds.push(new Bird(this.x,this.y,this.sim));
       this.reserve-=BIRD.BREED_COST; this.breedCool=BIRD.BREED_COOL;
     }

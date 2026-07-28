@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulations</title>
+<meta name="description" content="A collection of interactive, self-contained browser simulations.">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#141821; --panel2:#1b202b; --line:#28303e;
+    --ink:#e8ecf4; --muted:#8b95a7; --accent:#6ea8fe;
+    --normal:#3fb96b; --stressed:#e8c447; --aggressive:#e5484d;
+    --withdrawn:#4a7bff; --beautiful:#c96bd8;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
+    line-height:1.55;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(900px 500px at 15% -10%,rgba(110,168,254,.10),transparent 60%),
+                     radial-gradient(700px 500px at 100% 0%,rgba(201,107,216,.08),transparent 55%);}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+
+  header.hero{padding:64px 0 34px;text-align:center}
+  .hero .eyebrow{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .hero h1{font-size:clamp(32px,6vw,52px);margin:12px 0 10px;line-height:1.05;letter-spacing:-.5px}
+  .hero p{max-width:620px;margin:0 auto;color:var(--muted);font-size:16px}
+
+  .count{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:1px;
+    padding:18px 0 12px;border-bottom:1px solid var(--line);margin-bottom:24px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;padding-bottom:60px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    display:flex;flex-direction:column;transition:.18s ease;position:relative}
+  .card:hover{transform:translateY(-4px);border-color:var(--accent);
+    box-shadow:0 14px 40px rgba(0,0,0,.45)}
+  .card .thumb{aspect-ratio:16/9;position:relative;overflow:hidden;border-bottom:1px solid var(--line);
+    background:#080a0e}
+  .card .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .card .body{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1}
+  .card .tag{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .card h2{font-size:20px;margin:6px 0 8px}
+  .card p{margin:0 0 16px;color:var(--muted);font-size:14px;flex:1}
+  .card .go{align-self:flex-start;background:var(--accent);color:#08101f;font-weight:700;font-size:13px;
+    padding:9px 16px;border-radius:10px;transition:.15s}
+  .card:hover .go{filter:brightness(1.08)}
+  .stretched{position:absolute;inset:0;z-index:1}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .chip{font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);
+    padding:3px 9px;border-radius:999px}
+
+  footer{border-top:1px solid var(--line);padding:26px 0 60px;color:var(--muted);font-size:13px;text-align:center}
+  footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Interactive Simulations</div>
+      <h1>Simulations</h1>
+      <p>A collection of self-contained, browser-based simulations. No install, nothing to set up &mdash; just click and explore.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="count" id="count"></div>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <footer>
+    <div class="wrap">Built for the web &middot; open any simulation directly in your browser.</div>
+  </footer>
+
+<script>
+/* ---------------------------------------------------------------
+   Add a new simulation by dropping another object into this array.
+   thumb: pass a URL to your own screenshot, OR leave it out / set
+   to null to use the built-in generated preview keyed by `preview`.
+----------------------------------------------------------------*/
+const SIMULATIONS = [
+  {
+    title: "Universe 25",
+    tag: "Behavioral Ecology",
+    href: "universe25.html",
+    preview: "universe25",
+    thumb: null,
+    description: "A living recreation of Calhoun's “mouse utopia” — unlimited resources, limited space. Watch a colony rise and collapse through Growth → Breakdown → Collapse, with predators, terrain, water, fish and birds all interacting.",
+    chips: ["Mice & predators", "Terrain & water", "Live charts", "Presets"]
+  }
+  // ,{
+  //   title: "Next Simulation",
+  //   tag: "Category",
+  //   href: "next-sim.html",
+  //   preview: null,
+  //   thumb: "screenshots/next-sim.png",
+  //   description: "One-line description of the next simulation.",
+  //   chips: ["tag one", "tag two"]
+  // }
+];
+
+/* Built-in generated preview cards (used when thumb is null). */
+function previewSVG(key){
+  if(key === "universe25"){
+    let dots = "";
+    const cols = ["#3fb96b","#e8c447","#e5484d","#4a7bff","#c96bd8"];
+    let seed = 7;
+    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
+    for(let i=0;i<90;i++){
+      const x = 6 + rnd()*308, y = 6 + rnd()*164;
+      const c = cols[Math.floor(rnd()*cols.length)];
+      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.6+rnd()*1.8).toFixed(1)}" fill="${c}"/>`;
+    }
+    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <rect width="320" height="176" fill="#080a0e"/>
+      <rect x="34" y="96" width="70" height="34" rx="9" fill="#12331f" opacity=".8"/>
+      <rect x="150" y="30" width="52" height="26" rx="8" fill="#12331f" opacity=".7"/>
+      <ellipse cx="248" cy="120" rx="46" ry="30" fill="#12283f" opacity=".85"/>
+      <path d="M0 70 q80 -22 160 6 t160 0" stroke="#1c4a6b" stroke-width="12" fill="none" opacity=".6"/>
+      ${dots}
+    </svg>`;
+  }
+  // generic fallback
+  return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg">
+    <rect width="320" height="176" fill="#0f1420"/>
+    <circle cx="160" cy="88" r="34" fill="none" stroke="#6ea8fe" stroke-width="3" opacity=".7"/>
+    <circle cx="160" cy="88" r="6" fill="#6ea8fe"/>
+  </svg>`;
+}
+
+const grid = document.getElementById("grid");
+const n = SIMULATIONS.length;
+document.getElementById("count").textContent = n + (n === 1 ? " simulation" : " simulations");
+
+grid.innerHTML = SIMULATIONS.map(s => {
+  const thumb = s.thumb
+    ? `<img src="${s.thumb}" alt="${s.title} preview">`
+    : previewSVG(s.preview);
+  const chips = (s.chips || []).map(c => `<span class="chip">${c}</span>`).join("");
+  return `
+    <article class="card">
+      <a class="stretched" href="${s.href}" aria-label="Open ${s.title}"></a>
+      <div class="thumb">${thumb}</div>
+      <div class="body">
+        <span class="tag">${s.tag}</span>
+        <h2>${s.title}</h2>
+        <p>${s.description}</p>
+        ${chips ? `<div class="chips">${chips}</div>` : ""}
+        <span class="go">Open simulation →</span>
+      </div>
+    </article>`;
+}).join("");
+</script>
+</body>
+</html>

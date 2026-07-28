@@ -2,6 +2,12 @@
 
 A simulation game based on John B. Calhoun's famous behavioral experiment from the 1960s-70s that explores how population density affects social behavior in a "mouse utopia" with unlimited resources but limited space.
 
+## 🌐 Published site
+
+`index.html` is the landing page — a card grid of simulations that links straight through to each one (currently `universe25.html`). It's built to expand: add another entry to the `SIMULATIONS` array in `index.html` and a new card appears automatically.
+
+To publish on **GitHub Pages**: push these files, then in the repo go to **Settings → Pages** and set the source to your default branch, root folder. The site serves `index.html` at the repo root; a `.nojekyll` file is included so Pages serves everything as-is. Your live URL will be `https://<username>.github.io/<repo>/`.
+
 ## ▶ Easiest way to run it: `universe25.html`
 
 Just **double-click `universe25.html`** — it opens in any web browser with no install, no Python, nothing to set up. It's a single self-contained file, so you can also email it, drop it on a USB stick, or later host it on a website for anyone to use.
