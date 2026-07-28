@@ -1,0 +1,8 @@
+# Python virtual environment (regenerate with setup_env.sh)
+env/
+universe-25/env/
+# Python caches
+__pycache__/
+*.pyc
+# macOS
+.DS_Store
