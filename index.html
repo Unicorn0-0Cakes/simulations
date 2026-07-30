@@ -106,6 +106,15 @@ const SIMULATIONS = [
     thumb: null,
     description: "Eight people, seven biomes and one atmosphere with nowhere to go, sealed inside three acres of glass. Oxygen starts disappearing and carbon dioxide doesn't rise to match. Diagnose a living machine through imperfect instruments, and decide what you'll break to keep everyone breathing.",
     chips: ["Causal diagnosis", "Carbon & oxygen budget", "Hypothesis workbench", "Historically informed"]
+  },
+  {
+    title: "Evolution in a Flask",
+    tag: "Experimental Evolution",
+    href: "flask/flask.html",
+    preview: "flask",
+    thumb: null,
+    description: "Twelve populations, the same thin sugar medium, one transfer a day, fifty thousand generations of nothing else happening. Fitness is never reported — it is a competition you set up against something you were careful enough to freeze, using bench hours you could have spent elsewhere.",
+    chips: ["Twelve parallel worlds", "Muller plots & lineage trees", "Measurement costs time", "Replay experiments"]
   }
   // ,{
   //   title: "Next Simulation",
@@ -214,6 +223,64 @@ function previewSVG(key){
       <path d="${co2}" stroke="#d69a4e" stroke-width="1.6" fill="none" stroke-dasharray="4 3"/>
       <text x="8" y="16" fill="#5a9fd8" font-size="8" font-family="monospace">O₂ 20.9 → 16.6%</text>
       <text x="240" y="16" fill="#d69a4e" font-size="8" font-family="monospace">CO₂ flat</text>
+    </svg>`;
+  }
+  if(key === "flask"){
+    // a Muller plot: nested clades sweeping through a population, with the
+    // twelve flasks along the bottom and one of them conspicuously cloudy
+    let seed = 41;
+    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
+    const cols = ["#2f7d6a","#b4732c","#2c6ba0","#a34b6e","#5f7a2b","#8a5fb0","#c0631f"];
+    const N = 64, x0 = 8, x1 = 312, top = 14, bot = 116;
+    const X = i => x0 + i*(x1-x0)/(N-1);
+    const Y = f => bot - f*(bot-top);
+    // six clades, each appearing at a different time and expanding logistically
+    const clades = [
+      {t0:0.02, k:26, cap:1.00, c:0},
+      {t0:0.14, k:22, cap:0.88, c:1},
+      {t0:0.30, k:20, cap:0.71, c:2},
+      {t0:0.46, k:24, cap:0.52, c:3},
+      {t0:0.63, k:26, cap:0.36, c:4},
+      {t0:0.79, k:30, cap:0.20, c:5}
+    ];
+    const f = (cl,t) => cl.cap/(1+Math.exp(-cl.k*(t-cl.t0-0.10)));
+    let bands = "";
+    for(let j=0;j<clades.length;j++){
+      const cl = clades[j];
+      let up = "", down = "";
+      for(let i=0;i<N;i++){
+        const t = i/(N-1);
+        const outer = f(cl,t);
+        const inner = j+1 < clades.length ? 0 : 0;
+        const base = (1 - outer)/2;
+        up += `${i?"L":"M"}${X(i).toFixed(1)} ${Y(base+outer).toFixed(1)} `;
+      }
+      for(let i=N-1;i>=0;i--){
+        const t = i/(N-1);
+        const outer = f(cl,t);
+        const base = (1 - outer)/2;
+        down += `L${X(i).toFixed(1)} ${Y(base).toFixed(1)} `;
+      }
+      bands += `<path d="${up}${down}Z" fill="${cols[cl.c]}" opacity="${(0.92 - j*0.04).toFixed(2)}"/>`;
+    }
+    // twelve small flasks along the bottom, number nine unusually dense
+    let flasks = "";
+    for(let i=0;i<12;i++){
+      const cx = 17 + i*25.6;
+      const dense = i === 8;
+      const fill = dense ? 0.95 : 0.30 + rnd()*0.26;
+      const col = dense ? "#8a5fb0" : cols[i % cols.length];
+      flasks += `<path d="M${cx-3} 128 L${cx-3} 136 L${cx-8} 156 Q${cx-9} 160 ${cx-5} 160 L${cx+5} 160 Q${cx+9} 160 ${cx+8} 156 L${cx+3} 136 L${cx+3} 128 Z" fill="${col}" opacity="${fill.toFixed(2)}"/>`;
+      flasks += `<path d="M${cx-3} 128 L${cx-3} 136 L${cx-8} 156 Q${cx-9} 160 ${cx-5} 160 L${cx+5} 160 Q${cx+9} 160 ${cx+8} 156 L${cx+3} 136 L${cx+3} 128 Z" fill="none" stroke="#6b7480" stroke-width=".8"/>`;
+    }
+    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <rect width="320" height="176" fill="#0d1117"/>
+      <rect x="8" y="14" width="304" height="102" fill="#12161d"/>
+      ${bands}
+      ${flasks}
+      <text x="8" y="10" fill="#8b95a7" font-size="7.5" font-family="monospace">GEN 0</text>
+      <text x="312" y="10" fill="#8b95a7" font-size="7.5" font-family="monospace" text-anchor="end">50,000</text>
+      <text x="222" y="172" fill="#b48ada" font-size="7.5" font-family="monospace">Cit+</text>
     </svg>`;
   }
   // generic fallback
