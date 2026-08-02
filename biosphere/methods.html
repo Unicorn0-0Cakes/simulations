@@ -233,7 +233,8 @@ Soil temperature in the agricultural biome has risen 1.7 °C.</div>
   var s = byId("biosphere");
   if (!s) return;
   document.getElementById("badges").innerHTML =
-    Orbital.evidenceBadge(s.evidence) + Orbital.stateBadge(s.state) + Orbital.flagChips(s.flags);
+    Orbital.evidenceBadge(s.evidence) + Orbital.basisBadge(s.basis) +
+    Orbital.stateBadge(s.state) + Orbital.flagChips(s.flags);
   document.getElementById("spec").innerHTML = [
     ["Domain", s.domain],
     ["What you do", s.mode.join(", ")],
@@ -241,8 +242,8 @@ Soil temperature in the agricultural biome has risen 1.7 °C.</div>
     ["Difficulty", s.complexity],
     ["Model type", s.model.join(" + ")],
     ["Version", "v" + s.version + " · " + s.updated]
-  ].map(function (r) {
-    return "<div><dt>" + r[0] + "</dt><dd>" + r[1] + "</dd></div>";
+  ].concat(s.basis ? [["Built on", s.basis.detail, "wide"]] : []).map(function (r) {
+    return "<div class=\"" + (r[2] || "") + "\"><dt>" + r[0] + "</dt><dd>" + r[1] + "</dd></div>";
   }).join("");
 })();
 </script>

@@ -82,6 +82,14 @@
   function stateBadge(v) {
     return '<span class="rf-badge ' + (ST_CLASS[v] || "st-dev") + '">' + v + '</span>';
   }
+  /* Names the documented work a model is built on. Absent by design for
+     anything with no specific published basis — an empty string, not a
+     placeholder, because "no source" is not a status worth a chip. */
+  function basisBadge(b) {
+    if (!b || !b.label) return "";
+    var t = b.detail ? ' title="' + b.detail.replace(/"/g, "&quot;") + '"' : "";
+    return '<span class="rf-badge basis"' + t + '>' + b.label + '</span>';
+  }
   function flagChips(flags) {
     return (flags || []).map(function (f) {
       return '<span class="rf-flag ' + f.toLowerCase() + '">' + f + '</span>';
@@ -91,7 +99,8 @@
   window.Orbital = {
     theme: theme, setTheme: setTheme, toggle: toggle,
     color: color, onThemeChange: onThemeChange,
-    evidenceBadge: evidenceBadge, stateBadge: stateBadge, flagChips: flagChips
+    evidenceBadge: evidenceBadge, stateBadge: stateBadge,
+    basisBadge: basisBadge, flagChips: flagChips
   };
 
   /* ---- 3. chrome bar --------------------------------------------- */
@@ -151,7 +160,7 @@
     strip.innerHTML =
       '<span class="rf-ss-q">' + s.question + '</span>' +
       '<span class="rf-ss-badges">' +
-        evidenceBadge(s.evidence) + stateBadge(s.state) + flagChips(s.flags) +
+        evidenceBadge(s.evidence) + basisBadge(s.basis) + stateBadge(s.state) + flagChips(s.flags) +
       '</span>' +
       '<span class="rf-ss-v">v' + s.version + ' · ' + s.updated + '</span>' +
       '<a class="rf-ss-m" href="' + s.methods.split("/").pop() + '">Methods &amp; limitations →</a>';

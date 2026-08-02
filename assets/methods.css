@@ -38,6 +38,9 @@ header.mhead { padding: 44px 0 0; position: relative; }
   margin: 24px 0 6px;
 }
 .spec div { background: var(--rf-panel); padding: 11px 13px; }
+/* the research basis is a sentence, not a field: give it the full row */
+.spec div.wide { grid-column: 1 / -1; }
+.spec div.wide dd { font-weight: 400; color: var(--rf-ink-dim); font-size: 13px; }
 .spec dt {
   font-family: var(--rf-mono); font-size: 9px; letter-spacing: .18em;
   text-transform: uppercase; color: var(--rf-muted); margin-bottom: 4px;

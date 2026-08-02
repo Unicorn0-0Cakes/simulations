@@ -22,6 +22,12 @@
      state       Playable · Research preview · Development
                  (can you use it right now?)
 
+     basis       OPTIONAL second badge, for models built on documented
+                 research. { label, detail } — the label names the source
+                 rather than asserting "historically grounded", so the
+                 claim is checkable. Omit it entirely if there is no
+                 specific published work behind the model.
+
      evidence    THE TRUST-BEARING BADGE. Exactly one of:
                    "Historical reconstruction"   rebuilds a documented experiment
                    "Established mathematical model"  published equations, known behaviour
@@ -57,6 +63,7 @@ const CATALOGUE = [
     model: ["Differential equation", "Historical reconstruction"],
     state: "Playable",
     evidence: "Calibrated research model",
+    basis: { label: "After the LTEE, 1988–", detail: "Richard Lenski's long-term evolution experiment: twelve populations of E. coli in DM25, one transfer a day, begun 1988 and still running." },
 
     version: "1.0",
     updated: "Aug 2026",
@@ -86,6 +93,7 @@ const CATALOGUE = [
     model: ["Agent-based", "Historical reconstruction"],
     state: "Playable",
     evidence: "Exploratory agent-based model",
+    basis: { label: "After Calhoun, 1968–72", detail: "John B. Calhoun's Universe 25 density study at the National Institute of Mental Health." },
 
     version: "1.4",
     updated: "Aug 2026",
@@ -114,6 +122,7 @@ const CATALOGUE = [
     model: ["Differential equation", "Historical reconstruction"],
     state: "Playable",
     evidence: "Calibrated research model",
+    basis: { label: "After Biosphere 2, 1991–93", detail: "The first closure: eight people sealed in three acres of glass, and the documented anomaly of falling oxygen with no matching rise in carbon dioxide." },
 
     version: "1.0",
     updated: "Aug 2026",
@@ -142,6 +151,7 @@ const CATALOGUE = [
     model: ["Agent-based"],
     state: "Playable",
     evidence: "Exploratory agent-based model",
+    basis: { label: "After Ostrom, Fehr &amp; Gächter", detail: "Mechanisms drawn from the published cooperation literature — Ostrom on governing the commons, Fehr and Gächter on altruistic punishment, Axelrod on reciprocity." },
 
     version: "1.1",
     updated: "Aug 2026",
