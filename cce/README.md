@@ -26,6 +26,17 @@ safeguarding regime and the external event history are **identical** across arms
 sharing a seed also share an identical baseline population and an identical shock history,
 so differences are attributable to the allocation rule.
 
+## Browse the results
+
+`cce.html` is a self-contained results explorer — real output from completed runs, embedded at
+build time, with no second implementation of the model. Overview, the three societies, a
+500-year dashboard, matched-seed paired contrasts, government, methodology and provenance.
+See `USER_MANUAL.md`. Regenerate it from stored output with:
+
+```bash
+python3 analysis/export_web_data.py --pilot batches/rehearsal-30
+```
+
 ## Quick start
 
 ```bash

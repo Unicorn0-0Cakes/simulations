@@ -115,6 +115,15 @@ const SIMULATIONS = [
     thumb: null,
     description: "Twelve populations, the same thin sugar medium, one transfer a day, fifty thousand generations of nothing else happening. Fitness is never reported — it is a competition you set up against something you were careful enough to freeze, using bench hours you could have spent elsewhere.",
     chips: ["Twelve parallel worlds", "Muller plots & lineage trees", "Measurement costs time", "Replay experiments"]
+  },
+  {
+    title: "The Cognitive Civilization Experiment",
+    tag: "Computational Social Science",
+    href: "cce/cce.html",
+    preview: "cce",
+    thumb: null,
+    description: "Three societies of a hundred thousand people, five hundred years, the same disasters in each. One sorts people by an IQ score, one removes the obstacles instead, one matches many abilities at once. A research instrument rather than a game — matched seeds, preregistered effect sizes, and a model built so that no single number is allowed to explain a person.",
+    chips: ["Matched-seed design", "500 simulated years", "Real run data", "Reproducible & checksummed"]
   }
   // ,{
   //   title: "Next Simulation",
@@ -129,6 +138,46 @@ const SIMULATIONS = [
 
 /* Built-in generated preview cards (used when thumb is null). */
 function previewSVG(key){
+  if(key === "cce"){
+    // three matched trajectories under one shared history of shocks
+    let seed = 23;
+    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
+    const shocks = [];
+    for(let i=0;i<9;i++) shocks.push(14 + rnd()*292);
+    let bars = "";
+    shocks.forEach(x => {
+      bars += `<line x1="${x.toFixed(1)}" y1="16" x2="${x.toFixed(1)}" y2="150"
+        stroke="#8b95a7" stroke-width="1" opacity="${(0.10+rnd()*0.22).toFixed(2)}"/>`;
+    });
+    const arms = [["#6ea8fe",118,0.9],["#3fb96b",78,1.15],["#c96bd8",96,1.0]];
+    let paths = "";
+    arms.forEach(([c, base, k]) => {
+      let d = "", s2 = base;
+      const r2 = () => (s2 = (s2*9301+49297)%233280) / 233280;
+      for(let i=0;i<=64;i++){
+        const x = 14 + i*4.6;
+        const drift = base - (i/64)*38*k;
+        const y = drift + (r2()-0.5)*7;
+        d += (i?"L":"M") + x.toFixed(1) + " " + Math.max(20, Math.min(148, y)).toFixed(1) + " ";
+      }
+      paths += `<path d="${d}" fill="none" stroke="${c}" stroke-width="2" opacity=".95"
+        stroke-linejoin="round"/>`;
+    });
+    // IQ band ticks along the bottom
+    let bands = "";
+    for(let i=0;i<10;i++){
+      const h = 4 + Math.round(10*Math.exp(-Math.pow((i-4.5)/2.6,2)));
+      bands += `<rect x="${(14+i*30).toFixed(0)}" y="${168-h}" width="22" height="${h}"
+        fill="#6ea8fe" opacity="${(0.25+i*0.05).toFixed(2)}"/>`;
+    }
+    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <rect width="320" height="176" fill="#0b0d12"/>
+      <rect x="10" y="12" width="300" height="142" fill="#12161d"/>
+      ${bars}${paths}${bands}
+      <text x="12" y="10" fill="#8b95a7" font-size="7.5" font-family="monospace">YEAR 0</text>
+      <text x="308" y="10" fill="#8b95a7" font-size="7.5" font-family="monospace" text-anchor="end">500</text>
+    </svg>`;
+  }
   if(key === "universe25"){
     let dots = "";
     const cols = ["#3fb96b","#e8c447","#e5484d","#4a7bff","#c96bd8"];
