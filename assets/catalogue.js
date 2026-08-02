@@ -22,15 +22,16 @@
      state       Playable · Research preview · Development
                  (can you use it right now?)
 
-     evidence    THE TRUST-BEARING BADGE — deliberately left null.
-                 Set each one yourself to exactly one of:
-                   "Historical reconstruction"
-                   "Established mathematical model"
-                   "Exploratory agent-based model"
-                   "Calibrated research model"
-                   "Uncalibrated prototype"
-                 Anything still null renders as a dashed "Status pending"
-                 chip, which is honest and visibly unfinished.
+     evidence    THE TRUST-BEARING BADGE. Exactly one of:
+                   "Historical reconstruction"   rebuilds a documented experiment
+                   "Established mathematical model"  published equations, known behaviour
+                   "Exploratory agent-based model"   dramatises mechanisms; numbers illustrate
+                   "Calibrated research model"   tuned against published benchmarks, table shown
+                   "Uncalibrated prototype"      internally consistent, nothing fitted to data
+                 Leave it null for a new entry and it renders as a dashed
+                 "Status pending" chip — visibly unfinished rather than
+                 quietly overclaiming. Raise a badge only when the methods
+                 page can show the work that justifies it.
 
    VERSION NUMBERS
      `version` is a placeholder except for CCE, which reports its own
@@ -55,7 +56,7 @@ const CATALOGUE = [
     complexity: "Intermediate",
     model: ["Differential equation", "Historical reconstruction"],
     state: "Playable",
-    evidence: null,
+    evidence: "Calibrated research model",
 
     version: "1.0",
     updated: "Aug 2026",
@@ -84,7 +85,7 @@ const CATALOGUE = [
     complexity: "Introductory",
     model: ["Agent-based", "Historical reconstruction"],
     state: "Playable",
-    evidence: null,
+    evidence: "Exploratory agent-based model",
 
     version: "1.4",
     updated: "Aug 2026",
@@ -112,7 +113,7 @@ const CATALOGUE = [
     complexity: "Advanced",
     model: ["Differential equation", "Historical reconstruction"],
     state: "Playable",
-    evidence: null,
+    evidence: "Calibrated research model",
 
     version: "1.0",
     updated: "Aug 2026",
@@ -140,7 +141,7 @@ const CATALOGUE = [
     complexity: "Intermediate",
     model: ["Agent-based"],
     state: "Playable",
-    evidence: null,
+    evidence: "Exploratory agent-based model",
 
     version: "1.1",
     updated: "Aug 2026",
@@ -168,7 +169,7 @@ const CATALOGUE = [
     complexity: "Advanced",
     model: ["Differential equation", "Statistical"],
     state: "Playable",
-    evidence: null,
+    evidence: "Uncalibrated prototype",
 
     version: "1.0",
     updated: "Aug 2026",
@@ -196,7 +197,7 @@ const CATALOGUE = [
     complexity: "Advanced",
     model: ["Agent-based", "Statistical"],
     state: "Research preview",
-    evidence: null,
+    evidence: "Uncalibrated prototype",
 
     version: "0.1.0-milestone0",
     updated: "Aug 2026",
