@@ -154,7 +154,48 @@ use it rather than treating band edges as sharp.
 `year · cid · age · health · support_level · unmet · healthy_years · independent_years`
 (panel citizens under standard logging; all deaths under forensic logging).
 
-## 7. `manifest.json`
+## 7. Batch summary tables
+
+Written by `cce batch` into `<batch>/summaries/` (see `BATCH_EXECUTION.md`).
+
+**`run_summary.csv`** — one row per completed run: `experiment_id · society ·
+run_number · seed · status · years · population · tag · wall_seconds ·
+worker_pid · model_version · git_commit · parameter_set_id · python_version ·
+numpy_version · platform · machine · started_utc · completed_utc`, plus the
+run-level outcomes: `healthy_life_expectancy`, `independent_life_expectancy`,
+`life_expectancy` (each averaged over the final 100 years, or the whole run if
+shorter), `mean_mismatch`, `final_population`, `output_per_capita`,
+`unmet_need_rate`, `collapse_rate`, `max_abuse_detection_delay`,
+`shock_events_total`, `mortality_burden_total`, `preventable_deaths_total`,
+`population_peak`, `final_window`.
+
+**`arm_summary.csv`** — per society × outcome: `n · mean · median · sd · iqr ·
+min · max · p2_5 · p97_5 · mcse · ci95_low · ci95_high`. `sd` here is the
+between-seed standard deviation.
+
+**`paired_contrasts.csv`** — the treatment estimates, per outcome × contrast
+(`B_minus_A`, `C_minus_A`, `C_minus_B`): `n_matched_seeds ·
+n_seeds_excluded_incomplete · sesoi · mean_diff · median_diff · sd_diff ·
+mcse_diff · ci95_low · ci95_high · min_diff · max_diff · p_diff_gt_0 ·
+p_diff_gt_sesoi · p_diff_lt_neg_sesoi · precise_but_below_sesoi`.
+`precise_but_below_sesoi` is 1 when the interval excludes zero *and* the estimate
+is smaller than the SESOI — statistically unambiguous, scientifically trivial.
+
+**`seed_paired_summary.csv`** — one row per seed: `seed · has_A · has_B · has_C`,
+and `{outcome}__{contrast}` columns holding that seed's paired difference (blank
+where the pair is incomplete).
+
+**`shock_response.csv`** — `society · driver · outcome · n · pearson_r ·
+driver_sd · outcome_sd`, correlating each outcome with that run's exposure to
+external shocks.
+
+**`failures.csv`** — `experiment_id · society · seed · status · stage ·
+error_type · error · elapsed_seconds · traceback`.
+
+**`runtime_summary.csv`** — `scope · n · mean_s · median_s · min_s · max_s ·
+total_s`, per arm and overall.
+
+## 8. `manifest.json`
 
 Provenance and retention: `experiment_id · society · run_number · seed · model_version ·
 git_commit · parameter_set_id · years · capacity · logging_level · run_tag · status ·

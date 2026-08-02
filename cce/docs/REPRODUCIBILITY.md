@@ -49,12 +49,33 @@ technology levels, the normalisation reference sample, and counters — enough t
 a byte-identical future (`test_checkpoint_restore_reproducibility`). A checkpoint refuses
 to load against a different parameter fingerprint.
 
+## 3a. Batch reproducibility
+
+Parallelism is **across runs only**; each run is single-threaded and
+deterministic, so worker count cannot change results. Numeric libraries are
+pinned to one thread per process (`OMP/OPENBLAS/MKL/VECLIB/NUMEXPR_NUM_THREADS=1`)
+in the controller before the pool is created and again in each worker, so BLAS
+threading cannot vary reduction order between machines.
+
+`test_parallel_workers_produce_identical_results_to_serial` asserts that a
+1-worker and a 2-worker batch produce field-identical outcomes despite completing
+in different orders.
+
+Run numbering is a property of the batch, persisted in `seed_list.csv`, so a
+batch resumed or extended with a different seed range keeps its identity mapping
+and its output paths.
+
 ## 4. Provenance stamped in every run manifest
 
 `experiment_id · society · run_number · seed · model_version · git_commit ·
 parameter_set_id (SHA-256 prefix of the full parameter dict) · years · capacity ·
 logging_level · run_tag · status · normalization_method · fertility_policy ·
-births_denied_total · per-file SHA-256 and byte counts · retention record · write time`
+births_denied_total · python_version · numpy_version · platform · machine ·
+started_utc · completed_utc · wall_seconds · worker_pid · per-file SHA-256, format
+and byte counts · retention record · write time`
+
+Every file written is checksummed, including both copies when a table is stored
+in CSV and Parquet: listing only one would leave the other unverified.
 
 Changing any parameter changes `parameter_set_id`, so runs from different parameter sets
 cannot be silently pooled.

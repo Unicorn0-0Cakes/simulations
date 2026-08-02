@@ -83,9 +83,15 @@ class Recorder:
             self.panel.extend(rows)
 
     # -- write --------------------------------------------------------------
-    def _write_table(self, name: str, rows: list[dict]) -> str | None:
+    def _write_table(self, name: str, rows: list[dict]) -> list[str]:
+        """Write a table and return EVERY file produced.
+
+        When pyarrow is available a table is written in both formats. Both must
+        be checksummed: returning only one would leave the other unverified, so
+        corruption of the unlisted copy would pass verification unnoticed.
+        """
         if not rows:
-            return None
+            return []
         path = os.path.join(self.outdir, f"{name}.csv")
         keys: list[str] = []
         for r in rows:
@@ -102,8 +108,8 @@ class Recorder:
             table = pa.Table.from_pylist([{k: r.get(k) for k in keys} for r in rows])
             ppath = os.path.join(self.outdir, f"{name}.parquet")
             pq.write_table(table, ppath, compression="zstd")
-            return ppath
-        return path
+            return [path, ppath]
+        return [path]
 
     def finalize(self, manifest: dict) -> dict:
         files = {}
@@ -111,12 +117,15 @@ class Recorder:
                            ("assessments", self.assessments), ("deaths", self.deaths),
                            ("panel", self.panel), ("snapshots", self.snapshots),
                            ("forensic", self.forensic)]:
-            path = self._write_table(name, rows)
-            if path:
-                files[name] = {"path": os.path.basename(path),
-                               "rows": len(rows),
-                               "sha256": _sha256(path),
-                               "bytes": os.path.getsize(path)}
+            for path in self._write_table(name, rows):
+                ext = os.path.splitext(path)[1].lstrip(".")
+                key = name if ext == "csv" else f"{name}_{ext}"
+                files[key] = {"path": os.path.basename(path),
+                              "table": name,
+                              "format": ext,
+                              "rows": len(rows),
+                              "sha256": _sha256(path),
+                              "bytes": os.path.getsize(path)}
         manifest = dict(manifest)
         manifest["files"] = files
         manifest["retention"] = self.retention

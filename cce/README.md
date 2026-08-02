@@ -10,7 +10,8 @@ simulated** society of 100,000 citizens over 500 years.
 > ranges* — never indisputable, and never claims about real people.
 
 **Model version 0.1.0-milestone0** · Parameter set `2d6343f41b392d36` · 92 registered
-parameters · 18/18 invariant tests passing.
+parameters · 43/43 tests passing (21 invariant + 22 batch) under
+`PYTHONWARNINGS=error`.
 
 ## The three societies
 
@@ -37,8 +38,17 @@ python3 -m cce_engine.cli run --society B --seed 1 --years 100 \
 # a matched A/B/C triad on one seed
 python3 -m cce_engine.cli triad --seed 1 --years 200 --population 10000
 
-# the 18 invariant tests
+# a 30-seed matched-seed batch across all three arms
+python3 -m cce_engine.cli batch --societies A B C --seed-start 1 --seed-count 30 \
+        --years 500 --population 100000 --workers 4 --tag exploratory \
+        --out batches/pilot-30
+
+# verify a single run directory
+python3 -m cce_engine.cli verify runs/CCE-A-0001 --society A --seed 1
+
+# the test suites (21 invariants + 22 batch)
 python3 engine/tests/test_invariants.py
+python3 engine/tests/test_batch.py
 
 # measured performance at the three required scales
 python3 -m cce_engine.benchmark --scales 10000x100,100000x100,100000x500
@@ -77,7 +87,9 @@ columnar compression. Measured on a 3-core ARM container, single-threaded — se
 | `docs/GOVERNANCE_MODEL.md` | Presidency, assembly, accountability |
 | `docs/SAFEGUARDING_MODEL.md` | Welfare checks, detection, duration cap |
 | `docs/STATISTICAL_ANALYSIS_PLAN.md` | Run-level inference, SESOIs, sensitivity |
-| `docs/VALIDATION_PLAN.md` | 18 invariants, test types, pattern validation |
+| `docs/VALIDATION_PLAN.md` | 21 invariants, test types, pattern validation |
+| `docs/BATCH_EXECUTION.md` | Matched-seed campaigns: pool, resume, quarantine, run tags |
+| `docs/PILOT_ANALYSIS_PLAN.md` | What the 30-seed pilot is for, and what it may not conclude |
 | `docs/PARAMETER_REGISTER.md` | All 92 parameters (generated from code) |
 | `docs/DATA_DICTIONARY.md` | Every stored column (completeness enforced) |
 | `docs/DATA_MODEL.md` | Entities, relationships, storage layout |
@@ -92,7 +104,12 @@ columnar compression. Measured on a 3-core ARM container, single-threaded — se
 
 ## Status
 
-Milestone 0 complete. Milestone 1 kernel complete; charts, PDF reporting, golden
-regression digests and pattern validation outstanding. No production runs have been
-executed and no scientific findings exist yet — the only quantitative results in this
-repository are the benchmark measurements and the invariant test outcomes.
+Milestone 0 complete. Milestone 1 kernel complete. Milestone 3 batch runner built
+and validated through five gates (see `BATCH_EXECUTION.md` §8); charts, PDF
+reporting, golden regression digests and pattern validation remain outstanding.
+
+**No production campaign has been run and no scientific findings exist.** The only
+quantitative results in this repository are benchmark measurements, test outcomes,
+and exploratory-tagged engineering runs. A working batch runner does not make the
+experiment scientifically ready — the blockers are listed in
+`PILOT_ANALYSIS_PLAN.md` §6.

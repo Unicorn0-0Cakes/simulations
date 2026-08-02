@@ -29,6 +29,14 @@ For each outcome `Y` and arm pair `(s, t)`, compute the **matched-pair differenc
 * time-to-recovery after major shocks (years until `output_per_capita` returns to its
   pre-shock 10-year mean)
 
+**Implementation.** `engine/cce_engine/stats.py`. `paired_contrasts` computes only
+the paired form and excludes-and-counts seeds missing an arm; it has no code path
+that substitutes an independent-sample difference. `describe` returns n, mean,
+median, SD, IQR, min, max, 2.5th/97.5th percentiles, MCSE and a BCa bootstrap CI
+(10,000 resamples, deterministic seed). Batch output lands in
+`summaries/arm_summary.csv`, `summaries/paired_contrasts.csv` and
+`summaries/seed_paired_summary.csv` (see `BATCH_EXECUTION.md`).
+
 ## 3. Primary outcomes (three only)
 
 1. `healthy_life_expectancy` — mean over the final 100 simulated years
@@ -51,8 +59,19 @@ Configurable and preregistered; initial values:
 | Occupational mismatch | 5% |
 | Major institutional failure | 5% |
 
-With 1,000 runs, trivially small differences will be "statistically significant". **No
-result is described as important on the basis of a p-value.** Every comparison is
+These values are **preregistered and frozen**. They live in `stats.SESOI`, and are
+not to be adjusted on the basis of pilot results; a change must be proposed
+separately, dated, with the original preserved in the audit trail.
+`independent_life_expectancy` uses an absolute 1.0-year floor rather than the
+relative 2%, because 2% of ~50 years is ~1 year and an absolute threshold is
+harder to game.
+
+With 1,000 runs, trivially small differences will be "statistically significant" —
+the 30-seed rehearsal already shows paired MCSEs of ~0.04 years, implying ~0.01
+years at n=1,000. **No result is described as important on the basis of a
+p-value.** Any contrast whose interval excludes zero while the estimate is
+smaller than its SESOI is flagged `precise_but_below_sesoi` and reported under a
+heading that says so. Every comparison is
 reported as: point estimate, CI, MCSE, effect size, and whether the CI excludes the
 SESOI. Equivalence is tested with TOST against the SESOI bounds.
 

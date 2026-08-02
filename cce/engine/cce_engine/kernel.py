@@ -9,8 +9,13 @@ future trajectory.
 from __future__ import annotations
 
 import math
+import os
+import platform
 import subprocess
+import sys
+import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -68,6 +73,8 @@ class RunResult:
 class Simulation:
     def __init__(self, cfg: RunConfig):
         self.cfg = cfg
+        self._t0 = time.perf_counter()
+        self.started_utc = datetime.now(timezone.utc).isoformat()
         self.p = (cfg.params or Params()).override()
         self.p.society = cfg.society
         self.p.values["population_cap"] = cfg.capacity
@@ -631,6 +638,16 @@ class Simulation:
             "normalization_method": self.p["normalization_method"],
             "fertility_policy": self.p["fertility_policy"],
             "births_denied_total": self.births_denied,
+            # execution environment, recorded per run so a batch assembled on
+            # heterogeneous machines can be audited after the fact
+            "python_version": platform.python_version(),
+            "numpy_version": np.__version__,
+            "platform": platform.platform(),
+            "machine": platform.machine(),
+            "started_utc": self.started_utc,
+            "completed_utc": datetime.now(timezone.utc).isoformat(),
+            "wall_seconds": round(time.perf_counter() - self._t0, 3),
+            "worker_pid": os.getpid(),
         }
         manifest = self.rec.finalize(manifest)
         last = self.rec.annual[-1] if self.rec.annual else {}
