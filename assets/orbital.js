@@ -62,9 +62,36 @@
     window.addEventListener("orbital:theme", function (e) { fn(e.detail.theme); });
   }
 
+  /* Badge helpers, shared by the catalogue, the methods pages and the
+     status strip on each simulation. Kept here so there is exactly one
+     definition of what a status looks like. */
+  var EV_CLASS = {
+    "Historical reconstruction":     "ev-historical",
+    "Established mathematical model":"ev-established",
+    "Exploratory agent-based model": "ev-exploratory",
+    "Calibrated research model":     "ev-calibrated",
+    "Uncalibrated prototype":        "ev-prototype"
+  };
+  var ST_CLASS = { "Playable": "st-playable", "Research preview": "st-preview", "Development": "st-dev" };
+
+  function evidenceBadge(v) {
+    return v
+      ? '<span class="rf-badge ' + (EV_CLASS[v] || "") + '">' + v + '</span>'
+      : '<span class="rf-badge ev-pending" title="No evidentiary status has been assigned yet">Status pending</span>';
+  }
+  function stateBadge(v) {
+    return '<span class="rf-badge ' + (ST_CLASS[v] || "st-dev") + '">' + v + '</span>';
+  }
+  function flagChips(flags) {
+    return (flags || []).map(function (f) {
+      return '<span class="rf-flag ' + f.toLowerCase() + '">' + f + '</span>';
+    }).join("");
+  }
+
   window.Orbital = {
     theme: theme, setTheme: setTheme, toggle: toggle,
-    color: color, onThemeChange: onThemeChange
+    color: color, onThemeChange: onThemeChange,
+    evidenceBadge: evidenceBadge, stateBadge: stateBadge, flagChips: flagChips
   };
 
   /* ---- 3. chrome bar --------------------------------------------- */
@@ -87,12 +114,35 @@
       ? "../" : "./";
   }
 
+  /* ---- motion ---------------------------------------------------- */
+  var PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+  var PLAY  = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>';
+
+  function motionPaused() { return doc.classList.contains("rf-paused"); }
+
+  function toggleMotion() {
+    var now = !motionPaused();
+    doc.classList.toggle("rf-paused", now);
+    var btn = document.getElementById("rf-motion");
+    if (btn) {
+      btn.innerHTML = (now ? PLAY : PAUSE) + (now ? "Resume" : "Pause");
+      btn.setAttribute("aria-pressed", String(now));
+      btn.setAttribute("aria-label", (now ? "Resume" : "Pause") + " animation on this page");
+    }
+    /* If the page has its own run/pause control, drive that too rather
+       than leaving two controls disagreeing about the state. */
+    var sel = script && script.getAttribute("data-pause-target");
+    if (sel) { var t = document.querySelector(sel); if (t) t.click(); }
+    window.dispatchEvent(new CustomEvent("orbital:motion", { detail: { paused: now } }));
+  }
+
   function build() {
     if (script && script.getAttribute("data-chrome") === "off") return;
     if (document.querySelector(".rf-chrome")) return;
 
     var title = (script && script.getAttribute("data-title")) || "";
     var tag = (script && script.getAttribute("data-tag")) || "";
+    var wantsMotion = script && script.getAttribute("data-motion") === "on";
     var isIndex = /(^|\/)(index\.html?)?$/i.test(location.pathname);
     var home = isIndex ? "#top" : rootPath() + "index.html";
 
@@ -104,6 +154,11 @@
       (title ? '<span class="rf-sep">/</span><span class="rf-here">' + title + '</span>' : '') +
       '<span class="rf-spacer"></span>' +
       (tag ? '<span class="rf-idtag">' + tag + '</span>' : '') +
+      (wantsMotion
+        ? '<button class="rf-btn rf-motion" id="rf-motion" type="button" aria-pressed="false"' +
+          ' aria-label="Pause animation on this page" style="padding:4px 10px;font-size:9.5px">' +
+          PAUSE + 'Pause</button>'
+        : '') +
       '<button class="rf-switch" id="rf-switch" type="button">' +
         '<span class="rf-sw-day">' + SUN + 'Day</span>' +
         '<span class="rf-sw-night">' + MOON + 'Night</span>' +
@@ -111,6 +166,16 @@
 
     document.body.insertBefore(bar, document.body.firstChild);
     document.getElementById("rf-switch").addEventListener("click", toggle);
+    var mb = document.getElementById("rf-motion");
+    if (mb) {
+      mb.addEventListener("click", toggleMotion);
+      /* Someone who asked the OS for less motion gets it paused already. */
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        doc.classList.add("rf-paused");
+        mb.innerHTML = PLAY + "Resume";
+        mb.setAttribute("aria-pressed", "true");
+      }
+    }
     paintSwitch(theme());
   }
 
