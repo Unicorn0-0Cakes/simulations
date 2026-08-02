@@ -128,6 +128,18 @@ def elect_assembly(st, classified: np.ndarray, p, rng, year: int) -> list[Offici
     return reps
 
 
+def holds_office(st, o: Official) -> bool:
+    """Is this official still the person who was elected?
+
+    An `Official` stores a *slot index*, and slots are recycled: when a citizen
+    dies the slot returns to the free stack and may be reissued to a newborn in
+    the same year. Checking `alive[slot]` alone would therefore silently treat
+    that newborn as the sitting president. Identity is the citizen id, so the
+    slot is only valid while it still holds the same `cid`.
+    """
+    return bool(st.alive[o.slot]) and int(st.cid[o.slot]) == o.cid
+
+
 def fill_vacancies(gov: Government, st, classified: np.ndarray, p, rng,
                    year: int) -> list[dict]:
     """Restore the representation guarantee after deaths, removals or succession.
@@ -176,9 +188,10 @@ def annual_governance(gov: Government, st, p, rng, year: int) -> list[dict]:
 
     # death or incapacity -> documented succession
     for o in list(officials):
-        incapacitated = (not st.alive[o.slot]) or bool(st.dementia[o.slot])
+        vacated = not holds_office(st, o)
+        incapacitated = vacated or bool(st.dementia[o.slot])
         if incapacitated:
-            reason = "death" if not st.alive[o.slot] else "medically_verified_decline"
+            reason = "death" if vacated else "medically_verified_decline"
             o.removed_reason = reason
             events.append({"year": year, "type": "succession", "role": o.role,
                            "cid": o.cid, "reason": reason})

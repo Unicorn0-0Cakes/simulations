@@ -210,6 +210,60 @@ def test_manifest_and_exports_reconcile():
     assert m["parameter_set_id"]
 
 
+def test_cognitive_arrays_stay_finite():
+    """No NaN or infinity may enter the cognitive state, at any point in a run,
+    in any arm. A corrupted cognitive value must halt the run, not finish it
+    with plausible-looking numbers."""
+    for soc in "ABC":
+        s = _sim(society=soc, seed=31)
+        for _ in range(YEARS):
+            s.step()
+            alive = s.st.living()
+            assert np.isfinite(s.st.latent[alive]).all(), (soc, s.year)
+            assert np.isfinite(s.st.g_abs[alive]).all(), (soc, s.year)
+            assert np.isfinite(s.st.g_endow[alive]).all(), (soc, s.year)
+            classified = alive[s.st.classified[alive]]
+            assert np.isfinite(s.st.official_iq[classified]).all(), (soc, s.year)
+            assert np.isfinite(s.st.official_abs[classified]).all(), (soc, s.year)
+        # and no non-finite value reaches the stored output
+        for row in s.rec.annual:
+            for k, v in row.items():
+                if isinstance(v, float) and k != "president_iq":
+                    assert np.isfinite(v) or k.startswith("iq_") or k.startswith("abs_"), (k, v)
+
+
+def test_officials_are_never_slot_recycled_impostors():
+    """Slots are reused after death. An official must be identified by citizen id,
+    so a newborn issued a dead president's slot can never inherit the office."""
+    s = _sim(seed=77, years=0, cap=2000)
+    for _ in range(120):
+        s.step()
+        for o in s.gov.officials():
+            assert s.st.alive[o.slot], (o.role, o.cid, s.year)
+            assert int(s.st.cid[o.slot]) == o.cid, (o.role, o.cid, s.year)
+            assert s.st.classified[o.slot], (o.role, o.cid, s.year)
+            assert not np.isnan(s.st.official_iq[o.slot]), (o.role, o.cid, s.year)
+    # the sitting president's score is always a real, reported score
+    for row in s.rec.annual:
+        assert not np.isnan(row["president_iq"]), row["year"]
+        assert row["president_iq"] <= s.p["iq_report_ceiling"] + 1e-6
+
+
+def test_g_from_profile_rejects_non_finite_input():
+    """The guard must fire rather than propagate corruption downstream."""
+    lat = np.full((4, len(cog.DIMS)), 100.0, dtype=np.float32)
+    assert np.isfinite(cog.g_from_profile(lat)).all()
+    for bad in (np.nan, np.inf, -np.inf):
+        corrupt = lat.copy()
+        corrupt[2, cog.BATTERY_DIMS[3]] = bad
+        try:
+            cog.g_from_profile(corrupt)
+        except FloatingPointError as e:
+            assert "row=2" in str(e), str(e)
+        else:
+            raise AssertionError(f"no FloatingPointError raised for {bad}")
+
+
 def test_shock_block_size_is_state_independent():
     rng = RunRNG(1, "A")
     for y in range(10):

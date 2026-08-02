@@ -65,7 +65,8 @@ documented here.
 | Column | Type | Units | Meaning |
 |---|---|---|---|
 | `gov_quality` | float | 0–1 | Composite of official competence, ethics and corruption share |
-| `president_iq` | float | IQ points | Sitting president's official score |
+| `president_iq` | float | IQ points | Sitting president's official score. NaN only if no president is seated at year end; a NaN here otherwise indicates a broken office-identity check |
+| `president_cid` | int | citizen id | Sitting president's citizen id, or −1 if the office is vacant. Officials are identified by `cid`, never by slot index, because slots are recycled after death |
 | `assembly_seats` | int | seats | Total filled seats |
 | `populated_bands` | int | bands | Bands with ≥1 classified living citizen |
 | `bands_represented` | int | bands | Populated bands holding ≥1 seat |

@@ -58,8 +58,29 @@ def sample_profiles(n: int, g: np.ndarray, p, rng) -> np.ndarray:
 
 
 def g_from_profile(latent: np.ndarray) -> np.ndarray:
-    """Absolute capability index = battery-weighted composite of latent dims."""
-    return latent[:, BATTERY_DIMS] @ BATTERY_W
+    """Absolute capability index = battery-weighted composite of latent dims.
+
+    Fail immediately if a non-finite cognitive value enters the model.
+    Elementwise multiplication avoids platform-specific matmul instability.
+    """
+    x = latent[:, BATTERY_DIMS]
+
+    if not np.isfinite(x).all():
+        bad = np.argwhere(~np.isfinite(x))
+        row, column = bad[0]
+        raise FloatingPointError(
+            f"Non-finite latent cognitive value at row={int(row)}, "
+            f"battery_column={int(column)}, value={x[row, column]!r}"
+        )
+
+    result = np.sum(x * BATTERY_W, axis=1, dtype=np.float64)
+
+    if not np.isfinite(result).all():
+        raise FloatingPointError(
+            "Non-finite absolute cognitive capability produced by g_from_profile"
+        )
+
+    return result.astype(np.float32)
 
 
 def age_profile(latent: np.ndarray, age: np.ndarray, p) -> np.ndarray:

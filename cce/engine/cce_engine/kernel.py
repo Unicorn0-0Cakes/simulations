@@ -534,7 +534,12 @@ class Simulation:
             "mean_housing_restrictiveness": float(np.mean(st.housing[alive])),
             "performance_gini": gini,
             "gov_quality": float(self.gov.quality),
-            "president_iq": float(self.gov.president and st.official_iq[self.gov.president.slot] or float("nan")),
+            "president_iq": (float(st.official_iq[self.gov.president.slot])
+                             if self.gov.president is not None
+                             and govmod.holds_office(st, self.gov.president)
+                             else float("nan")),
+            "president_cid": (self.gov.president.cid
+                              if self.gov.president is not None else -1),
             "assembly_seats": int(seats.sum()),
             "populated_bands": int((band_counts > 0).sum()),
             "bands_represented": int(((band_counts > 0) & (seats > 0)).sum()),
