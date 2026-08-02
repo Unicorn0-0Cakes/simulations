@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulations — Interactive Research Instruments</title>
-<meta name="description" content="A catalogue of self-contained, browser-based simulations. Each one is a research instrument you can operate: set the conditions, run the world, and read what comes out.">
+<title>Simulations — An Atlas of Scientific Ways of Knowing</title>
+<meta name="description" content="A catalogue of self-contained browser instruments. Each one is a working model you can operate: set the conditions, run the world, and read what comes out.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
 
 <link rel="stylesheet" href="assets/orbital.css">
-<script src="assets/orbital.js"></script>
+<script src="assets/orbital.js" data-motion="on"></script>
+<script src="assets/catalogue.js"></script>
 
 <style>
   * { box-sizing: border-box; }
@@ -19,37 +20,39 @@
   a { color: var(--rf-oxide); text-decoration: none; }
   html[data-theme="night"] a { color: var(--rf-amber); }
   .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; position: relative; }
+  p { max-width: 74ch; }
+  .dim { color: var(--rf-ink-dim); }
 
   /* ================= MASTHEAD ================= */
-  header.mast { padding: 46px 0 16px; position: relative; }
+  header.mast { padding: 40px 0 14px; position: relative; }
   .mast .row1 { display: flex; align-items: flex-end; justify-content: space-between;
                 gap: 26px; flex-wrap: wrap; }
-  .wordmark { font-family: var(--rf-display); font-size: clamp(30px, 7vw, 62px);
+  .wordmark { font-family: var(--rf-display); font-size: clamp(28px, 6.4vw, 56px);
               font-weight: 700; letter-spacing: var(--rf-track-w); text-transform: uppercase;
               line-height: 1; margin: 0; }
   .wordmark em { font-style: normal; color: var(--rf-orange); }
   html[data-theme="night"] .wordmark em { text-shadow: var(--rf-text-glow); }
   .mast .tagline { font-family: var(--rf-mono); font-size: 11px; letter-spacing: var(--rf-track);
-                   text-transform: uppercase; color: var(--rf-ink-dim); margin-top: 12px; }
+                   text-transform: uppercase; color: var(--rf-ink-dim); margin-top: 11px; }
   .stamp { font-family: var(--rf-mono); font-size: 10px; letter-spacing: .14em;
            text-transform: uppercase; color: var(--rf-muted); text-align: right;
            line-height: 1.85; white-space: nowrap; }
   .stamp b { color: var(--rf-orange); font-weight: 600; }
-  .mast-rule { border: 0; border-top: 3px double var(--rf-ink); opacity: .55; margin: 20px 0 0; }
-  .rm-tl { left: 8px; top: 22px; } .rm-tr { right: 8px; top: 22px; }
+  .mast-rule { border: 0; border-top: 3px double var(--rf-ink); opacity: .55; margin: 18px 0 0; }
+  .rm-tl { left: 8px; top: 18px; } .rm-tr { right: 8px; top: 18px; }
 
-  /* ================= HERO ================= */
-  .hero { padding: 44px 0 8px; display: grid; grid-template-columns: 1.35fr 1fr;
-          gap: 48px; align-items: center; }
-  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 28px; } }
-  .hero h1 { font-family: var(--rf-display); font-size: clamp(27px, 4.2vw, 44px);
-             font-weight: 600; line-height: 1.12; letter-spacing: -.015em; margin: 14px 0 18px; }
+  /* ================= HERO (short) ================= */
+  .hero { padding: 34px 0 30px; display: grid; grid-template-columns: 1.5fr 1fr;
+          gap: 44px; align-items: center; }
+  @media (max-width: 880px) { .hero { grid-template-columns: 1fr; gap: 24px; }
+                              .orbit { max-width: 210px; } }
+  .hero h1 { font-family: var(--rf-display); font-size: clamp(25px, 3.6vw, 38px);
+             font-weight: 600; line-height: 1.14; letter-spacing: -.015em; margin: 12px 0 14px; }
   .hero h1 mark { background: none; color: var(--rf-orange); }
-  .hero .lede { font-size: 16.5px; color: var(--rf-ink-dim); max-width: 60ch; margin: 0 0 24px; }
-  .hero .cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .hero .lede { font-size: 16px; color: var(--rf-ink-dim); max-width: 56ch; margin: 0 0 20px; }
+  .hero .cta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
-  /* the orbit device — a slow, quiet piece of instrumentation */
-  .orbit { width: 100%; max-width: 320px; margin: 0 auto; display: block; }
+  .orbit { width: 100%; max-width: 260px; margin: 0 auto; display: block; }
   .orbit .o-ring { fill: none; stroke: var(--rf-line); stroke-width: 1; }
   .orbit .o-path { fill: none; stroke: var(--rf-orange); stroke-width: 1.4; opacity: .85; }
   .orbit .o-body { fill: var(--rf-orange); }
@@ -63,48 +66,73 @@
   .spin.rev { animation-duration: 54s; animation-direction: reverse; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ================= SECTIONS ================= */
-  section.doc { padding: 40px 0 4px; }
+  /* ================= SECTION HEADS ================= */
+  section.doc { padding: 34px 0 4px; scroll-margin-top: 56px; }
   h2.sec { font-family: var(--rf-mono); font-size: 12px; letter-spacing: var(--rf-track);
-           text-transform: uppercase; font-weight: 600; margin: 0 0 20px; padding-bottom: 9px;
+           text-transform: uppercase; font-weight: 600; margin: 0 0 8px; padding-bottom: 9px;
            border-bottom: 1px solid var(--rf-line); display: flex; align-items: baseline; gap: 14px; }
   h2.sec .idx { color: var(--rf-orange); font-size: 11px; }
   h2.sec .trail { flex: 1; border-bottom: 1px solid var(--rf-line-soft); }
+  .sechint { font-size: 13.5px; color: var(--rf-ink-dim); margin: 0 0 20px; max-width: 78ch; }
 
-  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
-  .cols p { margin: 0 0 12px; }
-  .cols h3 { font-family: var(--rf-mono); font-size: 11px; letter-spacing: .18em;
-             text-transform: uppercase; color: var(--rf-teal); margin: 0 0 10px; font-weight: 600; }
-  html[data-theme="night"] .cols h3 { color: var(--rf-teal); }
-  p { max-width: 74ch; }
-  .dim { color: var(--rf-ink-dim); }
+  /* ================= FEATURED ================= */
+  .feat { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+  .fcard { position: relative; display: flex; flex-direction: column;
+           background: var(--rf-panel); border: 1px solid var(--rf-line);
+           border-top: 3px solid var(--rf-orange);
+           border-radius: var(--rf-radius); padding: 18px 20px 20px;
+           box-shadow: var(--rf-shadow); transition: .18s ease; }
+  .fcard:nth-child(2) { border-top-color: var(--rf-teal); }
+  .fcard:nth-child(3) { border-top-color: var(--rf-violet); }
+  .fcard:hover { transform: translateY(-3px); box-shadow: var(--rf-shadow-lg); }
+  .fcard .kind { font-family: var(--rf-mono); font-size: 10px; letter-spacing: .2em;
+                 text-transform: uppercase; color: var(--rf-orange); font-weight: 600; }
+  .fcard:nth-child(2) .kind { color: var(--rf-teal); }
+  .fcard:nth-child(3) .kind { color: var(--rf-violet); }
+  .fcard h3 { font-family: var(--rf-display); font-size: 19px; font-weight: 600;
+              margin: 9px 0 8px; letter-spacing: -.015em; line-height: 1.18; }
+  .fcard .why { font-size: 13.5px; color: var(--rf-ink-dim); margin: 0 0 14px; flex: 1; max-width: none; }
+  .fcard .meta { font-family: var(--rf-mono); font-size: 9.5px; letter-spacing: .12em;
+                 text-transform: uppercase; color: var(--rf-muted); margin-bottom: 14px; }
+  .fcard .go { align-self: flex-start; }
 
-  /* pull-quote panel */
-  .pull { border-left: 4px solid var(--rf-orange); background: var(--rf-panel);
-          border-top: 1px solid var(--rf-line); border-right: 1px solid var(--rf-line);
-          border-bottom: 1px solid var(--rf-line);
-          padding: 18px 22px; margin: 26px 0 0; box-shadow: var(--rf-shadow); }
-  .pull p { margin: 0; font-size: 15.5px; }
-  .pull .who { font-family: var(--rf-mono); font-size: 10px; letter-spacing: .16em;
-               text-transform: uppercase; color: var(--rf-muted); margin-top: 10px; }
+  /* ================= FILTER BAR ================= */
+  .filters { background: var(--rf-panel); border: 1px solid var(--rf-line);
+             border-radius: var(--rf-radius); padding: 16px 18px 8px;
+             box-shadow: var(--rf-shadow); position: sticky; top: 42px; z-index: 40; }
+  html[data-theme="night"] .filters { background: var(--rf-panel); backdrop-filter: blur(8px); }
+  .frow { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 10px; }
+  .fgroup { display: flex; flex-direction: column; gap: 6px; }
+  .fgroup > .flabel { font-family: var(--rf-mono); font-size: 9px; letter-spacing: .18em;
+                      text-transform: uppercase; color: var(--rf-muted); }
+  .fopts { display: flex; gap: 5px; flex-wrap: wrap; }
+  .fopt { font-family: var(--rf-mono); font-size: 9.5px; letter-spacing: .1em;
+          text-transform: uppercase; padding: 5px 10px 4px; cursor: pointer;
+          background: var(--rf-panel2); color: var(--rf-ink-dim);
+          border: 1px solid var(--rf-line); border-radius: 999px; transition: .14s; }
+  .fopt:hover { border-color: var(--rf-orange); color: var(--rf-orange); }
+  .fopt[aria-pressed="true"] { background: var(--rf-orange); color: var(--rf-on-accent);
+                               border-color: var(--rf-orange); font-weight: 600; }
+  html[data-theme="night"] .fopt[aria-pressed="true"] { box-shadow: var(--rf-glow); }
 
-  /* ================= HOW TO READ ONE ================= */
-  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0; }
-  .step { padding: 22px 22px 24px; border: 1px solid var(--rf-line); margin: 0 -1px -1px 0;
-          background: var(--rf-panel); }
-  .step .n { font-family: var(--rf-mono); font-size: 30px; font-weight: 500;
-             color: var(--rf-orange); line-height: 1; letter-spacing: -.02em; }
-  html[data-theme="night"] .step .n { text-shadow: var(--rf-text-glow); }
-  .step h4 { font-family: var(--rf-display); font-size: 17px; font-weight: 600;
-             margin: 12px 0 8px; letter-spacing: -.01em; }
-  .step p { font-size: 13.5px; color: var(--rf-ink-dim); margin: 0; max-width: none; }
+  .fsearch { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 6px; }
+  .fsearch input { font-family: var(--rf-mono); font-size: 12px; padding: 8px 11px;
+                   background: var(--rf-bg); color: var(--rf-ink);
+                   border: 1px solid var(--rf-line); border-radius: var(--rf-radius); width: 100%; }
+  .fsearch input::placeholder { color: var(--rf-muted); }
+
+  .fbar-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+               border-top: 1px solid var(--rf-line-soft); padding: 10px 0 8px;
+               font-family: var(--rf-mono); font-size: 10px; letter-spacing: .14em;
+               text-transform: uppercase; color: var(--rf-muted); }
+  .fbar-foot .spacer { flex: 1; }
+  .linkbtn { background: none; border: 0; padding: 0; cursor: pointer; color: var(--rf-orange);
+             font: inherit; text-transform: uppercase; letter-spacing: .14em; }
+  .linkbtn:hover { text-decoration: underline; }
 
   /* ================= CATALOGUE ================= */
-  .catline { display: flex; align-items: baseline; gap: 12px; font-family: var(--rf-mono);
-             font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase;
-             color: var(--rf-muted); margin-bottom: 18px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-          gap: 22px; padding-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+          gap: 22px; padding: 20px 0 12px; }
 
   .card { position: relative; display: flex; flex-direction: column;
           background: var(--rf-panel); border: 1px solid var(--rf-line);
@@ -113,37 +141,83 @@
   .card:hover { transform: translateY(-3px); border-color: var(--rf-orange);
                 box-shadow: var(--rf-shadow-lg); }
   html[data-theme="night"] .card:hover { box-shadow: var(--rf-shadow-lg), var(--rf-glow); }
+  .card.is-dev { opacity: .62; }
+  .card.is-dev:hover { transform: none; }
 
   .card .thumb { aspect-ratio: 16 / 9; border-bottom: 1px solid var(--rf-line);
                  background: var(--rf-canvas); overflow: hidden; position: relative; }
   .card .thumb svg, .card .thumb img { width: 100%; height: 100%; display: block; object-fit: cover; }
-  .card .hd { display: flex; align-items: baseline; gap: 10px; padding: 14px 18px 0;
-              font-family: var(--rf-mono); font-size: 9.5px; letter-spacing: .16em;
-              text-transform: uppercase; color: var(--rf-muted); }
+  .card .flags { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
+
+  .card .hd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+              padding: 14px 18px 0; font-family: var(--rf-mono); font-size: 9.5px;
+              letter-spacing: .16em; text-transform: uppercase; color: var(--rf-muted); }
   .card .hd .no { color: var(--rf-orange); font-weight: 600; }
-  .card .body { padding: 8px 18px 20px; display: flex; flex-direction: column; flex: 1; }
-  .card h3 { font-family: var(--rf-display); font-size: 21px; font-weight: 600;
-             margin: 4px 0 9px; letter-spacing: -.015em; line-height: 1.15; }
-  .card p { font-size: 13.8px; color: var(--rf-ink-dim); margin: 0 0 15px; flex: 1; max-width: none; }
-  .card .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
-  .card .go { align-self: flex-start; font-family: var(--rf-mono); font-size: 10.5px;
-              letter-spacing: .16em; text-transform: uppercase; font-weight: 600;
-              color: var(--rf-on-accent); background: var(--rf-orange);
-              padding: 8px 14px; border-radius: var(--rf-radius); transition: .15s; }
-  html[data-theme="night"] .card .go { box-shadow: var(--rf-glow); }
-  .card:hover .go { filter: brightness(1.09); }
-  .stretched { position: absolute; inset: 0; z-index: 2; }
+  .card .body { padding: 6px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+  .card h3 { font-family: var(--rf-display); font-size: 20px; font-weight: 600;
+             margin: 4px 0 12px; letter-spacing: -.015em; line-height: 1.16; }
+
+  /* the five questions, same shape on every card */
+  .qa { border-top: 1px solid var(--rf-line-soft); padding-top: 11px; margin-bottom: 12px; }
+  .qa dt { font-family: var(--rf-mono); font-size: 9px; letter-spacing: .18em;
+           text-transform: uppercase; color: var(--rf-teal); margin-bottom: 3px; }
+  html[data-theme="night"] .qa dt { color: var(--rf-teal); }
+  .qa dd { margin: 0 0 11px; font-size: 13.6px; color: var(--rf-ink); }
+  .qa dd:last-child { margin-bottom: 0; color: var(--rf-ink-dim); }
+
+  .specline { font-family: var(--rf-mono); font-size: 9.5px; letter-spacing: .12em;
+              text-transform: uppercase; color: var(--rf-muted);
+              border-top: 1px solid var(--rf-line-soft); padding-top: 10px; margin-top: auto; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 14px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .actions .rf-btn { position: relative; z-index: 3; }
+
+  .empty { padding: 44px 8px; text-align: center; color: var(--rf-muted);
+           font-family: var(--rf-mono); font-size: 12px; letter-spacing: .14em;
+           text-transform: uppercase; }
+
+  /* ================= INSTRUCTIONAL SECTIONS ================= */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0; }
+  .step { padding: 22px 22px 24px; border: 1px solid var(--rf-line); margin: 0 -1px -1px 0;
+          background: var(--rf-panel); }
+  .step .n { font-family: var(--rf-mono); font-size: 28px; font-weight: 500;
+             color: var(--rf-orange); line-height: 1; }
+  html[data-theme="night"] .step .n { text-shadow: var(--rf-text-glow); }
+  .step h4 { font-family: var(--rf-display); font-size: 16.5px; font-weight: 600;
+             margin: 11px 0 7px; letter-spacing: -.01em; }
+  .step p { font-size: 13.4px; color: var(--rf-ink-dim); margin: 0; max-width: none; }
+
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }
+  .cols h3 { font-family: var(--rf-mono); font-size: 11px; letter-spacing: .18em;
+             text-transform: uppercase; color: var(--rf-teal); margin: 0 0 10px; font-weight: 600; }
+  .cols p { margin: 0 0 11px; font-size: 14px; }
+
+  .pull { border-left: 4px solid var(--rf-orange); background: var(--rf-panel);
+          border-top: 1px solid var(--rf-line); border-right: 1px solid var(--rf-line);
+          border-bottom: 1px solid var(--rf-line);
+          padding: 17px 21px; margin: 24px 0 0; box-shadow: var(--rf-shadow); }
+  .pull p { margin: 0; font-size: 15px; }
+  .pull .who { font-family: var(--rf-mono); font-size: 10px; letter-spacing: .16em;
+               text-transform: uppercase; color: var(--rf-muted); margin-top: 9px; }
+
+  /* legend of evidentiary levels */
+  .evkey { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+           gap: 10px 22px; margin-top: 16px; }
+  .evkey div { font-size: 13.2px; color: var(--rf-ink-dim); }
+  .evkey .rf-badge { margin-right: 8px; }
 
   /* ================= FOOTER ================= */
-  footer { margin-top: 54px; border-top: 3px double var(--rf-ink); padding: 26px 0 70px; }
-  footer .frow { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap;
-                 font-family: var(--rf-mono); font-size: 10.5px; letter-spacing: .14em;
-                 text-transform: uppercase; color: var(--rf-muted); }
+  footer { margin-top: 50px; border-top: 3px double var(--rf-ink); padding: 24px 0 70px; }
+  footer .frow2 { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap;
+                  font-family: var(--rf-mono); font-size: 10.5px; letter-spacing: .14em;
+                  text-transform: uppercase; color: var(--rf-muted); }
   footer a { color: var(--rf-ink-dim); }
   footer a:hover { color: var(--rf-orange); }
 </style>
 </head>
 <body id="top">
+
+<a class="rf-skip" href="#catalogue">Skip to catalogue</a>
 
 <div class="wrap">
 
@@ -154,11 +228,11 @@
     <div class="row1">
       <div>
         <h1 class="wordmark">Simul<em>a</em>tions</h1>
-        <div class="tagline">Interactive research instruments · built for the browser</div>
+        <div class="tagline">An atlas of scientific ways of knowing</div>
       </div>
       <div class="stamp">
         Catalogue <b id="stampCount">—</b><br>
-        Rev. 2026.08 · Self-contained<br>
+        Site rev. 2026.08 · Self-contained<br>
         Press <b>T</b> to change the light
       </div>
     </div>
@@ -168,21 +242,19 @@
   <!-- ============ HERO ============ -->
   <div class="hero">
     <div>
-      <div class="rf-eyebrow">What you are looking at</div>
-      <h1>Small worlds you can <mark>run</mark>, break, and read the instruments of.</h1>
+      <div class="rf-eyebrow">Interactive research instruments</div>
+      <h1>Small worlds built to answer <mark>difficult questions</mark>.</h1>
       <p class="lede">
-        Each entry below is a complete simulation that runs entirely inside your browser —
-        no install, no account, no server doing the thinking. Set the starting conditions,
-        let the world proceed, and watch what the rules you chose actually produce.
-        Most of them will not produce what you expected.
+        Every entry runs entirely in your browser — no install, no account, no server doing
+        the thinking. Set the conditions, let the world proceed, and read the instruments.
       </p>
       <div class="cta">
-        <a class="rf-btn primary" href="#catalogue">Open the catalogue ↓</a>
-        <a class="rf-btn" href="#how">How to read one</a>
+        <a class="rf-btn primary" href="#catalogue">Explore the catalogue ↓</a>
+        <button class="rf-btn" id="pickBtn" type="button">Choose one for me</button>
       </div>
     </div>
 
-    <svg class="orbit" viewBox="0 0 220 220" role="img" aria-label="Orbital diagram">
+    <svg class="orbit" viewBox="0 0 220 220" role="img" aria-label="Diagram: two bodies orbiting a marked centre, captioned run, observe, revise">
       <circle class="o-ring" cx="110" cy="110" r="96"/>
       <circle class="o-ring" cx="110" cy="110" r="72"/>
       <circle class="o-ring" cx="110" cy="110" r="46"/>
@@ -194,125 +266,128 @@
       </g>
       <ellipse class="o-path" cx="110" cy="110" rx="96" ry="34" transform="rotate(-24 110 110)"/>
       <ellipse class="o-path" cx="110" cy="110" rx="72" ry="26" transform="rotate(38 110 110)" opacity=".6"/>
-      <g class="spin"><circle class="o-body" cx="206" cy="110" r="5.4"
-         transform="rotate(-24 110 110)"/></g>
-      <g class="spin rev"><circle class="o-body" cx="182" cy="110" r="3.6" opacity=".7"
-         transform="rotate(38 110 110)"/></g>
+      <g class="spin"><circle class="o-body" cx="206" cy="110" r="5.4" transform="rotate(-24 110 110)"/></g>
+      <g class="spin rev"><circle class="o-body" cx="182" cy="110" r="3.6" opacity=".7" transform="rotate(38 110 110)"/></g>
       <circle class="o-core" cx="110" cy="110" r="17"/>
       <circle class="o-body" cx="110" cy="110" r="5"/>
       <text class="o-lbl" x="110" y="150" text-anchor="middle">RUN · OBSERVE · REVISE</text>
     </svg>
   </div>
 
-  <!-- ============ 01 WHAT ============ -->
-  <section class="doc" id="what">
-    <h2 class="sec"><span class="idx">01</span> What this is <span class="trail"></span></h2>
-    <div class="cols">
-      <div>
-        <h3>Instruments, not games</h3>
-        <p class="dim">There is no score and nothing to win. Each simulation is a working model
-        of a system — a colony, a sealed atmosphere, a shared resource, an oversight regime —
-        with the mechanism written out honestly rather than tuned to feel good.</p>
-        <p class="dim">You get the dials the model actually responds to, and readouts that are
-        allowed to disappoint you.</p>
-      </div>
-      <div>
-        <h3>Everything runs locally</h3>
-        <p class="dim">Open a page and it is already running. The whole model lives in the
-        JavaScript your browser downloaded: no backend, no telemetry, nothing recorded.
-        Refresh and the world starts over.</p>
-        <p class="dim">Several were calibrated headlessly against published data before ever
-        being given an interface.</p>
-      </div>
-      <div>
-        <h3>Grounded in real work</h3>
-        <p class="dim">Most are built on documented experiments and their real numbers —
-        Calhoun's density study, the Biosphere 2 oxygen anomaly, the long-term
-        <em>E. coli</em> evolution experiment, the public-goods literature.</p>
-        <p class="dim">Where a model departs from the record, the page says so.</p>
-      </div>
-    </div>
+  <!-- ============ 01 FEATURED ============ -->
+  <section class="doc" id="featured">
+    <h2 class="sec"><span class="idx">01</span> Featured <span class="trail"></span></h2>
+    <p class="sechint">Three doors, so nobody has to choose from six.</p>
+    <div class="feat" id="feat"></div>
   </section>
 
-  <!-- ============ 02 WHY ============ -->
-  <section class="doc" id="why">
-    <h2 class="sec"><span class="idx">02</span> Why they exist <span class="trail"></span></h2>
-    <div class="cols">
-      <div>
-        <p>Some claims about systems are impossible to argue with and impossible to check.
-        <em>Crowding causes collapse. Sorting people by ability makes societies more efficient.
-        Oversight fails because the wrong people are in charge.</em> They sound like conclusions,
-        but they are really compressed stories about mechanisms nobody has laid out.</p>
-        <p>A simulation forces the mechanism into the open. Once you have to write down how
-        density becomes stress, or how a watchdog gets captured, the claim stops being a slogan
-        and becomes something with parameters — which means it becomes something that can be
-        wrong in a specific way.</p>
-      </div>
-      <div>
-        <p>What tends to happen next is more interesting than the original argument. Systems
-        built from reasonable local rules produce results nobody chose. Interventions that
-        obviously should work do nothing measurable. A metric refuses to move no matter what
-        you vary, and the reason turns out to be structural rather than a bug.</p>
-        <p>That last one has its own entry in the catalogue. One simulation here exists solely
-        because two of its parent's outputs were indistinguishable from noise.</p>
-        <div class="pull">
-          <p>The useful moment is not when the model agrees with you. It's when you can say
-          precisely why it doesn't.</p>
-          <div class="who">Operating principle</div>
+  <!-- ============ 02 CATALOGUE ============ -->
+  <section class="doc" id="catalogue">
+    <h2 class="sec"><span class="idx">02</span> All instruments <span class="trail"></span></h2>
+    <p class="sechint">
+      Filter by what you would be <em>doing</em>, not only by what the simulation is about.
+      That axis — Observe, Diagnose, Design, Measure, Infer — is usually the one that decides
+      whether an instrument is worth your next half hour.
+    </p>
+
+    <div class="filters" role="search" aria-label="Filter the catalogue">
+      <div class="frow" id="filterRows"></div>
+      <div class="frow">
+        <div class="fsearch">
+          <label class="flabel" for="q">Search</label>
+          <input type="search" id="q" placeholder="title, question, domain, method…"
+                 autocomplete="off" aria-describedby="resultCount">
         </div>
       </div>
+      <div class="fbar-foot">
+        <span id="resultCount" role="status" aria-live="polite">—</span>
+        <span class="spacer"></span>
+        <button class="linkbtn" id="clearBtn" type="button">Clear all filters</button>
+      </div>
     </div>
+
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" hidden>No instrument matches those filters</div>
   </section>
 
-  <!-- ============ 03 HOW ============ -->
+  <!-- ============ 03 HOW TO READ ONE ============ -->
   <section class="doc" id="how">
-    <h2 class="sec"><span class="idx">03</span> How to read one <span class="trail"></span></h2>
-    <p class="dim" style="margin:-6px 0 22px">Four habits that make any of these worth more than
-    five minutes of watching dots move.</p>
+    <h2 class="sec"><span class="idx">03</span> How to read a model <span class="trail"></span></h2>
+    <p class="sechint">Four habits that make any of these worth more than five minutes of watching dots move.</p>
     <div class="steps">
       <div class="step">
         <div class="n">01</div>
         <h4>Run it once and don't touch anything</h4>
-        <p>Every simulation opens on a sensible default and starts immediately. Let it play through
-        before you reach for a slider — you need a baseline to have an opinion about.</p>
+        <p>Every instrument opens on a sensible default and starts immediately. Let it play through
+        before you reach for a control — you need a baseline to have an opinion about.</p>
       </div>
       <div class="step">
         <div class="n">02</div>
         <h4>Change one thing</h4>
-        <p>Move a single parameter, reset, and run again. Changing three at once produces a
-        different world but no information about which change caused what.</p>
+        <p>Move a single parameter, reset, run again. Changing three at once produces a different
+        world but no information about which change caused what.</p>
       </div>
       <div class="step">
         <div class="n">03</div>
-        <h4>Predict before you look</h4>
-        <p>Say out loud what you expect the readout to do. The value of these things is
-        concentrated almost entirely in the gap between that prediction and the result.</p>
+        <h4>Watch the mechanism, not the outcome</h4>
+        <p>Say out loud what you expect, then look at <em>how</em> the model got where it got.
+        The value is concentrated almost entirely in the gap between the prediction and the route.</p>
       </div>
       <div class="step">
         <div class="n">04</div>
-        <h4>Read the notes</h4>
-        <p>Each page documents its own assumptions, its calibration, and what it deliberately
-        does not model. That section is where the honest limits are, and it is short.</p>
+        <h4>Read the limitations</h4>
+        <p>Every instrument has a methods page stating its assumptions, its calibration and what it
+        deliberately does not model. That is where the honest limits are, and it is short.</p>
       </div>
     </div>
   </section>
 
-  <!-- ============ 04 CATALOGUE ============ -->
-  <section class="doc" id="catalogue">
-    <h2 class="sec"><span class="idx">04</span> The catalogue <span class="trail"></span></h2>
-    <div class="catline">
-      <span id="count">—</span>
-      <span class="rf-sep">·</span>
-      <span>All entries open directly in this browser</span>
+  <!-- ============ 04 SCIENTIFIC STANDARD ============ -->
+  <section class="doc" id="standard">
+    <h2 class="sec"><span class="idx">04</span> Scientific standard <span class="trail"></span></h2>
+    <p class="sechint">
+      Not every entry here has the same evidentiary standing, and pretending otherwise would be the
+      quickest way to make the whole catalogue untrustworthy. Each instrument carries a badge.
+    </p>
+    <div class="cols">
+      <div>
+        <h3>Sources</h3>
+        <p class="dim">Where a simulation is built on documented work — Calhoun's density study, the
+        1991–93 Biosphere 2 closure, the long-term <em>E. coli</em> evolution experiment, the
+        public-goods literature — the methods page names it and says where the model departs from
+        the record.</p>
+        <h3 style="margin-top:22px">Assumptions</h3>
+        <p class="dim">Numbers are labelled by provenance: documented, estimated, invented, emergent.
+        Two of the instruments carry a full assumption register; all of them state what they simplify.</p>
+      </div>
+      <div>
+        <h3>Validation</h3>
+        <p class="dim">Calibration is reported as a table of model output against published values,
+        including where the model misses. Conservation laws are checked numerically where they apply —
+        Biosphere's carbon ledger closes to within 0.03 per cent over a simulated year.</p>
+        <h3 style="margin-top:22px">Reproducibility</h3>
+        <p class="dim">Seeded runs replay exactly. Where an instrument reports a sensitivity ranking,
+        decoy parameters are wired into the screen and read by nothing, so the noise floor is measured
+        rather than assumed.</p>
+      </div>
     </div>
-    <div class="grid" id="grid"></div>
+
+    <div class="pull">
+      <p>A result that survives a decoy check is worth more than a result that merely agrees with you.</p>
+      <div class="who">Operating principle</div>
+    </div>
+
+    <h3 style="font-family:var(--rf-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+               color:var(--rf-teal);margin:30px 0 0;font-weight:600">The five levels</h3>
+    <div class="evkey" id="evkey"></div>
   </section>
 
   <!-- ============ FOOTER ============ -->
   <footer>
-    <div class="frow">
+    <div class="frow2">
       <div>Candice Cantrelle · 2026</div>
       <div>
+        <a href="#catalogue">Methods index</a> ·
         <a href="mailto:hello@candicecantrelle.com">Email</a> ·
         <a href="https://www.linkedin.com/in/candice-cantrelle">LinkedIn</a> ·
         <a href="https://x.com/Unicorn0_0Cakes">X</a>
@@ -324,124 +399,42 @@
 </div>
 
 <script>
-/* ---------------------------------------------------------------
-   Add a new simulation by dropping another object into this array.
-   thumb: pass a URL to your own screenshot, OR leave it null to use
-   the built-in generated preview keyed by `preview`.
-----------------------------------------------------------------*/
-const SIMULATIONS = [
-  {
-    title: "Universe 25",
-    tag: "Behavioral Ecology",
-    href: "universe-25/universe25.html",
-    preview: "universe25",
-    thumb: null,
-    description: "A living recreation of Calhoun's “mouse utopia” — unlimited resources, limited space. Watch a colony rise and collapse through Growth → Breakdown → Collapse, with predators, terrain, water, fish and birds all interacting.",
-    chips: ["Mice & predators", "Terrain & water", "Live charts", "Presets"]
-  },
-  {
-    title: "The Commons",
-    tag: "Cooperation & Collapse",
-    href: "commons/commons.html",
-    preview: "commons",
-    thumb: null,
-    description: "Everyone gets their own resources, but survival depends on a shared system nobody is forced to maintain. Write the rules of the society — abundance, visibility, punishment, information accuracy — then watch what kind of society emerges, and what its survival costs.",
-    chips: ["Public-goods game", "Emergent behavior", "Trust & rumor", "Live dashboard"]
-  },
-  {
-    title: "Biosphere: Closed World",
-    tag: "Closed Ecological Systems",
-    href: "biosphere/biosphere.html",
-    preview: "biosphere",
-    thumb: null,
-    description: "Eight people, seven biomes and one atmosphere with nowhere to go, sealed inside three acres of glass. Oxygen starts disappearing and carbon dioxide doesn't rise to match. Diagnose a living machine through imperfect instruments, and decide what you'll break to keep everyone breathing.",
-    chips: ["Causal diagnosis", "Carbon & oxygen budget", "Hypothesis workbench", "Historically informed"]
-  },
-  {
-    title: "Evolution in a Flask",
-    tag: "Experimental Evolution",
-    href: "flask/flask.html",
-    preview: "flask",
-    thumb: null,
-    description: "Twelve populations, the same thin sugar medium, one transfer a day, fifty thousand generations of nothing else happening. Fitness is never reported — it is a competition you set up against something you were careful enough to freeze, using bench hours you could have spent elsewhere.",
-    chips: ["Twelve parallel worlds", "Muller plots & lineage trees", "Measurement costs time", "Replay experiments"]
-  },
-  {
-    title: "The Cognitive Civilization Experiment",
-    tag: "Computational Social Science",
-    href: "cce/cce.html",
-    preview: "cce",
-    thumb: null,
-    description: "Three societies of a hundred thousand people, five hundred years, the same disasters in each. One sorts people by an IQ score, one removes the obstacles instead, one matches many abilities at once. A research instrument rather than a game — matched seeds, preregistered effect sizes, and a model built so that no single number is allowed to explain a person.",
-    chips: ["Matched-seed design", "500 simulated years", "Real run data", "Reproducible & checksummed"]
-  },
-  {
-    title: "Sentinel: The Oversight Experiment",
-    tag: "Institutional Dynamics",
-    href: "sentinel/sentinel.html",
-    preview: "sentinel",
-    thumb: null,
-    description: "A spin-off built around the two metrics its parent simulation could not move. Detection delay and governance quality were white noise there, and not for want of tuning — both were structurally severed from anything the experiment varied. This rebuilds everything upstream of them: institutional memory, adversaries who adapt, oversight bodies that fail together, and a capture threshold past which the audit function folds.",
-    chips: ["Live global sensitivity", "Decoy-validated ranking", "Bistable capture cascade", "Runs in the page"]
-  }
-  // ,{
-  //   title: "Next Simulation",
-  //   tag: "Category",
-  //   href: "next-sim/next-sim.html",
-  //   preview: null,
-  //   thumb: "screenshots/next-sim.png",
-  //   description: "One-line description of the next simulation.",
-  //   chips: ["tag one", "tag two"]
-  // }
-];
+/* =====================================================================
+   The catalogue data lives in assets/catalogue.js. This file only
+   renders it, filters it, and draws the preview plates.
+   ================================================================== */
 
-/* ---------------------------------------------------------------
-   Generated preview plates. These are drawn with CSS variables so
-   the same markup reads as ink-on-paper by day and phosphor by night.
-----------------------------------------------------------------*/
+/* ---------------------- preview plates ---------------------------- */
 const PLATE = {
-  bg:   "var(--rf-canvas)",
-  grid: "var(--rf-line-soft)",
-  rule: "var(--rf-line)",
-  ink:  "var(--rf-canvas-ink)",
-  dim:  "var(--rf-muted)",
-  o:    "var(--rf-orange)",
-  t:    "var(--rf-teal)",
-  g:    "var(--rf-gold)",
-  x:    "var(--rf-oxide)",
-  v:    "var(--rf-violet)",
-  ok:   "var(--rf-ok)"
+  bg: "var(--rf-canvas)", grid: "var(--rf-line-soft)", rule: "var(--rf-line)",
+  ink: "var(--rf-canvas-ink)", dim: "var(--rf-muted)",
+  o: "var(--rf-orange)", t: "var(--rf-teal)", g: "var(--rf-gold)",
+  x: "var(--rf-oxide)", v: "var(--rf-violet)", ok: "var(--rf-ok)"
 };
-
-function frame(inner, corner) {
-  return `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-    <rect width="320" height="180" fill="${PLATE.bg}"/>
-    <g opacity=".5">${gridlines()}</g>
-    ${inner}
-    <rect x="6.5" y="6.5" width="307" height="167" fill="none" stroke="${PLATE.rule}" stroke-width="1"/>
-    <text x="12" y="171" fill="${PLATE.dim}" font-size="6.5" font-family="monospace"
-      letter-spacing="1.4">${corner}</text>
-  </svg>`;
-}
 function gridlines() {
   let g = "";
   for (let x = 20; x < 320; x += 20) g += `<line x1="${x}" y1="7" x2="${x}" y2="173" stroke="${PLATE.grid}" stroke-width=".5"/>`;
   for (let y = 20; y < 180; y += 20) g += `<line x1="7" y1="${y}" x2="313" y2="${y}" stroke="${PLATE.grid}" stroke-width=".5"/>`;
   return g;
 }
+function frame(inner, corner) {
+  return `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect width="320" height="180" fill="${PLATE.bg}"/>
+    <g opacity=".5">${gridlines()}</g>
+    ${inner}
+    <rect x="6.5" y="6.5" width="307" height="167" fill="none" stroke="${PLATE.rule}" stroke-width="1"/>
+    <text x="12" y="171" fill="${PLATE.dim}" font-size="6.5" font-family="monospace" letter-spacing="1.4">${corner}</text>
+  </svg>`;
+}
 function rng(seed) { return () => (seed = (seed * 9301 + 49297) % 233280) / 233280; }
 
 function previewSVG(key) {
-
   if (key === "universe25") {
-    // a plan view of the enclosure: pens, water, cover, and the population in it
-    const r = rng(7);
-    const cols = [PLATE.ok, PLATE.g, PLATE.x, PLATE.t, PLATE.v];
+    const r = rng(7); const cols = [PLATE.ok, PLATE.g, PLATE.x, PLATE.t, PLATE.v];
     let dots = "";
     for (let i = 0; i < 96; i++) {
       const x = 14 + r() * 292, y = 14 + r() * 152;
-      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.5 + r() * 1.7).toFixed(1)}"
-        fill="${cols[Math.floor(r() * cols.length)]}" opacity=".9"/>`;
+      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.5 + r() * 1.7).toFixed(1)}" fill="${cols[Math.floor(r() * cols.length)]}" opacity=".9"/>`;
     }
     return frame(`
       <rect x="30" y="96" width="72" height="36" fill="${PLATE.ok}" opacity=".16" stroke="${PLATE.ok}" stroke-width=".8"/>
@@ -450,63 +443,43 @@ function previewSVG(key) {
       <path d="M8 68 q80 -22 156 6 t148 -2" stroke="${PLATE.t}" stroke-width="9" fill="none" opacity=".22"/>
       ${dots}`, "PLATE I — ENCLOSURE, PLAN VIEW");
   }
-
   if (key === "commons") {
-    // three factions tethered to one shared stock
-    const r = rng(11);
-    const fac = [PLATE.o, PLATE.v, PLATE.t];
-    const coop = [PLATE.ok, PLATE.g, PLATE.x];
-    const cx = 160, cy = 90;
-    let nodes = "";
+    const r = rng(11); const fac = [PLATE.o, PLATE.v, PLATE.t]; const coop = [PLATE.ok, PLATE.g, PLATE.x];
+    const cx = 160, cy = 90; let nodes = "";
     [[70, 52], [252, 58], [158, 148]].forEach((c, f) => {
       for (let i = 0; i < 8; i++) {
         const x = c[0] + r() * 46 - 23, y = c[1] + r() * 38 - 19;
-        nodes += `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}"
-          x2="${(cx + (x - cx) * .36).toFixed(1)}" y2="${(cy + (y - cy) * .36).toFixed(1)}"
-          stroke="${fac[f]}" stroke-width="${(.5 + r() * 1.2).toFixed(1)}" opacity=".45"/>`;
-        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(3.4 + r() * 3).toFixed(1)}"
-          fill="${fac[f]}" opacity=".16"/>`;
-        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(2.2 + r() * 2.4).toFixed(1)}"
-          fill="${coop[Math.floor(r() * 3)]}"/>`;
+        nodes += `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${(cx + (x - cx) * .36).toFixed(1)}" y2="${(cy + (y - cy) * .36).toFixed(1)}" stroke="${fac[f]}" stroke-width="${(.5 + r() * 1.2).toFixed(1)}" opacity=".45"/>`;
+        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(3.4 + r() * 3).toFixed(1)}" fill="${fac[f]}" opacity=".16"/>`;
+        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(2.2 + r() * 2.4).toFixed(1)}" fill="${coop[Math.floor(r() * 3)]}"/>`;
       }
     });
-    return frame(`
-      ${nodes}
+    return frame(`${nodes}
       <circle cx="${cx}" cy="${cy}" r="31" fill="${PLATE.bg}" stroke="${PLATE.ink}" stroke-width="1.4"/>
       <clipPath id="cmclip"><circle cx="${cx}" cy="${cy}" r="29"/></clipPath>
       <rect x="${cx - 32}" y="${cy - 3}" width="64" height="32" fill="${PLATE.t}" opacity=".55" clip-path="url(#cmclip)"/>
-      <text x="${cx}" y="${cy + 4}" fill="${PLATE.ink}" font-size="13" font-weight="700"
-        text-anchor="middle" font-family="monospace">72%</text>`,
+      <text x="${cx}" y="${cy + 4}" fill="${PLATE.ink}" font-size="13" font-weight="700" text-anchor="middle" font-family="monospace">72%</text>`,
       "FIG. 2 — COMMON STOCK vs. THREE FACTIONS");
   }
-
   if (key === "biosphere") {
-    // section through the glass, with the two gas traces that never met
-    const r = rng(23);
-    let trees = "", crops = "", beads = "";
+    const r = rng(23); let trees = "", crops = "", beads = "";
     for (let i = 0; i < 11; i++) {
       const x = 14 + i * 7.6, h = 26 + r() * 44;
-      trees += `<rect x="${(x - .6).toFixed(1)}" y="${(124 - h * .42).toFixed(1)}" width="1.2"
-        height="${(h * .42).toFixed(1)}" fill="${PLATE.ok}" opacity=".85"/>`;
-      trees += `<ellipse cx="${x.toFixed(1)}" cy="${(124 - h * .62).toFixed(1)}"
-        rx="${(h * .16).toFixed(1)}" ry="${(h * .28).toFixed(1)}" fill="${PLATE.ok}" opacity=".6"/>`;
+      trees += `<rect x="${(x - .6).toFixed(1)}" y="${(124 - h * .42).toFixed(1)}" width="1.2" height="${(h * .42).toFixed(1)}" fill="${PLATE.ok}" opacity=".85"/>`;
+      trees += `<ellipse cx="${x.toFixed(1)}" cy="${(124 - h * .62).toFixed(1)}" rx="${(h * .16).toFixed(1)}" ry="${(h * .28).toFixed(1)}" fill="${PLATE.ok}" opacity=".6"/>`;
     }
     for (let i = 0; i < 15; i++) {
       const x = 208 + i * 4.2, h = 5 + r() * 15;
-      crops += `<rect x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="2.4" height="${h.toFixed(1)}"
-        fill="${PLATE.ok}" opacity=".7"/>`;
+      crops += `<rect x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="2.4" height="${h.toFixed(1)}" fill="${PLATE.ok}" opacity=".7"/>`;
     }
     for (let i = 0; i < 34; i++)
-      beads += `<circle cx="${(12 + r() * 296).toFixed(1)}" cy="${(30 + r() * 88).toFixed(1)}"
-        r="${(.7 + r()).toFixed(1)}" fill="${PLATE.t}" opacity="${(.25 + r() * .4).toFixed(2)}"/>`;
+      beads += `<circle cx="${(12 + r() * 296).toFixed(1)}" cy="${(30 + r() * 88).toFixed(1)}" r="${(.7 + r()).toFixed(1)}" fill="${PLATE.t}" opacity="${(.25 + r() * .4).toFixed(2)}"/>`;
     let o2 = "M12 46", co2 = "M12 64";
     for (let i = 1; i <= 16; i++) {
       o2 += ` L${(12 + i * 18.5).toFixed(0)} ${(46 + i * 1.5 + Math.sin(i * 1.7) * 1.3).toFixed(1)}`;
       co2 += ` L${(12 + i * 18.5).toFixed(0)} ${(64 - Math.max(0, i - 11) * 2.1 + Math.sin(i * 2.1) * .8).toFixed(1)}`;
     }
-    const bay = (x1, x2, top, peak) =>
-      `<path d="M${x1} 124 L${x1} ${top} L${(x1 + x2) / 2} ${peak} L${x2} ${top} L${x2} 124"
-        fill="${PLATE.t}" fill-opacity=".07" stroke="${PLATE.rule}" stroke-width=".9"/>`;
+    const bay = (x1, x2, top, peak) => `<path d="M${x1} 124 L${x1} ${top} L${(x1 + x2) / 2} ${peak} L${x2} ${top} L${x2} 124" fill="${PLATE.t}" fill-opacity=".07" stroke="${PLATE.rule}" stroke-width=".9"/>`;
     return frame(`
       <rect x="7" y="124" width="306" height="49" fill="${PLATE.rule}" opacity=".18"/>
       ${bay(12, 100, 42, 22)}${bay(100, 158, 68, 56)}${bay(158, 206, 74, 62)}${bay(206, 288, 60, 46)}
@@ -519,14 +492,10 @@ function previewSVG(key) {
       <text x="238" y="20" fill="${PLATE.o}" font-size="7.5" font-family="monospace">CO₂ FLAT</text>`,
       "SECTION A–A — SEALED ENCLOSURE");
   }
-
   if (key === "flask") {
-    // Muller plot over twelve flasks; number nine has gone conspicuously cloudy
-    const r = rng(41);
-    const cols = [PLATE.t, PLATE.g, PLATE.o, PLATE.x, PLATE.ok, PLATE.v];
+    const r = rng(41); const cols = [PLATE.t, PLATE.g, PLATE.o, PLATE.x, PLATE.ok, PLATE.v];
     const N = 64, x0 = 12, x1 = 308, top = 20, bot = 118;
-    const X = i => x0 + i * (x1 - x0) / (N - 1);
-    const Y = f => bot - f * (bot - top);
+    const X = i => x0 + i * (x1 - x0) / (N - 1), Y = f => bot - f * (bot - top);
     const clades = [
       { t0: .02, k: 26, cap: 1.00, c: 0 }, { t0: .14, k: 22, cap: .88, c: 1 },
       { t0: .30, k: 20, cap: .71, c: 2 }, { t0: .46, k: 24, cap: .52, c: 3 },
@@ -548,27 +517,21 @@ function previewSVG(key) {
       flasks += `<path d="${d}" fill="${col}" opacity="${(dense ? .95 : .28 + r() * .24).toFixed(2)}"/>`;
       flasks += `<path d="${d}" fill="none" stroke="${PLATE.rule}" stroke-width=".8"/>`;
     }
-    return frame(`
-      ${bands}${flasks}
+    return frame(`${bands}${flasks}
       <text x="12" y="16" fill="${PLATE.dim}" font-size="7" font-family="monospace">GEN 0</text>
       <text x="308" y="16" fill="${PLATE.dim}" font-size="7" font-family="monospace" text-anchor="end">50,000</text>
       <text x="226" y="169" fill="${PLATE.v}" font-size="7" font-family="monospace">Cit+</text>`,
       "MULLER PLOT — ARA−3 LINEAGE");
   }
-
   if (key === "cce") {
-    // three matched arms under one shared history of shocks
-    const r = rng(23);
-    let bars = "";
+    const r = rng(23); let bars = "";
     for (let i = 0; i < 9; i++) {
       const x = 18 + r() * 284;
-      bars += `<line x1="${x.toFixed(1)}" y1="20" x2="${x.toFixed(1)}" y2="150"
-        stroke="${PLATE.dim}" stroke-width="1" opacity="${(.18 + r() * .25).toFixed(2)}"/>`;
+      bars += `<line x1="${x.toFixed(1)}" y1="20" x2="${x.toFixed(1)}" y2="150" stroke="${PLATE.dim}" stroke-width="1" opacity="${(.18 + r() * .25).toFixed(2)}"/>`;
     }
     let paths = "";
     [[PLATE.o, 118, .9], [PLATE.t, 80, 1.15], [PLATE.v, 98, 1.0]].forEach(([c, base, k]) => {
-      let d = "", s = base;
-      const r2 = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+      let d = "", s = base; const r2 = () => (s = (s * 9301 + 49297) % 233280) / 233280;
       for (let i = 0; i <= 64; i++) {
         const y = base - (i / 64) * 38 * k + (r2() - .5) * 7;
         d += (i ? "L" : "M") + (14 + i * 4.55).toFixed(1) + " " + Math.max(22, Math.min(148, y)).toFixed(1) + " ";
@@ -578,17 +541,14 @@ function previewSVG(key) {
     let bands = "";
     for (let i = 0; i < 10; i++) {
       const h = 4 + Math.round(11 * Math.exp(-Math.pow((i - 4.5) / 2.6, 2)));
-      bands += `<rect x="${(16 + i * 29).toFixed(0)}" y="${166 - h}" width="21" height="${h}"
-        fill="${PLATE.o}" opacity="${(.22 + i * .045).toFixed(2)}"/>`;
+      bands += `<rect x="${(16 + i * 29).toFixed(0)}" y="${166 - h}" width="21" height="${h}" fill="${PLATE.o}" opacity="${(.22 + i * .045).toFixed(2)}"/>`;
     }
     return frame(`${bars}${paths}${bands}
       <text x="12" y="16" fill="${PLATE.dim}" font-size="7" font-family="monospace">YEAR 0</text>
       <text x="308" y="16" fill="${PLATE.dim}" font-size="7" font-family="monospace" text-anchor="end">500</text>`,
       "THREE ARMS · MATCHED SHOCK HISTORY");
   }
-
   if (key === "sentinel") {
-    // a tornado plot: real parameters ranked against three decoys
     const rows = [
       [.92, PLATE.o, "MEMORY DECAY"], [.78, PLATE.o, "ADVERSARY ADAPT"],
       [.61, PLATE.o, "BODY CORRELATION"], [.44, PLATE.t, "AUDIT BUDGET"],
@@ -596,51 +556,186 @@ function previewSVG(key) {
       [.09, PLATE.dim, "DECOY β"], [.06, PLATE.dim, "DECOY γ"]
     ];
     let bars = "";
-    rows.forEach(([v, c], i) => {
+    rows.forEach(([v, c, label], i) => {
       const y = 22 + i * 17;
       bars += `<rect x="120" y="${y}" width="${(v * 174).toFixed(0)}" height="10" fill="${c}" opacity=".9"/>`;
-      bars += `<text x="114" y="${y + 8.4}" fill="${PLATE.dim}" font-size="6.4" font-family="monospace"
-        text-anchor="end" letter-spacing=".6">${rows[i][2]}</text>`;
+      bars += `<text x="114" y="${y + 8.4}" fill="${PLATE.dim}" font-size="6.4" font-family="monospace" text-anchor="end" letter-spacing=".6">${label}</text>`;
     });
     return frame(`
       <line x1="120" y1="16" x2="120" y2="162" stroke="${PLATE.ink}" stroke-width="1"/>
       <line x1="120" y1="120" x2="308" y2="120" stroke="${PLATE.x}" stroke-width=".9" stroke-dasharray="3 3"/>
       ${bars}
-      <text x="306" y="118" fill="${PLATE.x}" font-size="6.4" font-family="monospace"
-        text-anchor="end">NOISE FLOOR</text>`,
+      <text x="306" y="118" fill="${PLATE.x}" font-size="6.4" font-family="monospace" text-anchor="end">NOISE FLOOR</text>`,
       "GLOBAL SENSITIVITY — DECOY-VALIDATED");
   }
-
-  return frame(`
-    <circle cx="160" cy="90" r="34" fill="none" stroke="${PLATE.o}" stroke-width="2" opacity=".8"/>
+  return frame(`<circle cx="160" cy="90" r="34" fill="none" stroke="${PLATE.o}" stroke-width="2" opacity=".8"/>
     <circle cx="160" cy="90" r="6" fill="${PLATE.o}"/>`, "PLATE — UNTITLED");
 }
 
-/* ------------------------------ render ------------------------------ */
-function render() {
-  const n = SIMULATIONS.length;
-  const label = String(n).padStart(2, "0") + (n === 1 ? " simulation" : " simulations");
-  document.getElementById("count").textContent = label;
-  document.getElementById("stampCount").textContent = String(n).padStart(2, "0") + " entries";
+/* ------------------------- filter state --------------------------- */
+const FACETS = [
+  { key: "domain",     label: "Domain" },
+  { key: "mode",       label: "What you do" },
+  { key: "duration",   label: "Duration" },
+  { key: "complexity", label: "Difficulty" },
+  { key: "model",      label: "Model type" },
+  { key: "state",      label: "Status" }
+];
+const active = {};                       // facet -> Set of selected values
+FACETS.forEach(f => active[f.key] = new Set());
+let query = "";
 
-  document.getElementById("grid").innerHTML = SIMULATIONS.map((s, i) => {
-    const thumb = s.thumb ? `<img src="${s.thumb}" alt="${s.title} preview">` : previewSVG(s.preview);
-    const chips = (s.chips || []).map(c => `<span class="rf-chip">${c}</span>`).join("");
-    return `
-      <article class="card">
-        <a class="stretched" href="${s.href}" aria-label="Open ${s.title}"></a>
-        <div class="thumb">${thumb}</div>
-        <div class="hd"><span class="no">${String(i + 1).padStart(2, "0")}</span><span>${s.tag}</span></div>
-        <div class="body">
-          <h3>${s.title}</h3>
-          <p>${s.description}</p>
-          ${chips ? `<div class="chips">${chips}</div>` : ""}
-          <span class="go">Open simulation →</span>
+function buildFilters() {
+  document.getElementById("filterRows").innerHTML = FACETS.map(f => `
+    <div class="fgroup" role="group" aria-label="${f.label}">
+      <span class="flabel">${f.label}</span>
+      <div class="fopts">
+        ${TAXONOMY[f.key].map(v => `
+          <button class="fopt" type="button" role="switch" aria-pressed="false"
+                  data-facet="${f.key}" data-value="${v}">${v}</button>`).join("")}
+      </div>
+    </div>`).join("");
+
+  document.querySelectorAll(".fopt").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const { facet, value } = btn.dataset;
+      const set = active[facet];
+      set.has(value) ? set.delete(value) : set.add(value);
+      btn.setAttribute("aria-pressed", String(set.has(value)));
+      render();
+    });
+  });
+}
+
+function matches(s) {
+  for (const f of FACETS) {
+    const set = active[f.key];
+    if (!set.size) continue;
+    const val = s[f.key];
+    const vals = Array.isArray(val) ? val : [val];
+    if (!vals.some(v => set.has(v))) return false;
+  }
+  if (query) {
+    const hay = [s.title, s.question, s.role, s.domain, s.duration, s.complexity, s.state,
+                 ...(s.mode || []), ...(s.model || []), ...(s.chips || []), s.blurb]
+                .join(" ").toLowerCase();
+    if (!hay.includes(query)) return false;
+  }
+  return true;
+}
+
+/* ---------------------------- render ------------------------------ */
+function cardHTML(s, i) {
+  const thumb = s.thumb ? `<img src="${s.thumb}" alt="">` : previewSVG(s.preview);
+  const dev = s.state === "Development";
+  const descId = `desc-${s.id}`;
+  return `
+    <article class="card ${dev ? "is-dev" : ""}">
+      <div class="thumb">
+        ${thumb}
+        ${s.flags && s.flags.length ? `<div class="flags">${Orbital.flagChips(s.flags)}</div>` : ""}
+      </div>
+      <div class="hd">
+        <span class="no">${String(i + 1).padStart(2, "0")}</span>
+        <span>${s.domain}</span><span aria-hidden="true">·</span><span>${s.state}</span>
+      </div>
+      <div class="body">
+        <h3 id="t-${s.id}">${s.title}</h3>
+        <dl class="qa" id="${descId}">
+          <dt>The question</dt>
+          <dd>${s.question}</dd>
+          <dt>Your role</dt>
+          <dd>${s.role}</dd>
+        </dl>
+        <div class="specline">
+          ${s.duration} · ${s.complexity} · ${s.model.join(" + ")}
+          <br>v${s.version} · Updated ${s.updated}
         </div>
-      </article>`;
+        <div class="badges">
+          ${Orbital.evidenceBadge(s.evidence)}
+          ${Orbital.stateBadge(s.state)}
+        </div>
+        <div class="actions">
+          ${dev
+            ? `<span class="rf-btn" aria-disabled="true" style="opacity:.5;cursor:not-allowed">In development</span>`
+            : `<a class="rf-btn primary rf-cardlink" href="${s.href}"
+                  aria-labelledby="t-${s.id}" aria-describedby="${descId}">Run instrument</a>`}
+          <a class="rf-btn" href="${s.methods}"
+             aria-label="Read methods for ${s.title}">Methods</a>
+        </div>
+      </div>
+    </article>`;
+}
+
+function render() {
+  const shown = CATALOGUE.filter(matches);
+  const grid = document.getElementById("grid");
+  grid.innerHTML = shown.map(cardHTML).join("");
+  document.getElementById("empty").hidden = shown.length > 0;
+
+  const n = shown.length, total = CATALOGUE.length;
+  document.getElementById("resultCount").textContent =
+    n === total ? `Showing all ${total} instruments` : `Showing ${n} of ${total} instruments`;
+}
+
+function renderFeatured() {
+  document.getElementById("feat").innerHTML = FEATURED.map(f => {
+    const s = byId(f.id);
+    if (!s) return "";
+    return `
+      <div class="fcard">
+        <div class="kind">${f.kind}</div>
+        <h3 id="f-${s.id}">${s.title}</h3>
+        <p class="why">${f.why}</p>
+        <div class="meta">${s.duration} · ${s.complexity} · ${s.mode[0]}</div>
+        <a class="rf-btn primary go" href="${s.href}" aria-labelledby="f-${s.id}">Run instrument</a>
+      </div>`;
   }).join("");
 }
 
+function renderEvidenceKey() {
+  const notes = {
+    "Historical reconstruction":      "Rebuilds a documented experiment and reports where it departs from the record.",
+    "Established mathematical model": "Implements published equations whose behaviour is already well characterised.",
+    "Exploratory agent-based model":  "Dramatises mechanisms from the literature; the numbers illustrate, they do not measure.",
+    "Calibrated research model":      "Tuned headlessly against published benchmarks, with the comparison table shown.",
+    "Uncalibrated prototype":         "Runs and is internally consistent, but no parameter is fitted to anything real."
+  };
+  const cls = { "Historical reconstruction": "ev-historical", "Established mathematical model": "ev-established",
+                "Exploratory agent-based model": "ev-exploratory", "Calibrated research model": "ev-calibrated",
+                "Uncalibrated prototype": "ev-prototype" };
+  document.getElementById("evkey").innerHTML = EVIDENCE_LEVELS.map(l =>
+    `<div><span class="rf-badge ${cls[l]}">${l}</span><br>${notes[l]}</div>`).join("");
+}
+
+/* --------------------------- wiring ------------------------------- */
+document.getElementById("q").addEventListener("input", e => {
+  query = e.target.value.trim().toLowerCase();
+  render();
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  FACETS.forEach(f => active[f.key].clear());
+  query = "";
+  document.getElementById("q").value = "";
+  document.querySelectorAll(".fopt").forEach(b => b.setAttribute("aria-pressed", "false"));
+  render();
+});
+
+/* "Choose one for me" — a real random pick among what is playable now,
+   because the point is to remove the decision, not to add another one. */
+document.getElementById("pickBtn").addEventListener("click", () => {
+  const pool = CATALOGUE.filter(s => s.state !== "Development");
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  location.href = pick.href;
+});
+
+document.getElementById("stampCount").textContent =
+  String(CATALOGUE.length).padStart(2, "0") + " entries";
+
+buildFilters();
+renderFeatured();
+renderEvidenceKey();
 render();
 </script>
 </body>
