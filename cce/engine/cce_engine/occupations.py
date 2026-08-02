@@ -70,7 +70,11 @@ NOVELTY = np.array([o[9] for o in _OCC], dtype=np.float32)
 
 # Requirement level on the Year-0 absolute scale (mean 100, SD 15).
 # A complexity-0.5 role requires roughly the population mean on its key dims.
-_W = _MIX @ _A2D                                   # (N_OCC, N_DIMS) emphasis
+_W = np.sum(
+    _MIX[:, :, None] * _A2D[None, :, :],
+    axis=1,
+    dtype=np.float64,
+).astype(np.float32)                                   # (N_OCC, N_DIMS) emphasis
 _W = _W / np.maximum(_W.sum(axis=1, keepdims=True), 1e-6)
 REQ_LEVEL = 100.0 + 30.0 * (COMPLEXITY - 0.5)      # required level on key dims
 REQUIRE = (REQ_LEVEL[:, None] * np.ones((1, len(DIMS)), dtype=np.float32)).astype(np.float32)
@@ -108,7 +112,22 @@ def fit_scores(latent: np.ndarray, phys: np.ndarray, expertise: np.ndarray,
     penalty = np.empty((n, N_OCC), dtype=np.float32)
     for j in range(N_OCC):  # loop over 24 jobs, vectorised over citizens
         short = np.maximum(REQUIRE[j][None, :] - latent, 0.0)
-        penalty[:, j] = short @ WEIGHT[j]
+
+        if not np.isfinite(short).all():
+            raise FloatingPointError(
+                f"Non-finite occupational shortfall values for occupation {j}"
+            )
+
+        if not np.isfinite(WEIGHT[j]).all():
+            raise FloatingPointError(
+                f"Non-finite occupational weights for occupation {j}"
+            )
+
+        penalty[:, j] = np.sum(
+            short * WEIGHT[j],
+            axis=1,
+            dtype=np.float64,
+        ).astype(np.float32)
     phys_pen = np.maximum(PHYSICAL[None, :] - phys[:, None], 0.0) * 40.0
     score = -penalty - phys_pen
     score += 8.0 * expertise[:, None]
