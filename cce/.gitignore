@@ -1,6 +1,31 @@
+# Generated simulation output
 runs/
 batches/
 replay/
+
+# Local Python environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python caches and tooling
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Packaging and build output
+build/
+dist/
+*.egg-info/
+
+# Notebook and operating-system files
+.ipynb_checkpoints/
 .DS_Store
