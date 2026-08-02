@@ -1,9 +1,9 @@
 :root{
-  --bg:#0b0d12; --panel:#141821; --panel2:#1b202b; --line:#28303e;
-  --ink:#e8ecf4; --muted:#8b95a7; --accent:#6ea8fe;
-  --normal:#3fb96b; --stressed:#e8c447; --aggressive:#e5484d;
-  --withdrawn:#4a7bff; --beautiful:#c96bd8;
-  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --bg:var(--rf-bg); --panel:var(--rf-panel); --panel2:var(--rf-panel2); --line:var(--rf-line);
+  --ink:var(--rf-ink); --muted:var(--rf-muted); --accent:var(--rf-orange);
+  --normal:var(--rf-ok); --stressed:var(--rf-watch); --aggressive:var(--rf-danger);
+  --withdrawn:var(--rf-info); --beautiful:var(--rf-violet);
+  --font:var(--rf-sans);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
@@ -15,7 +15,7 @@ header .sub{color:var(--muted);font-size:13px;max-width:640px}
 
 /* sticky runtime toolbar — always-visible operate controls */
 .toolbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;
-  flex-wrap:wrap;padding:10px 24px;background:rgba(11,13,18,.93);
+  flex-wrap:wrap;padding:10px 24px;background:var(--rf-bg2);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .toolbar .tb-day{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .toolbar .tb-day b{color:var(--ink);font-size:16px;font-weight:700}
@@ -28,11 +28,11 @@ header .sub{color:var(--muted);font-size:13px;max-width:640px}
 @media(max-width:1000px){.wrap{grid-template-columns:1fr}}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
 .stage{position:relative;padding:0;overflow:hidden}
-#grid{display:block;width:100%;height:auto;background:#080a0e;border-radius:14px}
+#grid{display:block;width:100%;height:auto;background:var(--rf-scope);border-radius:var(--rf-radius);border:1px solid var(--rf-scope-line)}
 
 /* phase banner */
 .banner{position:absolute;left:50%;top:22px;transform:translateX(-50%) translateY(-14px);
-  background:rgba(10,12,18,.86);border:1px solid var(--line);backdrop-filter:blur(6px);
+  background:var(--rf-scope);color:#F4E6C8;border:1px solid var(--line);backdrop-filter:blur(6px);
   padding:12px 22px;border-radius:12px;text-align:center;opacity:0;pointer-events:none;
   transition:opacity .5s,transform .5s;max-width:80%}
 .banner.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -44,12 +44,12 @@ button.btn{background:var(--panel2);color:var(--ink);border:1px solid var(--line
   padding:9px 14px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600;
   transition:.15s;font-family:var(--font)}
 button.btn:hover{border-color:var(--accent);background:#222a38}
-button.btn.primary{background:var(--accent);color:#08101f;border-color:var(--accent)}
+button.btn.primary{background:var(--accent);color:var(--rf-on-accent);border-color:var(--accent)}
 button.btn.primary:hover{filter:brightness(1.08)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .seg button{background:var(--panel2);color:var(--muted);border:0;padding:9px 12px;
   font-size:12.5px;cursor:pointer;font-weight:600;font-family:var(--font)}
-.seg button.on{background:var(--accent);color:#08101f}
+.seg button.on{background:var(--accent);color:var(--rf-on-accent)}
 
 /* config drawer */
 .drawer{margin-top:16px;transition:.2s}
@@ -162,3 +162,11 @@ canvas.chart{width:100%;display:block}
 
 .foot{color:var(--muted);font-size:11.5px;padding:0 24px 30px;max-width:1500px;margin:0 auto;line-height:1.6}
 a{color:var(--accent)}
+
+
+/* charts are instrument scopes: dark faces in both site themes */
+canvas.chart, #popChart {
+  background: var(--rf-scope);
+  border: 1px solid var(--rf-scope-line);
+  border-radius: var(--rf-radius);
+}

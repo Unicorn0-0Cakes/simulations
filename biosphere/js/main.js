@@ -18,9 +18,8 @@ var Game = (function () {
   /* ---------------- boot ---------------- */
 
   function boot() {
-    var saved = localStorage.getItem("bio_theme");
-    if (saved) document.documentElement.setAttribute("data-theme", saved);
-    document.getElementById("themeBtn").onclick = toggleTheme;
+    /* Day/night is owned by the site-wide switch in assets/orbital.js. */
+    window.addEventListener("orbital:theme", function () { if (W) requestRender(); });
     buildHome();
     document.addEventListener("keydown", function (ev) {
       if (!W || document.getElementById("home").style.display !== "none") return;
@@ -31,13 +30,7 @@ var Game = (function () {
     window.addEventListener("resize", function () { if (W) requestRender(); });
   }
 
-  function toggleTheme() {
-    var cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", cur === "dark" ? "dark" : "light");
-    if (cur === "light") document.documentElement.removeAttribute("data-theme");
-    localStorage.setItem("bio_theme", cur === "dark" ? "dark" : "light");
-    if (W) requestRender();
-  }
+
 
   /* ---------------- home ---------------- */
 
@@ -349,7 +342,7 @@ var Game = (function () {
       if (it) go(it.dataset.screen);
     };
     document.getElementById("playBtn").onclick = togglePlay;
-    document.getElementById("themeBtn2").onclick = toggleTheme;
+    
     document.getElementById("speedSeg").onclick = function (ev) {
       var b = ev.target.closest("button"); if (b) setSpeed(+b.dataset.s);
     };

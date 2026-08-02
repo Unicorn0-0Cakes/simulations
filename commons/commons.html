@@ -5,29 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Commons — A Cooperation Collapse Simulator</title>
 <meta name="description" content="Design a society's rules and watch cooperation, trust, and shared infrastructure rise or collapse. A public-goods terrarium.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/orbital.css">
+<script src="../assets/orbital.js" data-title="The Commons" data-tag="Public goods · Trust"></script>
 <style>
   :root{
-    --bg:#0b0d12; --panel:#141821; --panel2:#1b202b; --line:#28303e;
-    --ink:#e8ecf4; --muted:#8b95a7; --accent:#6ea8fe;
-    --coop:#3fb96b; --mid:#e8c447; --defect:#e5484d;
-    --trust:#4a7bff; --status:#c96bd8; --health:#3fb9a8;
-    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --bg:var(--rf-bg); --panel:var(--rf-panel); --panel2:var(--rf-panel2); --line:var(--rf-line);
+    --ink:var(--rf-ink); --muted:var(--rf-muted); --accent:var(--rf-orange);
+    --coop:var(--rf-ok); --mid:var(--rf-watch); --defect:var(--rf-danger);
+    --trust:var(--rf-info); --status:var(--rf-violet); --health:var(--rf-teal);
+    --font:var(--rf-sans);
+    --mono:var(--rf-mono);
   }
-  /* light ("day") theme */
-  body.light{
-    --bg:#eef1f6; --panel:#ffffff; --panel2:#f2f5fa; --line:#dbe1ec;
-    --ink:#1a2030; --muted:#5b6478; --accent:#2f6fe0;
-    --coop:#2e9e57; --mid:#c99a1e; --defect:#d83b40;
-  }
+  /* day/night now comes from assets/orbital.css */
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
     -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.5;
     transition:background .25s,color .25s}
-  body.light{background-image:radial-gradient(900px 500px at 15% -10%,rgba(47,111,224,.08),transparent 60%),
-                             radial-gradient(700px 500px at 100% 0%,rgba(201,107,216,.06),transparent 55%)}
-  body.light .toolbar{background:rgba(244,246,250,.92)}
-  body.light #world{background:transparent}
+  body{background-image:var(--rf-texture),var(--rf-wash);background-attachment:fixed}
   header{padding:18px 24px 12px;border-bottom:1px solid var(--line);
     display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
   header h1{font-size:20px;margin:0;letter-spacing:.3px;font-weight:700}
@@ -36,7 +33,7 @@
 
   /* sticky runtime toolbar */
   .toolbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;
-    flex-wrap:wrap;padding:10px 24px;background:rgba(11,13,18,.93);
+    flex-wrap:wrap;padding:10px 24px;background:var(--rf-bg2);
     backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
   .toolbar .tb-day{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
   .toolbar .tb-day b{color:var(--ink);font-size:16px;font-weight:700}
@@ -49,10 +46,11 @@
   @media(max-width:1040px){.wrap{grid-template-columns:1fr}}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
   .stage{position:relative;padding:0;overflow:hidden}
-  #world{display:block;width:100%;height:auto;background:#080a0e;border-radius:14px}
+  #chart{background:var(--rf-scope);border:1px solid var(--rf-scope-line);border-radius:var(--rf-radius)}
+  #world{display:block;width:100%;height:auto;background:var(--rf-scope);border-radius:var(--rf-radius);border:1px solid var(--rf-scope-line)}
 
   .banner{position:absolute;left:50%;top:18px;transform:translateX(-50%) translateY(-14px);
-    background:rgba(10,12,18,.88);border:1px solid var(--line);backdrop-filter:blur(6px);
+    background:var(--rf-scope);color:#F4E6C8;border:1px solid var(--line);backdrop-filter:blur(6px);
     padding:11px 20px;border-radius:12px;text-align:center;opacity:0;pointer-events:none;
     transition:opacity .5s,transform .5s;max-width:82%}
   .banner.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -64,13 +62,13 @@
     padding:9px 14px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600;
     transition:.15s;font-family:var(--font)}
   button.btn:hover{border-color:var(--accent);background:#222a38}
-  button.btn.primary{background:var(--accent);color:#08101f;border-color:var(--accent)}
+  button.btn.primary{background:var(--accent);color:var(--rf-on-accent);border-color:var(--accent)}
   button.btn.primary:hover{filter:brightness(1.08)}
   button.btn:disabled{opacity:.4;cursor:not-allowed}
   .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
   .seg button{background:var(--panel2);color:var(--muted);border:0;padding:9px 12px;
     font-size:12.5px;cursor:pointer;font-weight:600;font-family:var(--font)}
-  .seg button.on{background:var(--accent);color:#08101f}
+  .seg button.on{background:var(--accent);color:var(--rf-on-accent)}
 
   .stage-cap{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px;font-size:12px;color:var(--muted)}
   .stage-cap .item{display:flex;align-items:center;gap:6px}
@@ -85,7 +83,7 @@
   .presets{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:12px}
   .presets .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-right:2px}
   .presets button{font-size:12px;padding:7px 11px}
-  .presets button.on{background:var(--accent);color:#08101f;border-color:var(--accent);font-weight:700}
+  .presets button.on{background:var(--accent);color:var(--rf-on-accent);border-color:var(--accent);font-weight:700}
   .setup{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:14px 18px;
     margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
   .setup label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:5px}
@@ -99,7 +97,7 @@
   .seg.segwrap{display:flex;flex-wrap:wrap;border:0;gap:6px}
   .seg.segwrap button{border:1px solid var(--line);border-radius:9px;padding:7px 13px;min-width:52px;
     background:var(--panel2);color:var(--muted)}
-  .seg.segwrap button.on{background:var(--accent);color:#08101f;border-color:var(--accent)}
+  .seg.segwrap button.on{background:var(--accent);color:var(--rf-on-accent);border-color:var(--accent)}
 
   /* right column */
   .side{display:flex;flex-direction:column;gap:12px}
@@ -156,6 +154,7 @@
   .log .ln .c{color:var(--coop)} .log .ln .d{color:var(--defect)} .log .ln .p{color:var(--status)}
   footer{border-top:1px solid var(--line);padding:20px 24px 50px;color:var(--muted);font-size:12.5px}
 </style>
+<link rel="stylesheet" href="../assets/orbital-sim.css">
 </head>
 <body>
 <header>
@@ -340,7 +339,7 @@ let timer = null, speed = 2600, running = false;
 let selected = null;
 
 /* faction palette */
-const FCOLORS = ["#6ea8fe","#c96bd8","#3fb9a8","#e8a24a"];
+const FCOLORS = ["#FF8A3D","#B98CE8","#4FD6C4","#E8B33A"];
 
 /* canvas palettes for night / day — the page CSS handles the DOM,
    these handle everything drawn on the <canvas> */
@@ -1235,13 +1234,11 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showTab(b.dat
 document.getElementById("playBtn").onclick=toggleRun;
 document.getElementById("stepBtn").onclick=()=>{ if(S&&!S.over) step(); };
 document.getElementById("resetBtn").onclick=()=>{ setActivePreset(null); reset(); };
-function setTheme(mode){
-  THEME = THEMES[mode];
-  document.body.classList.toggle("light", mode==="day");
-  document.getElementById("themeBtn").innerHTML = mode==="day" ? "☀ Day" : "🌙 Night";
-  render(); drawChart();
-}
-document.getElementById("themeBtn").onclick=()=>setTheme(THEME===THEMES.night?"day":"night");
+/* The world and the trend plot are instrument scopes: they stay dark in
+   both site themes, so the canvas palette no longer follows day/night.
+   The page chrome does, and is handled entirely by assets/orbital.css. */
+THEME = THEMES.night;
+window.addEventListener("orbital:theme", ()=>{ render(); drawChart(); });
 document.getElementById("speedSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{
   document.getElementById("speedSeg").querySelectorAll("button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on"); speed=+b.dataset.s; if(running) startTimer();

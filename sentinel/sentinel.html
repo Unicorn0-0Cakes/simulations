@@ -4,13 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SENTINEL · The Oversight Experiment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/orbital.css">
+<script src="../assets/orbital.js" data-title="Sentinel" data-tag="Oversight · Sensitivity"></script>
 <style>
 :root{
-  --paper:#EFE7D8; --paper2:#E6DCC6; --panel:#F6F1E5; --ink:#2A211A; --ink2:#6B5B49;
-  --rule:#C4B49A;
-  --orange:#D2551E; --teal:#1F5C64; --gold:#B8860B; --oxide:#9E2B25; --slate:#4A4238;
-  --mono:'SFMono-Regular',Menlo,Consolas,'Liberation Mono',monospace;
-  --sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --paper:var(--rf-bg); --paper2:var(--rf-bg2); --panel:var(--rf-panel);
+  --ink:var(--rf-ink); --ink2:var(--rf-ink-dim);
+  --rule:var(--rf-line);
+  --orange:var(--rf-orange); --teal:var(--rf-teal); --gold:var(--rf-gold);
+  --oxide:var(--rf-oxide); --slate:var(--rf-slate);
+  --mono:var(--rf-mono);
+  --sans:var(--rf-sans);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -18,7 +25,7 @@ body{
   background:var(--paper); color:var(--ink); font-family:var(--sans);
   font-size:14px; line-height:1.55;
   background-image:
-    repeating-linear-gradient(0deg,transparent 0 3px,rgba(42,33,26,.012) 3px 4px);
+    var(--rf-texture);
 }
 .wrap{max-width:1420px;margin:0 auto;padding:0 28px 90px}
 
@@ -44,7 +51,7 @@ nav.tabs button{
   padding:14px 20px;cursor:pointer;color:var(--ink2);
 }
 nav.tabs button .n{color:var(--rule);margin-right:9px}
-nav.tabs button:hover{color:var(--ink);background:rgba(210,85,30,.05)}
+nav.tabs button:hover{color:var(--ink);background:color-mix(in srgb,var(--orange) 9%,transparent)}
 nav.tabs button.on{color:var(--ink);border-bottom-color:var(--orange);font-weight:700}
 nav.tabs button.on .n{color:var(--orange)}
 
@@ -56,13 +63,13 @@ h2.sec .idx{font-family:var(--mono);color:var(--orange);font-size:11px}
 h3.sub{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2);margin:22px 0 8px;font-weight:700}
 p{margin:0 0 13px;max-width:78ch}
 code,.mono{font-family:var(--mono);font-size:12.5px}
-code{background:rgba(42,33,26,.06);padding:1px 5px;border-radius:2px}
+code{background:var(--rf-panel2);padding:1px 5px;border-radius:2px}
 pre{font-family:var(--mono);font-size:12px;background:var(--panel);border:1px solid var(--rule);
   border-left:3px solid var(--orange);padding:13px 16px;overflow-x:auto;margin:0 0 16px;line-height:1.6}
 .note{font-size:12.5px;color:var(--ink2)}
 a{color:var(--oxide)}
 .panel{background:var(--panel);border:1px solid var(--rule);padding:18px 20px;margin-bottom:18px}
-.panel.warn{border-left:4px solid var(--oxide);background:#F7EFE6}
+.panel.warn{border-left:4px solid var(--oxide);background:var(--rf-panel2)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 @media(max-width:1000px){.grid2,.grid3{grid-template-columns:1fr}}
@@ -72,7 +79,7 @@ th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule)}
 th{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink2);border-bottom:1px solid var(--ink)}
 td.num,th.num{text-align:right;font-family:var(--mono)}
-tbody tr:hover{background:rgba(210,85,30,.05)}
+tbody tr:hover{background:color-mix(in srgb,var(--orange) 9%,transparent)}
 
 /* ---------- console layout ---------- */
 .console{display:grid;grid-template-columns:322px 1fr;gap:24px;align-items:start}
@@ -100,11 +107,11 @@ input[type=range]::-moz-range-thumb{width:11px;height:11px;background:var(--pape
   background:transparent;border:none;border-right:1px solid var(--ink);padding:6px 11px;cursor:pointer;color:var(--ink2)}
 .caps button:last-child{border-right:none}
 .caps button.on{background:var(--ink);color:var(--paper);font-weight:700}
-.caps button:hover:not(.on){background:rgba(42,33,26,.08);color:var(--ink)}
+.caps button:hover:not(.on){background:var(--rf-panel2);color:var(--ink)}
 .caps.sm button{padding:4px 8px;font-size:9.5px}
 
 .btn{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
-  background:var(--orange);color:#fff;border:none;padding:10px 18px;cursor:pointer}
+  background:var(--orange);color:var(--rf-on-accent);border:none;padding:10px 18px;cursor:pointer}
 .btn:hover{background:var(--oxide)}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
 .btn.ghost:hover{background:var(--ink);color:var(--paper)}
@@ -150,6 +157,7 @@ footer{border-top:3px double var(--ink);margin-top:44px;padding-top:14px;
   font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);
   display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
 </style>
+<link rel="stylesheet" href="../assets/orbital-sim.css">
 </head>
 <body>
 <div class="wrap">
@@ -938,10 +946,19 @@ function bifurcation(base, keyX, steps, reps, years) {
 'use strict';
 
 const CSS = getComputedStyle(document.documentElement);
-const C = {
-  ink: '#2A211A', ink2: '#6B5B49', rule: '#C4B49A', paper: '#EFE7D8', panel: '#F6F1E5',
-  orange: '#D2551E', teal: '#1F5C64', gold: '#B8860B', oxide: '#9E2B25', slate: '#4A4238',
-};
+/* The plotter reads its inks from the active theme rather than owning them,
+   so day (paper) and night (phosphor) share exactly one drawing routine. */
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = {};
+function syncPalette() {
+  C.ink = cssv('--rf-ink');        C.ink2  = cssv('--rf-ink-dim');
+  C.rule = cssv('--rf-line');      C.faint = cssv('--rf-line-soft');
+  C.paper = cssv('--rf-bg');       C.panel = cssv('--rf-panel');
+  C.orange = cssv('--rf-orange');  C.teal  = cssv('--rf-teal');
+  C.gold = cssv('--rf-gold');      C.oxide = cssv('--rf-oxide');
+  C.slate = cssv('--rf-slate');
+}
+syncPalette();
 const ARMS = [
   { id: 'I',   name: 'Regime I · Central',      color: C.orange },
   { id: 'II',  name: 'Regime II · Distributed', color: C.teal },
@@ -1009,7 +1026,7 @@ function lineChart(cv, o) {
 
   // shocks
   if (o.shocks) {
-    g.strokeStyle = 'rgba(42,33,26,.16)'; g.lineWidth = 1;
+    g.strokeStyle = C.rule; g.lineWidth = 1;
     o.shocks.forEach(s => {
       g.beginPath();
       g.moveTo(Math.round(X(s.year)) + .5, T);
@@ -1023,7 +1040,7 @@ function lineChart(cv, o) {
   g.textAlign = 'right'; g.textBaseline = 'middle';
   ty.forEach(v => {
     const y = Math.round(Y(v)) + .5;
-    g.strokeStyle = 'rgba(196,180,154,.6)'; g.lineWidth = 1;
+    g.strokeStyle = C.faint; g.lineWidth = 1;
     g.beginPath(); g.moveTo(L, y); g.lineTo(L + pw, y); g.stroke();
     g.fillStyle = C.ink2;
     g.fillText(o.yFmt ? o.yFmt(v) : v.toFixed(3), L - 8, y);
@@ -1211,7 +1228,7 @@ function barRow(r, key, maxAbs, floor) {
   return `<div style="display:grid;grid-template-columns:158px 1fr 52px;gap:9px;align-items:center;margin-bottom:5px"
       title="${r.note.replace(/"/g, '&quot;')}">
     <div style="font-size:11.5px;${isNull ? 'color:var(--ink2);font-style:italic' : ''}">${r.label}</div>
-    <div style="position:relative;height:13px;background:rgba(196,180,154,.28)">
+    <div style="position:relative;height:13px;background:var(--rf-panel3)">
       <div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--rule)"></div>
       <div style="position:absolute;height:13px;background:${col};${neg ? 'right:50%' : 'left:50%'};width:${pct / 2}%"></div>
       <div style="position:absolute;left:${50 - floor / maxAbs * 50}%;top:-2px;bottom:-2px;width:1px;background:var(--oxide);opacity:.45"></div>
@@ -1329,7 +1346,7 @@ function drawBif(m) {
   const L = 46, R = 14, T = 14, B = 34;
   const pw = w - L - R, ph = h - T - B;
   g.fillStyle = C.panel; g.fillRect(0, 0, w, h);
-  g.strokeStyle = 'rgba(196,180,154,.6)';
+  g.strokeStyle = C.faint;
   [0, .25, .5, .75, 1].forEach(f => {
     const y = Math.round(T + ph - f * ph) + .5;
     g.beginPath(); g.moveTo(L, y); g.lineTo(L + pw, y); g.stroke();
@@ -1499,12 +1516,21 @@ document.getElementById('footStamp').textContent = 'Parameter fingerprint ' + st
 
 buildSliders(); buildChips(); buildSelRule(); buildMechPick(); buildRegimeCards();
 runAll();
+function repaintAll() {
+  drawConsole();
+  if (state.map) { drawMap(state.map); drawBif(state.map); }
+}
 window.addEventListener('resize', () => {
   clearTimeout(window.__rz);
-  window.__rz = setTimeout(() => {
-    drawConsole();
-    if (state.map) { drawMap(state.map); drawBif(state.map); }
-  }, 140);
+  window.__rz = setTimeout(repaintAll, 140);
+});
+/* Day/night is a change of ink, not of data: re-read the palette and replot. */
+window.addEventListener('orbital:theme', () => {
+  syncPalette();
+  ARMS[0].color = C.orange; ARMS[1].color = C.teal;
+  ARMS[2].color = C.gold;   ARMS[3].color = C.oxide;
+  buildChips(); buildRegimeCards();
+  requestAnimationFrame(repaintAll);
 });
 
 </script>

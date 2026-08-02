@@ -3,81 +3,331 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulations</title>
-<meta name="description" content="A collection of interactive, self-contained browser simulations.">
+<title>Simulations — Interactive Research Instruments</title>
+<meta name="description" content="A catalogue of self-contained, browser-based simulations. Each one is a research instrument you can operate: set the conditions, run the world, and read what comes out.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+
+<link rel="stylesheet" href="assets/orbital.css">
+<script src="assets/orbital.js"></script>
+
 <style>
-  :root{
-    --bg:#0b0d12; --panel:#141821; --panel2:#1b202b; --line:#28303e;
-    --ink:#e8ecf4; --muted:#8b95a7; --accent:#6ea8fe;
-    --normal:#3fb96b; --stressed:#e8c447; --aggressive:#e5484d;
-    --withdrawn:#4a7bff; --beautiful:#c96bd8;
-    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
-    line-height:1.55;-webkit-font-smoothing:antialiased;
-    background-image:radial-gradient(900px 500px at 15% -10%,rgba(110,168,254,.10),transparent 60%),
-                     radial-gradient(700px 500px at 100% 0%,rgba(201,107,216,.08),transparent 55%);}
-  a{color:inherit;text-decoration:none}
-  .wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+  * { box-sizing: border-box; }
+  body { margin: 0; font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: var(--rf-oxide); text-decoration: none; }
+  html[data-theme="night"] a { color: var(--rf-amber); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; position: relative; }
 
-  header.hero{padding:64px 0 34px;text-align:center}
-  .hero .eyebrow{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);font-weight:700}
-  .hero h1{font-size:clamp(32px,6vw,52px);margin:12px 0 10px;line-height:1.05;letter-spacing:-.5px}
-  .hero p{max-width:620px;margin:0 auto;color:var(--muted);font-size:16px}
+  /* ================= MASTHEAD ================= */
+  header.mast { padding: 46px 0 16px; position: relative; }
+  .mast .row1 { display: flex; align-items: flex-end; justify-content: space-between;
+                gap: 26px; flex-wrap: wrap; }
+  .wordmark { font-family: var(--rf-display); font-size: clamp(30px, 7vw, 62px);
+              font-weight: 700; letter-spacing: var(--rf-track-w); text-transform: uppercase;
+              line-height: 1; margin: 0; }
+  .wordmark em { font-style: normal; color: var(--rf-orange); }
+  html[data-theme="night"] .wordmark em { text-shadow: var(--rf-text-glow); }
+  .mast .tagline { font-family: var(--rf-mono); font-size: 11px; letter-spacing: var(--rf-track);
+                   text-transform: uppercase; color: var(--rf-ink-dim); margin-top: 12px; }
+  .stamp { font-family: var(--rf-mono); font-size: 10px; letter-spacing: .14em;
+           text-transform: uppercase; color: var(--rf-muted); text-align: right;
+           line-height: 1.85; white-space: nowrap; }
+  .stamp b { color: var(--rf-orange); font-weight: 600; }
+  .mast-rule { border: 0; border-top: 3px double var(--rf-ink); opacity: .55; margin: 20px 0 0; }
+  .rm-tl { left: 8px; top: 22px; } .rm-tr { right: 8px; top: 22px; }
 
-  .count{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:1px;
-    padding:18px 0 12px;border-bottom:1px solid var(--line);margin-bottom:24px}
+  /* ================= HERO ================= */
+  .hero { padding: 44px 0 8px; display: grid; grid-template-columns: 1.35fr 1fr;
+          gap: 48px; align-items: center; }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; gap: 28px; } }
+  .hero h1 { font-family: var(--rf-display); font-size: clamp(27px, 4.2vw, 44px);
+             font-weight: 600; line-height: 1.12; letter-spacing: -.015em; margin: 14px 0 18px; }
+  .hero h1 mark { background: none; color: var(--rf-orange); }
+  .hero .lede { font-size: 16.5px; color: var(--rf-ink-dim); max-width: 60ch; margin: 0 0 24px; }
+  .hero .cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;padding-bottom:60px}
+  /* the orbit device — a slow, quiet piece of instrumentation */
+  .orbit { width: 100%; max-width: 320px; margin: 0 auto; display: block; }
+  .orbit .o-ring { fill: none; stroke: var(--rf-line); stroke-width: 1; }
+  .orbit .o-path { fill: none; stroke: var(--rf-orange); stroke-width: 1.4; opacity: .85; }
+  .orbit .o-body { fill: var(--rf-orange); }
+  .orbit .o-core { fill: var(--rf-panel); stroke: var(--rf-ink); stroke-width: 1.4; }
+  .orbit .o-tick { stroke: var(--rf-line); stroke-width: 1; }
+  .orbit .o-lbl  { fill: var(--rf-muted); font-family: var(--rf-mono); font-size: 6px;
+                   letter-spacing: .12em; }
+  html[data-theme="night"] .orbit .o-path,
+  html[data-theme="night"] .orbit .o-body { filter: drop-shadow(0 0 5px var(--rf-orange)); }
+  .spin { transform-origin: 110px 110px; animation: spin 34s linear infinite; }
+  .spin.rev { animation-duration: 54s; animation-direction: reverse; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;
-    display:flex;flex-direction:column;transition:.18s ease;position:relative}
-  .card:hover{transform:translateY(-4px);border-color:var(--accent);
-    box-shadow:0 14px 40px rgba(0,0,0,.45)}
-  .card .thumb{aspect-ratio:16/9;position:relative;overflow:hidden;border-bottom:1px solid var(--line);
-    background:#080a0e}
-  .card .thumb img{width:100%;height:100%;object-fit:cover;display:block}
-  .card .body{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1}
-  .card .tag{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:700}
-  .card h2{font-size:20px;margin:6px 0 8px}
-  .card p{margin:0 0 16px;color:var(--muted);font-size:14px;flex:1}
-  .card .go{align-self:flex-start;background:var(--accent);color:#08101f;font-weight:700;font-size:13px;
-    padding:9px 16px;border-radius:10px;transition:.15s}
-  .card:hover .go{filter:brightness(1.08)}
-  .stretched{position:absolute;inset:0;z-index:1}
+  /* ================= SECTIONS ================= */
+  section.doc { padding: 40px 0 4px; }
+  h2.sec { font-family: var(--rf-mono); font-size: 12px; letter-spacing: var(--rf-track);
+           text-transform: uppercase; font-weight: 600; margin: 0 0 20px; padding-bottom: 9px;
+           border-bottom: 1px solid var(--rf-line); display: flex; align-items: baseline; gap: 14px; }
+  h2.sec .idx { color: var(--rf-orange); font-size: 11px; }
+  h2.sec .trail { flex: 1; border-bottom: 1px solid var(--rf-line-soft); }
 
-  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-  .chip{font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);
-    padding:3px 9px;border-radius:999px}
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+  .cols p { margin: 0 0 12px; }
+  .cols h3 { font-family: var(--rf-mono); font-size: 11px; letter-spacing: .18em;
+             text-transform: uppercase; color: var(--rf-teal); margin: 0 0 10px; font-weight: 600; }
+  html[data-theme="night"] .cols h3 { color: var(--rf-teal); }
+  p { max-width: 74ch; }
+  .dim { color: var(--rf-ink-dim); }
 
-  footer{border-top:1px solid var(--line);padding:26px 0 60px;color:var(--muted);font-size:13px;text-align:center}
-  footer a{color:var(--accent)}
+  /* pull-quote panel */
+  .pull { border-left: 4px solid var(--rf-orange); background: var(--rf-panel);
+          border-top: 1px solid var(--rf-line); border-right: 1px solid var(--rf-line);
+          border-bottom: 1px solid var(--rf-line);
+          padding: 18px 22px; margin: 26px 0 0; box-shadow: var(--rf-shadow); }
+  .pull p { margin: 0; font-size: 15.5px; }
+  .pull .who { font-family: var(--rf-mono); font-size: 10px; letter-spacing: .16em;
+               text-transform: uppercase; color: var(--rf-muted); margin-top: 10px; }
+
+  /* ================= HOW TO READ ONE ================= */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0; }
+  .step { padding: 22px 22px 24px; border: 1px solid var(--rf-line); margin: 0 -1px -1px 0;
+          background: var(--rf-panel); }
+  .step .n { font-family: var(--rf-mono); font-size: 30px; font-weight: 500;
+             color: var(--rf-orange); line-height: 1; letter-spacing: -.02em; }
+  html[data-theme="night"] .step .n { text-shadow: var(--rf-text-glow); }
+  .step h4 { font-family: var(--rf-display); font-size: 17px; font-weight: 600;
+             margin: 12px 0 8px; letter-spacing: -.01em; }
+  .step p { font-size: 13.5px; color: var(--rf-ink-dim); margin: 0; max-width: none; }
+
+  /* ================= CATALOGUE ================= */
+  .catline { display: flex; align-items: baseline; gap: 12px; font-family: var(--rf-mono);
+             font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase;
+             color: var(--rf-muted); margin-bottom: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+          gap: 22px; padding-bottom: 12px; }
+
+  .card { position: relative; display: flex; flex-direction: column;
+          background: var(--rf-panel); border: 1px solid var(--rf-line);
+          border-radius: var(--rf-radius); overflow: hidden;
+          box-shadow: var(--rf-shadow); transition: .18s ease; }
+  .card:hover { transform: translateY(-3px); border-color: var(--rf-orange);
+                box-shadow: var(--rf-shadow-lg); }
+  html[data-theme="night"] .card:hover { box-shadow: var(--rf-shadow-lg), var(--rf-glow); }
+
+  .card .thumb { aspect-ratio: 16 / 9; border-bottom: 1px solid var(--rf-line);
+                 background: var(--rf-canvas); overflow: hidden; position: relative; }
+  .card .thumb svg, .card .thumb img { width: 100%; height: 100%; display: block; object-fit: cover; }
+  .card .hd { display: flex; align-items: baseline; gap: 10px; padding: 14px 18px 0;
+              font-family: var(--rf-mono); font-size: 9.5px; letter-spacing: .16em;
+              text-transform: uppercase; color: var(--rf-muted); }
+  .card .hd .no { color: var(--rf-orange); font-weight: 600; }
+  .card .body { padding: 8px 18px 20px; display: flex; flex-direction: column; flex: 1; }
+  .card h3 { font-family: var(--rf-display); font-size: 21px; font-weight: 600;
+             margin: 4px 0 9px; letter-spacing: -.015em; line-height: 1.15; }
+  .card p { font-size: 13.8px; color: var(--rf-ink-dim); margin: 0 0 15px; flex: 1; max-width: none; }
+  .card .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+  .card .go { align-self: flex-start; font-family: var(--rf-mono); font-size: 10.5px;
+              letter-spacing: .16em; text-transform: uppercase; font-weight: 600;
+              color: var(--rf-on-accent); background: var(--rf-orange);
+              padding: 8px 14px; border-radius: var(--rf-radius); transition: .15s; }
+  html[data-theme="night"] .card .go { box-shadow: var(--rf-glow); }
+  .card:hover .go { filter: brightness(1.09); }
+  .stretched { position: absolute; inset: 0; z-index: 2; }
+
+  /* ================= FOOTER ================= */
+  footer { margin-top: 54px; border-top: 3px double var(--rf-ink); padding: 26px 0 70px; }
+  footer .frow { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+                 font-family: var(--rf-mono); font-size: 10.5px; letter-spacing: .14em;
+                 text-transform: uppercase; color: var(--rf-muted); }
+  footer a { color: var(--rf-ink-dim); }
+  footer a:hover { color: var(--rf-orange); }
 </style>
 </head>
-<body>
-  <header class="hero">
-    <div class="wrap">
-      <div class="eyebrow">Interactive Simulations</div>
-      <h1>Simulations</h1>
-      <p>A collection of self-contained, browser-based simulations. No install, nothing to set up &mdash; just click and explore.</p>
+<body id="top">
+
+<div class="wrap">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="mast">
+    <span class="rf-regmark rm-tl"></span>
+    <span class="rf-regmark rm-tr"></span>
+    <div class="row1">
+      <div>
+        <h1 class="wordmark">Simul<em>a</em>tions</h1>
+        <div class="tagline">Interactive research instruments · built for the browser</div>
+      </div>
+      <div class="stamp">
+        Catalogue <b id="stampCount">—</b><br>
+        Rev. 2026.08 · Self-contained<br>
+        Press <b>T</b> to change the light
+      </div>
     </div>
+    <hr class="mast-rule">
   </header>
 
-  <main class="wrap">
-    <div class="count" id="count"></div>
-    <div class="grid" id="grid"></div>
-  </main>
+  <!-- ============ HERO ============ -->
+  <div class="hero">
+    <div>
+      <div class="rf-eyebrow">What you are looking at</div>
+      <h1>Small worlds you can <mark>run</mark>, break, and read the instruments of.</h1>
+      <p class="lede">
+        Each entry below is a complete simulation that runs entirely inside your browser —
+        no install, no account, no server doing the thinking. Set the starting conditions,
+        let the world proceed, and watch what the rules you chose actually produce.
+        Most of them will not produce what you expected.
+      </p>
+      <div class="cta">
+        <a class="rf-btn primary" href="#catalogue">Open the catalogue ↓</a>
+        <a class="rf-btn" href="#how">How to read one</a>
+      </div>
+    </div>
 
+    <svg class="orbit" viewBox="0 0 220 220" role="img" aria-label="Orbital diagram">
+      <circle class="o-ring" cx="110" cy="110" r="96"/>
+      <circle class="o-ring" cx="110" cy="110" r="72"/>
+      <circle class="o-ring" cx="110" cy="110" r="46"/>
+      <g class="o-tick">
+        <line x1="110" y1="4"   x2="110" y2="14"/>
+        <line x1="110" y1="206" x2="110" y2="216"/>
+        <line x1="4"   y1="110" x2="14"  y2="110"/>
+        <line x1="206" y1="110" x2="216" y2="110"/>
+      </g>
+      <ellipse class="o-path" cx="110" cy="110" rx="96" ry="34" transform="rotate(-24 110 110)"/>
+      <ellipse class="o-path" cx="110" cy="110" rx="72" ry="26" transform="rotate(38 110 110)" opacity=".6"/>
+      <g class="spin"><circle class="o-body" cx="206" cy="110" r="5.4"
+         transform="rotate(-24 110 110)"/></g>
+      <g class="spin rev"><circle class="o-body" cx="182" cy="110" r="3.6" opacity=".7"
+         transform="rotate(38 110 110)"/></g>
+      <circle class="o-core" cx="110" cy="110" r="17"/>
+      <circle class="o-body" cx="110" cy="110" r="5"/>
+      <text class="o-lbl" x="110" y="150" text-anchor="middle">RUN · OBSERVE · REVISE</text>
+    </svg>
+  </div>
+
+  <!-- ============ 01 WHAT ============ -->
+  <section class="doc" id="what">
+    <h2 class="sec"><span class="idx">01</span> What this is <span class="trail"></span></h2>
+    <div class="cols">
+      <div>
+        <h3>Instruments, not games</h3>
+        <p class="dim">There is no score and nothing to win. Each simulation is a working model
+        of a system — a colony, a sealed atmosphere, a shared resource, an oversight regime —
+        with the mechanism written out honestly rather than tuned to feel good.</p>
+        <p class="dim">You get the dials the model actually responds to, and readouts that are
+        allowed to disappoint you.</p>
+      </div>
+      <div>
+        <h3>Everything runs locally</h3>
+        <p class="dim">Open a page and it is already running. The whole model lives in the
+        JavaScript your browser downloaded: no backend, no telemetry, nothing recorded.
+        Refresh and the world starts over.</p>
+        <p class="dim">Several were calibrated headlessly against published data before ever
+        being given an interface.</p>
+      </div>
+      <div>
+        <h3>Grounded in real work</h3>
+        <p class="dim">Most are built on documented experiments and their real numbers —
+        Calhoun's density study, the Biosphere 2 oxygen anomaly, the long-term
+        <em>E. coli</em> evolution experiment, the public-goods literature.</p>
+        <p class="dim">Where a model departs from the record, the page says so.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 WHY ============ -->
+  <section class="doc" id="why">
+    <h2 class="sec"><span class="idx">02</span> Why they exist <span class="trail"></span></h2>
+    <div class="cols">
+      <div>
+        <p>Some claims about systems are impossible to argue with and impossible to check.
+        <em>Crowding causes collapse. Sorting people by ability makes societies more efficient.
+        Oversight fails because the wrong people are in charge.</em> They sound like conclusions,
+        but they are really compressed stories about mechanisms nobody has laid out.</p>
+        <p>A simulation forces the mechanism into the open. Once you have to write down how
+        density becomes stress, or how a watchdog gets captured, the claim stops being a slogan
+        and becomes something with parameters — which means it becomes something that can be
+        wrong in a specific way.</p>
+      </div>
+      <div>
+        <p>What tends to happen next is more interesting than the original argument. Systems
+        built from reasonable local rules produce results nobody chose. Interventions that
+        obviously should work do nothing measurable. A metric refuses to move no matter what
+        you vary, and the reason turns out to be structural rather than a bug.</p>
+        <p>That last one has its own entry in the catalogue. One simulation here exists solely
+        because two of its parent's outputs were indistinguishable from noise.</p>
+        <div class="pull">
+          <p>The useful moment is not when the model agrees with you. It's when you can say
+          precisely why it doesn't.</p>
+          <div class="who">Operating principle</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 HOW ============ -->
+  <section class="doc" id="how">
+    <h2 class="sec"><span class="idx">03</span> How to read one <span class="trail"></span></h2>
+    <p class="dim" style="margin:-6px 0 22px">Four habits that make any of these worth more than
+    five minutes of watching dots move.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <h4>Run it once and don't touch anything</h4>
+        <p>Every simulation opens on a sensible default and starts immediately. Let it play through
+        before you reach for a slider — you need a baseline to have an opinion about.</p>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <h4>Change one thing</h4>
+        <p>Move a single parameter, reset, and run again. Changing three at once produces a
+        different world but no information about which change caused what.</p>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <h4>Predict before you look</h4>
+        <p>Say out loud what you expect the readout to do. The value of these things is
+        concentrated almost entirely in the gap between that prediction and the result.</p>
+      </div>
+      <div class="step">
+        <div class="n">04</div>
+        <h4>Read the notes</h4>
+        <p>Each page documents its own assumptions, its calibration, and what it deliberately
+        does not model. That section is where the honest limits are, and it is short.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 CATALOGUE ============ -->
+  <section class="doc" id="catalogue">
+    <h2 class="sec"><span class="idx">04</span> The catalogue <span class="trail"></span></h2>
+    <div class="catline">
+      <span id="count">—</span>
+      <span class="rf-sep">·</span>
+      <span>All entries open directly in this browser</span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
   <footer>
-    <div class="wrap">Built for the web &middot; open any simulation directly in your browser.</div>
+    <div class="frow">
+      <div>Candice Cantrelle · 2026</div>
+      <div>
+        <a href="mailto:hello@candicecantrelle.com">Email</a> ·
+        <a href="https://www.linkedin.com/in/candice-cantrelle">LinkedIn</a> ·
+        <a href="https://x.com/Unicorn0_0Cakes">X</a>
+      </div>
+      <div>No install · No account · No server</div>
+    </div>
   </footer>
+
+</div>
 
 <script>
 /* ---------------------------------------------------------------
    Add a new simulation by dropping another object into this array.
-   thumb: pass a URL to your own screenshot, OR leave it out / set
-   to null to use the built-in generated preview keyed by `preview`.
+   thumb: pass a URL to your own screenshot, OR leave it null to use
+   the built-in generated preview keyed by `preview`.
 ----------------------------------------------------------------*/
 const SIMULATIONS = [
   {
@@ -129,15 +379,15 @@ const SIMULATIONS = [
     title: "Sentinel: The Oversight Experiment",
     tag: "Institutional Dynamics",
     href: "sentinel/sentinel.html",
-    preview: "cce",
+    preview: "sentinel",
     thumb: null,
-    description: "A spin-off built around the two metrics its parent simulation could not move. Detection delay and governance quality were white noise there, and not for want of tuning — both were structurally severed from anything the experiment varied. This rebuilds everything upstream of them: institutional memory, adversaries who adapt, oversight bodies that fail together, and a capture threshold past which the audit function folds. Three decoy parameters are wired into the sensitivity screen and nothing else, so the noise floor is measured rather than assumed.",
+    description: "A spin-off built around the two metrics its parent simulation could not move. Detection delay and governance quality were white noise there, and not for want of tuning — both were structurally severed from anything the experiment varied. This rebuilds everything upstream of them: institutional memory, adversaries who adapt, oversight bodies that fail together, and a capture threshold past which the audit function folds.",
     chips: ["Live global sensitivity", "Decoy-validated ranking", "Bistable capture cascade", "Runs in the page"]
   }
   // ,{
   //   title: "Next Simulation",
   //   tag: "Category",
-  //   href: "next-sim.html",
+  //   href: "next-sim/next-sim.html",
   //   preview: null,
   //   thumb: "screenshots/next-sim.png",
   //   description: "One-line description of the next simulation.",
@@ -145,232 +395,253 @@ const SIMULATIONS = [
   // }
 ];
 
-/* Built-in generated preview cards (used when thumb is null). */
-function previewSVG(key){
-  if(key === "cce"){
-    // three matched trajectories under one shared history of shocks
-    let seed = 23;
-    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
-    const shocks = [];
-    for(let i=0;i<9;i++) shocks.push(14 + rnd()*292);
-    let bars = "";
-    shocks.forEach(x => {
-      bars += `<line x1="${x.toFixed(1)}" y1="16" x2="${x.toFixed(1)}" y2="150"
-        stroke="#8b95a7" stroke-width="1" opacity="${(0.10+rnd()*0.22).toFixed(2)}"/>`;
-    });
-    const arms = [["#6ea8fe",118,0.9],["#3fb96b",78,1.15],["#c96bd8",96,1.0]];
-    let paths = "";
-    arms.forEach(([c, base, k]) => {
-      let d = "", s2 = base;
-      const r2 = () => (s2 = (s2*9301+49297)%233280) / 233280;
-      for(let i=0;i<=64;i++){
-        const x = 14 + i*4.6;
-        const drift = base - (i/64)*38*k;
-        const y = drift + (r2()-0.5)*7;
-        d += (i?"L":"M") + x.toFixed(1) + " " + Math.max(20, Math.min(148, y)).toFixed(1) + " ";
-      }
-      paths += `<path d="${d}" fill="none" stroke="${c}" stroke-width="2" opacity=".95"
-        stroke-linejoin="round"/>`;
-    });
-    // IQ band ticks along the bottom
-    let bands = "";
-    for(let i=0;i<10;i++){
-      const h = 4 + Math.round(10*Math.exp(-Math.pow((i-4.5)/2.6,2)));
-      bands += `<rect x="${(14+i*30).toFixed(0)}" y="${168-h}" width="22" height="${h}"
-        fill="#6ea8fe" opacity="${(0.25+i*0.05).toFixed(2)}"/>`;
-    }
-    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <rect width="320" height="176" fill="#0b0d12"/>
-      <rect x="10" y="12" width="300" height="142" fill="#12161d"/>
-      ${bars}${paths}${bands}
-      <text x="12" y="10" fill="#8b95a7" font-size="7.5" font-family="monospace">YEAR 0</text>
-      <text x="308" y="10" fill="#8b95a7" font-size="7.5" font-family="monospace" text-anchor="end">500</text>
-    </svg>`;
-  }
-  if(key === "universe25"){
-    let dots = "";
-    const cols = ["#3fb96b","#e8c447","#e5484d","#4a7bff","#c96bd8"];
-    let seed = 7;
-    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
-    for(let i=0;i<90;i++){
-      const x = 6 + rnd()*308, y = 6 + rnd()*164;
-      const c = cols[Math.floor(rnd()*cols.length)];
-      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.6+rnd()*1.8).toFixed(1)}" fill="${c}"/>`;
-    }
-    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <rect width="320" height="176" fill="#080a0e"/>
-      <rect x="34" y="96" width="70" height="34" rx="9" fill="#12331f" opacity=".8"/>
-      <rect x="150" y="30" width="52" height="26" rx="8" fill="#12331f" opacity=".7"/>
-      <ellipse cx="248" cy="120" rx="46" ry="30" fill="#12283f" opacity=".85"/>
-      <path d="M0 70 q80 -22 160 6 t160 0" stroke="#1c4a6b" stroke-width="12" fill="none" opacity=".6"/>
-      ${dots}
-    </svg>`;
-  }
-  if(key === "commons"){
-    const fc = ["#6ea8fe","#c96bd8","#3fb9a8"];
-    const coop = ["#3fb96b","#e8c447","#e5484d"];
-    let seed = 11;
-    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
-    const cx=160, cy=88;
-    let nodes = "";
-    // three faction clusters around the commons
-    const centers=[[70,52],[250,58],[160,146]];
-    centers.forEach((c,f)=>{
-      for(let i=0;i<8;i++){
-        const x=c[0]+rnd()*46-23, y=c[1]+rnd()*40-20;
-        const col=coop[Math.floor(rnd()*coop.length)];
-        const r=2.4+rnd()*3.4;
-        nodes += `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${(cx+(x-cx)*0.4).toFixed(1)}" y2="${(cy+(y-cy)*0.4).toFixed(1)}" stroke="${fc[f]}" stroke-width="${(0.4+rnd()*1.4).toFixed(1)}" opacity=".28"/>`;
-        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r+1.4).toFixed(1)}" fill="${fc[f]}" opacity=".22"/>`;
-        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${col}"/>`;
-      }
-    });
-    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <rect width="320" height="176" fill="#080a0e"/>
-      ${nodes}
-      <circle cx="${cx}" cy="${cy}" r="30" fill="#0c1016" stroke="#26303e" stroke-width="2"/>
-      <clipPath id="cm"><circle cx="${cx}" cy="${cy}" r="27"/></clipPath>
-      <rect x="${cx-30}" y="${cy-2}" width="60" height="30" fill="#3fb9a8" opacity=".8" clip-path="url(#cm)"/>
-      <text x="${cx}" y="${cy+3}" fill="#e8ecf4" font-size="13" font-weight="700" text-anchor="middle" font-family="sans-serif">72%</text>
-    </svg>`;
-  }
-  if(key === "biosphere"){
-    // section through the glass: rainforest, ocean, savanna, desert, farm, habitat
-    let trees = "";
-    let seed = 23;
-    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
-    for(let i=0;i<11;i++){
-      const x = 12 + i*7.6, h = 26 + rnd()*46;
-      trees += `<rect x="${(x-0.7).toFixed(1)}" y="${(122-h*0.42).toFixed(1)}" width="1.4" height="${(h*0.42).toFixed(1)}" fill="#1c5a34"/>`;
-      trees += `<ellipse cx="${x.toFixed(1)}" cy="${(122-h*0.62).toFixed(1)}" rx="${(h*0.17).toFixed(1)}" ry="${(h*0.3).toFixed(1)}" fill="#2f8f52"/>`;
-    }
-    let crops = "";
-    for(let i=0;i<16;i++){
-      const x = 206 + i*4.2, h = 5 + rnd()*16;
-      crops += `<rect x="${x.toFixed(1)}" y="${(122-h).toFixed(1)}" width="2.8" height="${h.toFixed(1)}" fill="#6faa3a"/>`;
-    }
-    let beads = "";
-    for(let i=0;i<40;i++){
-      beads += `<circle cx="${(10+rnd()*300).toFixed(1)}" cy="${(30+rnd()*88).toFixed(1)}" r="${(0.7+rnd()*1.1).toFixed(1)}" fill="#8fc4ea" opacity="${(0.2+rnd()*0.4).toFixed(2)}"/>`;
-    }
-    // the oxygen line: falls, while CO2 stays flat then lifts late
-    let o2 = "M8 44", co2 = "M8 62";
-    for(let i=1;i<=16;i++){
-      o2  += ` L${(8+i*19.5).toFixed(0)} ${(44+i*1.5+Math.sin(i*1.7)*1.4).toFixed(1)}`;
-      co2 += ` L${(8+i*19.5).toFixed(0)} ${(62-Math.max(0,i-11)*2.2+Math.sin(i*2.1)*0.8).toFixed(1)}`;
-    }
-    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <rect width="320" height="176" fill="#0d1117"/>
-      <rect x="0" y="122" width="320" height="54" fill="#161b23"/>
-      <rect x="0" y="132" width="320" height="44" fill="#12161d"/>
-      <path d="M6 122 L6 40 L52 20 L98 40 L98 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
-      <path d="M98 122 L98 66 L128 54 L158 66 L158 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
-      <path d="M158 122 L158 72 L182 60 L206 72 L206 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
-      <path d="M206 122 L206 58 L246 44 L286 58 L286 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
-      <path d="M286 122 L286 62 L302 52 L314 62 L314 122" fill="#2c6ba0" fill-opacity=".07" stroke="#28303e"/>
-      <rect x="98" y="104" width="60" height="18" fill="#2f6fb0" opacity=".8"/>
-      <rect x="158" y="112" width="48" height="10" fill="#c98f6b" opacity=".6"/>
-      ${trees}${crops}
-      <rect x="288" y="86" width="22" height="36" fill="#c08b46" opacity=".5"/>
-      ${beads}
-      <rect x="10" y="140" width="34" height="14" rx="2" fill="#63768c" opacity=".55"/>
-      <rect x="50" y="140" width="34" height="14" rx="2" fill="#63768c" opacity=".55"/>
-      <rect x="90" y="140" width="34" height="14" rx="2" fill="#b3372f" opacity=".55"/>
-      <rect x="130" y="140" width="34" height="14" rx="2" fill="#63768c" opacity=".55"/>
-      <path d="${o2}" stroke="#5a9fd8" stroke-width="1.8" fill="none"/>
-      <path d="${co2}" stroke="#d69a4e" stroke-width="1.6" fill="none" stroke-dasharray="4 3"/>
-      <text x="8" y="16" fill="#5a9fd8" font-size="8" font-family="monospace">O₂ 20.9 → 16.6%</text>
-      <text x="240" y="16" fill="#d69a4e" font-size="8" font-family="monospace">CO₂ flat</text>
-    </svg>`;
-  }
-  if(key === "flask"){
-    // a Muller plot: nested clades sweeping through a population, with the
-    // twelve flasks along the bottom and one of them conspicuously cloudy
-    let seed = 41;
-    const rnd = () => (seed = (seed*9301+49297)%233280) / 233280;
-    const cols = ["#2f7d6a","#b4732c","#2c6ba0","#a34b6e","#5f7a2b","#8a5fb0","#c0631f"];
-    const N = 64, x0 = 8, x1 = 312, top = 14, bot = 116;
-    const X = i => x0 + i*(x1-x0)/(N-1);
-    const Y = f => bot - f*(bot-top);
-    // six clades, each appearing at a different time and expanding logistically
-    const clades = [
-      {t0:0.02, k:26, cap:1.00, c:0},
-      {t0:0.14, k:22, cap:0.88, c:1},
-      {t0:0.30, k:20, cap:0.71, c:2},
-      {t0:0.46, k:24, cap:0.52, c:3},
-      {t0:0.63, k:26, cap:0.36, c:4},
-      {t0:0.79, k:30, cap:0.20, c:5}
-    ];
-    const f = (cl,t) => cl.cap/(1+Math.exp(-cl.k*(t-cl.t0-0.10)));
-    let bands = "";
-    for(let j=0;j<clades.length;j++){
-      const cl = clades[j];
-      let up = "", down = "";
-      for(let i=0;i<N;i++){
-        const t = i/(N-1);
-        const outer = f(cl,t);
-        const inner = j+1 < clades.length ? 0 : 0;
-        const base = (1 - outer)/2;
-        up += `${i?"L":"M"}${X(i).toFixed(1)} ${Y(base+outer).toFixed(1)} `;
-      }
-      for(let i=N-1;i>=0;i--){
-        const t = i/(N-1);
-        const outer = f(cl,t);
-        const base = (1 - outer)/2;
-        down += `L${X(i).toFixed(1)} ${Y(base).toFixed(1)} `;
-      }
-      bands += `<path d="${up}${down}Z" fill="${cols[cl.c]}" opacity="${(0.92 - j*0.04).toFixed(2)}"/>`;
-    }
-    // twelve small flasks along the bottom, number nine unusually dense
-    let flasks = "";
-    for(let i=0;i<12;i++){
-      const cx = 17 + i*25.6;
-      const dense = i === 8;
-      const fill = dense ? 0.95 : 0.30 + rnd()*0.26;
-      const col = dense ? "#8a5fb0" : cols[i % cols.length];
-      flasks += `<path d="M${cx-3} 128 L${cx-3} 136 L${cx-8} 156 Q${cx-9} 160 ${cx-5} 160 L${cx+5} 160 Q${cx+9} 160 ${cx+8} 156 L${cx+3} 136 L${cx+3} 128 Z" fill="${col}" opacity="${fill.toFixed(2)}"/>`;
-      flasks += `<path d="M${cx-3} 128 L${cx-3} 136 L${cx-8} 156 Q${cx-9} 160 ${cx-5} 160 L${cx+5} 160 Q${cx+9} 160 ${cx+8} 156 L${cx+3} 136 L${cx+3} 128 Z" fill="none" stroke="#6b7480" stroke-width=".8"/>`;
-    }
-    return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <rect width="320" height="176" fill="#0d1117"/>
-      <rect x="8" y="14" width="304" height="102" fill="#12161d"/>
-      ${bands}
-      ${flasks}
-      <text x="8" y="10" fill="#8b95a7" font-size="7.5" font-family="monospace">GEN 0</text>
-      <text x="312" y="10" fill="#8b95a7" font-size="7.5" font-family="monospace" text-anchor="end">50,000</text>
-      <text x="222" y="172" fill="#b48ada" font-size="7.5" font-family="monospace">Cit+</text>
-    </svg>`;
-  }
-  // generic fallback
-  return `<svg viewBox="0 0 320 176" xmlns="http://www.w3.org/2000/svg">
-    <rect width="320" height="176" fill="#0f1420"/>
-    <circle cx="160" cy="88" r="34" fill="none" stroke="#6ea8fe" stroke-width="3" opacity=".7"/>
-    <circle cx="160" cy="88" r="6" fill="#6ea8fe"/>
+/* ---------------------------------------------------------------
+   Generated preview plates. These are drawn with CSS variables so
+   the same markup reads as ink-on-paper by day and phosphor by night.
+----------------------------------------------------------------*/
+const PLATE = {
+  bg:   "var(--rf-canvas)",
+  grid: "var(--rf-line-soft)",
+  rule: "var(--rf-line)",
+  ink:  "var(--rf-canvas-ink)",
+  dim:  "var(--rf-muted)",
+  o:    "var(--rf-orange)",
+  t:    "var(--rf-teal)",
+  g:    "var(--rf-gold)",
+  x:    "var(--rf-oxide)",
+  v:    "var(--rf-violet)",
+  ok:   "var(--rf-ok)"
+};
+
+function frame(inner, corner) {
+  return `<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <rect width="320" height="180" fill="${PLATE.bg}"/>
+    <g opacity=".5">${gridlines()}</g>
+    ${inner}
+    <rect x="6.5" y="6.5" width="307" height="167" fill="none" stroke="${PLATE.rule}" stroke-width="1"/>
+    <text x="12" y="171" fill="${PLATE.dim}" font-size="6.5" font-family="monospace"
+      letter-spacing="1.4">${corner}</text>
   </svg>`;
 }
+function gridlines() {
+  let g = "";
+  for (let x = 20; x < 320; x += 20) g += `<line x1="${x}" y1="7" x2="${x}" y2="173" stroke="${PLATE.grid}" stroke-width=".5"/>`;
+  for (let y = 20; y < 180; y += 20) g += `<line x1="7" y1="${y}" x2="313" y2="${y}" stroke="${PLATE.grid}" stroke-width=".5"/>`;
+  return g;
+}
+function rng(seed) { return () => (seed = (seed * 9301 + 49297) % 233280) / 233280; }
 
-const grid = document.getElementById("grid");
-const n = SIMULATIONS.length;
-document.getElementById("count").textContent = n + (n === 1 ? " simulation" : " simulations");
+function previewSVG(key) {
 
-grid.innerHTML = SIMULATIONS.map(s => {
-  const thumb = s.thumb
-    ? `<img src="${s.thumb}" alt="${s.title} preview">`
-    : previewSVG(s.preview);
-  const chips = (s.chips || []).map(c => `<span class="chip">${c}</span>`).join("");
-  return `
-    <article class="card">
-      <a class="stretched" href="${s.href}" aria-label="Open ${s.title}"></a>
-      <div class="thumb">${thumb}</div>
-      <div class="body">
-        <span class="tag">${s.tag}</span>
-        <h2>${s.title}</h2>
-        <p>${s.description}</p>
-        ${chips ? `<div class="chips">${chips}</div>` : ""}
-        <span class="go">Open simulation →</span>
-      </div>
-    </article>`;
-}).join("");
+  if (key === "universe25") {
+    // a plan view of the enclosure: pens, water, cover, and the population in it
+    const r = rng(7);
+    const cols = [PLATE.ok, PLATE.g, PLATE.x, PLATE.t, PLATE.v];
+    let dots = "";
+    for (let i = 0; i < 96; i++) {
+      const x = 14 + r() * 292, y = 14 + r() * 152;
+      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.5 + r() * 1.7).toFixed(1)}"
+        fill="${cols[Math.floor(r() * cols.length)]}" opacity=".9"/>`;
+    }
+    return frame(`
+      <rect x="30" y="96" width="72" height="36" fill="${PLATE.ok}" opacity=".16" stroke="${PLATE.ok}" stroke-width=".8"/>
+      <rect x="150" y="28" width="54" height="28" fill="${PLATE.ok}" opacity=".16" stroke="${PLATE.ok}" stroke-width=".8"/>
+      <ellipse cx="250" cy="120" rx="46" ry="29" fill="${PLATE.t}" opacity=".18" stroke="${PLATE.t}" stroke-width=".8"/>
+      <path d="M8 68 q80 -22 156 6 t148 -2" stroke="${PLATE.t}" stroke-width="9" fill="none" opacity=".22"/>
+      ${dots}`, "PLATE I — ENCLOSURE, PLAN VIEW");
+  }
+
+  if (key === "commons") {
+    // three factions tethered to one shared stock
+    const r = rng(11);
+    const fac = [PLATE.o, PLATE.v, PLATE.t];
+    const coop = [PLATE.ok, PLATE.g, PLATE.x];
+    const cx = 160, cy = 90;
+    let nodes = "";
+    [[70, 52], [252, 58], [158, 148]].forEach((c, f) => {
+      for (let i = 0; i < 8; i++) {
+        const x = c[0] + r() * 46 - 23, y = c[1] + r() * 38 - 19;
+        nodes += `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}"
+          x2="${(cx + (x - cx) * .36).toFixed(1)}" y2="${(cy + (y - cy) * .36).toFixed(1)}"
+          stroke="${fac[f]}" stroke-width="${(.5 + r() * 1.2).toFixed(1)}" opacity=".45"/>`;
+        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(3.4 + r() * 3).toFixed(1)}"
+          fill="${fac[f]}" opacity=".16"/>`;
+        nodes += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(2.2 + r() * 2.4).toFixed(1)}"
+          fill="${coop[Math.floor(r() * 3)]}"/>`;
+      }
+    });
+    return frame(`
+      ${nodes}
+      <circle cx="${cx}" cy="${cy}" r="31" fill="${PLATE.bg}" stroke="${PLATE.ink}" stroke-width="1.4"/>
+      <clipPath id="cmclip"><circle cx="${cx}" cy="${cy}" r="29"/></clipPath>
+      <rect x="${cx - 32}" y="${cy - 3}" width="64" height="32" fill="${PLATE.t}" opacity=".55" clip-path="url(#cmclip)"/>
+      <text x="${cx}" y="${cy + 4}" fill="${PLATE.ink}" font-size="13" font-weight="700"
+        text-anchor="middle" font-family="monospace">72%</text>`,
+      "FIG. 2 — COMMON STOCK vs. THREE FACTIONS");
+  }
+
+  if (key === "biosphere") {
+    // section through the glass, with the two gas traces that never met
+    const r = rng(23);
+    let trees = "", crops = "", beads = "";
+    for (let i = 0; i < 11; i++) {
+      const x = 14 + i * 7.6, h = 26 + r() * 44;
+      trees += `<rect x="${(x - .6).toFixed(1)}" y="${(124 - h * .42).toFixed(1)}" width="1.2"
+        height="${(h * .42).toFixed(1)}" fill="${PLATE.ok}" opacity=".85"/>`;
+      trees += `<ellipse cx="${x.toFixed(1)}" cy="${(124 - h * .62).toFixed(1)}"
+        rx="${(h * .16).toFixed(1)}" ry="${(h * .28).toFixed(1)}" fill="${PLATE.ok}" opacity=".6"/>`;
+    }
+    for (let i = 0; i < 15; i++) {
+      const x = 208 + i * 4.2, h = 5 + r() * 15;
+      crops += `<rect x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="2.4" height="${h.toFixed(1)}"
+        fill="${PLATE.ok}" opacity=".7"/>`;
+    }
+    for (let i = 0; i < 34; i++)
+      beads += `<circle cx="${(12 + r() * 296).toFixed(1)}" cy="${(30 + r() * 88).toFixed(1)}"
+        r="${(.7 + r()).toFixed(1)}" fill="${PLATE.t}" opacity="${(.25 + r() * .4).toFixed(2)}"/>`;
+    let o2 = "M12 46", co2 = "M12 64";
+    for (let i = 1; i <= 16; i++) {
+      o2 += ` L${(12 + i * 18.5).toFixed(0)} ${(46 + i * 1.5 + Math.sin(i * 1.7) * 1.3).toFixed(1)}`;
+      co2 += ` L${(12 + i * 18.5).toFixed(0)} ${(64 - Math.max(0, i - 11) * 2.1 + Math.sin(i * 2.1) * .8).toFixed(1)}`;
+    }
+    const bay = (x1, x2, top, peak) =>
+      `<path d="M${x1} 124 L${x1} ${top} L${(x1 + x2) / 2} ${peak} L${x2} ${top} L${x2} 124"
+        fill="${PLATE.t}" fill-opacity=".07" stroke="${PLATE.rule}" stroke-width=".9"/>`;
+    return frame(`
+      <rect x="7" y="124" width="306" height="49" fill="${PLATE.rule}" opacity=".18"/>
+      ${bay(12, 100, 42, 22)}${bay(100, 158, 68, 56)}${bay(158, 206, 74, 62)}${bay(206, 288, 60, 46)}
+      <rect x="100" y="106" width="58" height="18" fill="${PLATE.t}" opacity=".45"/>
+      <rect x="158" y="114" width="48" height="10" fill="${PLATE.g}" opacity=".4"/>
+      ${trees}${crops}${beads}
+      <path d="${o2}" stroke="${PLATE.t}" stroke-width="1.8" fill="none"/>
+      <path d="${co2}" stroke="${PLATE.o}" stroke-width="1.6" fill="none" stroke-dasharray="4 3"/>
+      <text x="12" y="20" fill="${PLATE.t}" font-size="7.5" font-family="monospace">O₂ 20.9 → 16.6%</text>
+      <text x="238" y="20" fill="${PLATE.o}" font-size="7.5" font-family="monospace">CO₂ FLAT</text>`,
+      "SECTION A–A — SEALED ENCLOSURE");
+  }
+
+  if (key === "flask") {
+    // Muller plot over twelve flasks; number nine has gone conspicuously cloudy
+    const r = rng(41);
+    const cols = [PLATE.t, PLATE.g, PLATE.o, PLATE.x, PLATE.ok, PLATE.v];
+    const N = 64, x0 = 12, x1 = 308, top = 20, bot = 118;
+    const X = i => x0 + i * (x1 - x0) / (N - 1);
+    const Y = f => bot - f * (bot - top);
+    const clades = [
+      { t0: .02, k: 26, cap: 1.00, c: 0 }, { t0: .14, k: 22, cap: .88, c: 1 },
+      { t0: .30, k: 20, cap: .71, c: 2 }, { t0: .46, k: 24, cap: .52, c: 3 },
+      { t0: .63, k: 26, cap: .36, c: 4 }, { t0: .79, k: 30, cap: .20, c: 5 }
+    ];
+    const f = (cl, t) => cl.cap / (1 + Math.exp(-cl.k * (t - cl.t0 - .10)));
+    let bands = "";
+    clades.forEach((cl, j) => {
+      let up = "", down = "";
+      for (let i = 0; i < N; i++) { const o = f(cl, i / (N - 1)); up += `${i ? "L" : "M"}${X(i).toFixed(1)} ${Y((1 - o) / 2 + o).toFixed(1)} `; }
+      for (let i = N - 1; i >= 0; i--) { const o = f(cl, i / (N - 1)); down += `L${X(i).toFixed(1)} ${Y((1 - o) / 2).toFixed(1)} `; }
+      bands += `<path d="${up}${down}Z" fill="${cols[cl.c]}" opacity="${(.85 - j * .05).toFixed(2)}"/>`;
+    });
+    let flasks = "";
+    for (let i = 0; i < 12; i++) {
+      const cx = 21 + i * 25.2, dense = i === 8;
+      const col = dense ? PLATE.v : cols[i % cols.length];
+      const d = `M${cx - 3} 128 L${cx - 3} 136 L${cx - 8} 154 Q${cx - 9} 158 ${cx - 5} 158 L${cx + 5} 158 Q${cx + 9} 158 ${cx + 8} 154 L${cx + 3} 136 L${cx + 3} 128 Z`;
+      flasks += `<path d="${d}" fill="${col}" opacity="${(dense ? .95 : .28 + r() * .24).toFixed(2)}"/>`;
+      flasks += `<path d="${d}" fill="none" stroke="${PLATE.rule}" stroke-width=".8"/>`;
+    }
+    return frame(`
+      ${bands}${flasks}
+      <text x="12" y="16" fill="${PLATE.dim}" font-size="7" font-family="monospace">GEN 0</text>
+      <text x="308" y="16" fill="${PLATE.dim}" font-size="7" font-family="monospace" text-anchor="end">50,000</text>
+      <text x="226" y="169" fill="${PLATE.v}" font-size="7" font-family="monospace">Cit+</text>`,
+      "MULLER PLOT — ARA−3 LINEAGE");
+  }
+
+  if (key === "cce") {
+    // three matched arms under one shared history of shocks
+    const r = rng(23);
+    let bars = "";
+    for (let i = 0; i < 9; i++) {
+      const x = 18 + r() * 284;
+      bars += `<line x1="${x.toFixed(1)}" y1="20" x2="${x.toFixed(1)}" y2="150"
+        stroke="${PLATE.dim}" stroke-width="1" opacity="${(.18 + r() * .25).toFixed(2)}"/>`;
+    }
+    let paths = "";
+    [[PLATE.o, 118, .9], [PLATE.t, 80, 1.15], [PLATE.v, 98, 1.0]].forEach(([c, base, k]) => {
+      let d = "", s = base;
+      const r2 = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+      for (let i = 0; i <= 64; i++) {
+        const y = base - (i / 64) * 38 * k + (r2() - .5) * 7;
+        d += (i ? "L" : "M") + (14 + i * 4.55).toFixed(1) + " " + Math.max(22, Math.min(148, y)).toFixed(1) + " ";
+      }
+      paths += `<path d="${d}" fill="none" stroke="${c}" stroke-width="1.9" opacity=".95"/>`;
+    });
+    let bands = "";
+    for (let i = 0; i < 10; i++) {
+      const h = 4 + Math.round(11 * Math.exp(-Math.pow((i - 4.5) / 2.6, 2)));
+      bands += `<rect x="${(16 + i * 29).toFixed(0)}" y="${166 - h}" width="21" height="${h}"
+        fill="${PLATE.o}" opacity="${(.22 + i * .045).toFixed(2)}"/>`;
+    }
+    return frame(`${bars}${paths}${bands}
+      <text x="12" y="16" fill="${PLATE.dim}" font-size="7" font-family="monospace">YEAR 0</text>
+      <text x="308" y="16" fill="${PLATE.dim}" font-size="7" font-family="monospace" text-anchor="end">500</text>`,
+      "THREE ARMS · MATCHED SHOCK HISTORY");
+  }
+
+  if (key === "sentinel") {
+    // a tornado plot: real parameters ranked against three decoys
+    const rows = [
+      [.92, PLATE.o, "MEMORY DECAY"], [.78, PLATE.o, "ADVERSARY ADAPT"],
+      [.61, PLATE.o, "BODY CORRELATION"], [.44, PLATE.t, "AUDIT BUDGET"],
+      [.31, PLATE.t, "ROTATION RATE"], [.12, PLATE.dim, "DECOY α"],
+      [.09, PLATE.dim, "DECOY β"], [.06, PLATE.dim, "DECOY γ"]
+    ];
+    let bars = "";
+    rows.forEach(([v, c], i) => {
+      const y = 22 + i * 17;
+      bars += `<rect x="120" y="${y}" width="${(v * 174).toFixed(0)}" height="10" fill="${c}" opacity=".9"/>`;
+      bars += `<text x="114" y="${y + 8.4}" fill="${PLATE.dim}" font-size="6.4" font-family="monospace"
+        text-anchor="end" letter-spacing=".6">${rows[i][2]}</text>`;
+    });
+    return frame(`
+      <line x1="120" y1="16" x2="120" y2="162" stroke="${PLATE.ink}" stroke-width="1"/>
+      <line x1="120" y1="120" x2="308" y2="120" stroke="${PLATE.x}" stroke-width=".9" stroke-dasharray="3 3"/>
+      ${bars}
+      <text x="306" y="118" fill="${PLATE.x}" font-size="6.4" font-family="monospace"
+        text-anchor="end">NOISE FLOOR</text>`,
+      "GLOBAL SENSITIVITY — DECOY-VALIDATED");
+  }
+
+  return frame(`
+    <circle cx="160" cy="90" r="34" fill="none" stroke="${PLATE.o}" stroke-width="2" opacity=".8"/>
+    <circle cx="160" cy="90" r="6" fill="${PLATE.o}"/>`, "PLATE — UNTITLED");
+}
+
+/* ------------------------------ render ------------------------------ */
+function render() {
+  const n = SIMULATIONS.length;
+  const label = String(n).padStart(2, "0") + (n === 1 ? " simulation" : " simulations");
+  document.getElementById("count").textContent = label;
+  document.getElementById("stampCount").textContent = String(n).padStart(2, "0") + " entries";
+
+  document.getElementById("grid").innerHTML = SIMULATIONS.map((s, i) => {
+    const thumb = s.thumb ? `<img src="${s.thumb}" alt="${s.title} preview">` : previewSVG(s.preview);
+    const chips = (s.chips || []).map(c => `<span class="rf-chip">${c}</span>`).join("");
+    return `
+      <article class="card">
+        <a class="stretched" href="${s.href}" aria-label="Open ${s.title}"></a>
+        <div class="thumb">${thumb}</div>
+        <div class="hd"><span class="no">${String(i + 1).padStart(2, "0")}</span><span>${s.tag}</span></div>
+        <div class="body">
+          <h3>${s.title}</h3>
+          <p>${s.description}</p>
+          ${chips ? `<div class="chips">${chips}</div>` : ""}
+          <span class="go">Open simulation →</span>
+        </div>
+      </article>`;
+  }).join("");
+}
+
+render();
 </script>
 </body>
 </html>

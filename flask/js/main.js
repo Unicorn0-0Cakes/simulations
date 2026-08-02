@@ -30,9 +30,9 @@ var Game = (function () {
 
   /* ---------------- boot ---------------- */
   function boot() {
-    var saved = localStorage.getItem("flask_theme");
-    if (saved === "dark") document.documentElement.setAttribute("data-theme", "dark");
-    document.getElementById("themeBtn").onclick = toggleTheme;
+    /* Day/night is owned by the site-wide switch in assets/orbital.js.
+       We only need to redraw when it flips. */
+    window.addEventListener("orbital:theme", function () { if (W) requestRender(); });
     buildHome();
     document.addEventListener("keydown", function (ev) {
       if (!W) return;
@@ -44,13 +44,7 @@ var Game = (function () {
     window.addEventListener("resize", function () { if (W) requestRender(); });
   }
 
-  function toggleTheme() {
-    var dark = document.documentElement.getAttribute("data-theme") === "dark";
-    if (dark) document.documentElement.removeAttribute("data-theme");
-    else document.documentElement.setAttribute("data-theme", "dark");
-    localStorage.setItem("flask_theme", dark ? "light" : "dark");
-    if (W) requestRender();
-  }
+
 
   /* ---------------- home ---------------- */
   function buildHome() {
@@ -238,7 +232,7 @@ var Game = (function () {
     document.getElementById("app").classList.add("on");
     buildSpeed();
     document.getElementById("playBtn").onclick = togglePlay;
-    document.getElementById("themeBtn2").onclick = toggleTheme;
+    
     document.getElementById("homeBtn").onclick = function () {
       if (!confirm("End this experiment and return to the start? Nothing is saved.")) return;
       running = false; W = null;

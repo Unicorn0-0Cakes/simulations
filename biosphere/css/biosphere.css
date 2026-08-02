@@ -8,25 +8,24 @@
 
 :root {
   /* Sunlit Laboratory (default) */
-  --bg:        #f4f2ed;
-  --bg-tint:   #eae7e0;
-  --panel:     #fffefb;
-  --panel2:    #f7f5f0;
-  --line:      #ddd8cd;
-  --line-soft: #ebe7de;
-  --ink:       #2b2f33;
-  --ink-dim:   #5d6570;
-  --muted:     #8a9099;
-  --accent:    #2f7d6a;
-  --accent-2:  #b4732c;
-  --shadow:    0 1px 2px rgba(40,38,32,.06), 0 8px 24px rgba(40,38,32,.05);
-  --shadow-lg: 0 18px 48px rgba(40,38,32,.14);
-
-  --ok:      #2f7d4a;
-  --watch:   #b08018;
-  --action:  #c0631f;
-  --danger:  #b3372f;
-  --info:    #2c6ba0;
+  --bg:        var(--rf-bg);
+  --bg-tint:   var(--rf-bg2);
+  --panel:     var(--rf-panel);
+  --panel2:    var(--rf-panel2);
+  --line:      var(--rf-line);
+  --line-soft: var(--rf-line-soft);
+  --ink:       var(--rf-ink);
+  --ink-dim:   var(--rf-ink-dim);
+  --muted:     var(--rf-muted);
+  --accent:    var(--rf-orange);
+  --accent-2:  var(--rf-gold);
+  --shadow:    var(--rf-shadow);
+  --shadow-lg: var(--rf-shadow-lg);
+  --ok:        var(--rf-ok);
+  --watch:     var(--rf-watch);
+  --action:    var(--rf-action);
+  --danger:    var(--rf-danger);
+  --info:      var(--rf-info);
 
   --c-rainforest:  #2f8f52;
   --c-savanna:     #b9903f;
@@ -37,32 +36,31 @@
   --c-habitat:     #c08b46;
   --c-tech:        #63768c;
 
-  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --font: var(--rf-sans);
+  --mono: var(--rf-mono);
   --rail: 178px;
   --inspector: 310px;
 }
 
-html[data-theme="dark"] {
-  --bg:        #10141a;
-  --bg-tint:   #0b0e13;
-  --panel:     #171c24;
-  --panel2:    #1e242e;
-  --line:      #2a323e;
-  --line-soft: #222932;
-  --ink:       #e6ebf2;
-  --ink-dim:   #a9b3c0;
-  --muted:     #77828f;
-  --accent:    #4fbfa3;
-  --accent-2:  #d69a4e;
-  --shadow:    0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
-  --shadow-lg: 0 18px 48px rgba(0,0,0,.55);
-
-  --ok:      #43b26a;
-  --watch:   #ddb545;
-  --action:  #e0873f;
-  --danger:  #e2564c;
-  --info:    #5a9fd8;
+html[data-theme="night"] {
+  --bg:        var(--rf-bg);
+  --bg-tint:   var(--rf-bg2);
+  --panel:     var(--rf-panel);
+  --panel2:    var(--rf-panel2);
+  --line:      var(--rf-line);
+  --line-soft: var(--rf-line-soft);
+  --ink:       var(--rf-ink);
+  --ink-dim:   var(--rf-ink-dim);
+  --muted:     var(--rf-muted);
+  --accent:    var(--rf-orange);
+  --accent-2:  var(--rf-gold);
+  --shadow:    var(--rf-shadow);
+  --shadow-lg: var(--rf-shadow-lg);
+  --ok:        var(--rf-ok);
+  --watch:     var(--rf-watch);
+  --action:    var(--rf-action);
+  --danger:    var(--rf-danger);
+  --info:      var(--rf-info);
 
   --c-rainforest:  #48b970;
   --c-savanna:     #d9ae55;
@@ -134,8 +132,8 @@ a { color: var(--accent); }
   font-weight: 550; transition: .13s; white-space: nowrap;
 }
 .btn:hover { border-color: var(--accent); color: var(--accent); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn.primary:hover { filter: brightness(1.08); color: #fff; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--rf-on-accent); }
+.btn.primary:hover { filter: brightness(1.08); color: var(--rf-on-accent); }
 .btn.ghost { background: transparent; }
 .btn:disabled { opacity: .42; cursor: not-allowed; }
 .btn.sm { padding: 4px 8px; font-size: 11.5px; }
@@ -145,7 +143,7 @@ a { color: var(--accent); }
 .seg button { background: none; border: 0; padding: 5px 9px; cursor: pointer; font-size: 11.5px;
               color: var(--ink-dim); border-right: 1px solid var(--line); font-weight: 600; }
 .seg button:last-child { border-right: 0; }
-.seg button.on { background: var(--accent); color: #fff; }
+.seg button.on { background: var(--accent); color: var(--rf-on-accent); }
 .seg button:hover:not(.on) { background: var(--bg-tint); }
 
 /* ---------------- left rail ---------------- */
@@ -162,7 +160,7 @@ a { color: var(--accent); }
 .navitem.on { background: var(--bg-tint); color: var(--ink); border-color: var(--line); font-weight: 650; }
 .navitem .ico { width: 17px; text-align: center; opacity: .8; font-size: 14px; }
 .navitem .badge { margin-left: auto; font-size: 10px; font-weight: 800; min-width: 17px; text-align: center;
-                  padding: 1px 5px; border-radius: 999px; background: var(--action); color: #fff; }
+                  padding: 1px 5px; border-radius: 999px; background: var(--action); color: var(--rf-on-accent); }
 .navitem .badge.d { background: var(--danger); }
 .navitem .badge.q { background: var(--info); }
 
@@ -313,7 +311,7 @@ textarea { background: var(--panel2); border: 1px solid var(--line); border-radi
 .wizsteps { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
 .wizsteps div { flex: 1; min-width: 84px; padding: 6px 8px; border-radius: 8px; background: var(--panel2);
                 border: 1px solid var(--line); font-size: 11px; text-align: center; color: var(--muted); font-weight: 650; }
-.wizsteps div.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.wizsteps div.on { background: var(--accent); border-color: var(--accent); color: var(--rf-on-accent); }
 .wizsteps div.done { color: var(--accent); border-color: var(--accent); }
 
 .allocrow { display: grid; grid-template-columns: 116px 1fr 66px; gap: 10px; align-items: center; margin-bottom: 7px; }
@@ -335,7 +333,7 @@ textarea { background: var(--panel2); border: 1px solid var(--line); border-radi
 .overlaybar button { background: color-mix(in srgb, var(--panel) 88%, transparent); border: 1px solid var(--line);
                      border-radius: 7px; padding: 3px 8px; font-size: 11px; cursor: pointer; font-weight: 600;
                      color: var(--ink-dim); backdrop-filter: blur(4px); }
-.overlaybar button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.overlaybar button.on { background: var(--accent); color: var(--rf-on-accent); border-color: var(--accent); }
 .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11.5px; color: var(--ink-dim); margin-top: 8px; }
 .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; }
 
