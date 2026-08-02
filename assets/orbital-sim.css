@@ -80,3 +80,25 @@ canvas {
 
 /* keep sticky sim toolbars below the injected chrome bar */
 .toolbar { top: 42px !important; }
+
+/* ---- status strip, injected under the chrome bar ------------------ */
+.rf-simstrip {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 9px 18px;
+  background: var(--rf-panel2);
+  border-bottom: 1px solid var(--rf-line);
+}
+.rf-simstrip .rf-ss-q {
+  font-size: 13px; color: var(--rf-ink); font-weight: 500;
+  flex: 1 1 320px; min-width: 0;
+}
+.rf-simstrip .rf-ss-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.rf-simstrip .rf-ss-v,
+.rf-simstrip .rf-ss-m {
+  font-family: var(--rf-mono); font-size: 9.5px;
+  letter-spacing: .14em; text-transform: uppercase;
+}
+.rf-simstrip .rf-ss-v { color: var(--rf-muted); }
+.rf-simstrip .rf-ss-m { color: var(--rf-orange); text-decoration: none; font-weight: 600; }
+.rf-simstrip .rf-ss-m:hover { text-decoration: underline; }
+@media (max-width: 700px) { .rf-simstrip .rf-ss-q { flex-basis: 100%; } }

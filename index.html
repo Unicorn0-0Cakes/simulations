@@ -110,7 +110,9 @@
           text-transform: uppercase; padding: 5px 10px 4px; cursor: pointer;
           background: var(--rf-panel2); color: var(--rf-ink-dim);
           border: 1px solid var(--rf-line); border-radius: 999px; transition: .14s; }
-  .fopt:hover { border-color: var(--rf-orange); color: var(--rf-orange); }
+  .fopt:hover:not(:disabled) { border-color: var(--rf-orange); color: var(--rf-orange); }
+  .fopt:disabled { opacity: .38; cursor: not-allowed; }
+  .fopt .cnt { margin-left: 6px; opacity: .6; font-size: 8.5px; }
   .fopt[aria-pressed="true"] { background: var(--rf-orange); color: var(--rf-on-accent);
                                border-color: var(--rf-orange); font-weight: 600; }
   html[data-theme="night"] .fopt[aria-pressed="true"] { box-shadow: var(--rf-glow); }
@@ -585,14 +587,24 @@ const active = {};                       // facet -> Set of selected values
 FACETS.forEach(f => active[f.key] = new Set());
 let query = "";
 
+/* A taxonomy value nothing uses would be a filter that always empties the
+   grid. Those stay visible — the vocabulary is the point — but disabled,
+   so the shape of the collection is legible without being a trap. */
+function countFor(facetKey, value) {
+  return CATALOGUE.filter(s => [].concat(s[facetKey]).includes(value)).length;
+}
+
 function buildFilters() {
   document.getElementById("filterRows").innerHTML = FACETS.map(f => `
     <div class="fgroup" role="group" aria-label="${f.label}">
       <span class="flabel">${f.label}</span>
       <div class="fopts">
-        ${TAXONOMY[f.key].map(v => `
-          <button class="fopt" type="button" role="switch" aria-pressed="false"
-                  data-facet="${f.key}" data-value="${v}">${v}</button>`).join("")}
+        ${TAXONOMY[f.key].map(v => {
+          const n = countFor(f.key, v);
+          return `<button class="fopt" type="button" role="switch" aria-pressed="false"
+                  data-facet="${f.key}" data-value="${v}" ${n ? "" : "disabled"}
+                  title="${n} instrument${n === 1 ? "" : "s"}">${v}<span class="cnt">${n}</span></button>`;
+        }).join("")}
       </div>
     </div>`).join("");
 

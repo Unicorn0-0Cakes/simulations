@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/orbital.css">
-<script src="../assets/orbital.js" data-title="Cognitive Civilization" data-tag="Three arms · 500 years"></script>
+<script src="../assets/orbital.js" data-title="Cognitive Civilization" data-tag="Three arms · 500 years" data-sim="cce"></script>
 <meta name="description" content="A simulated 500-year comparison of three systems for allocating work, housing, assistance and representation. Research instrument, not a claim about real people.">
 <style>
   :root{
@@ -120,8 +120,10 @@
   footer{border-top:1px solid var(--line);padding:26px 0 60px;color:var(--muted);font-size:13px}
 </style>
 <link rel="stylesheet" href="../assets/orbital-sim.css">
+<script src="../assets/catalogue.js"></script>
 </head>
 <body>
+<a class="rf-skip" href="#main-content">Skip to the instrument</a>
 
 <header class="hero">
   <div class="wrap">
@@ -142,7 +144,7 @@
   </div>
 </header>
 
-<nav class="tabs"><div class="wrap" id="tabs"></div></nav>
+<nav class="tabs" id="main-content" tabindex="-1"><div class="wrap" id="tabs"></div></nav>
 
 <!-- ============================ OVERVIEW ============================ -->
 <section class="page on" id="p-overview"><div class="wrap">

@@ -338,14 +338,13 @@ html[data-theme="night"] :focus-visible {
   box-shadow: 0 0 0 6px rgba(255,194,74,.16);
 }
 
-/* a card is one link; the whole card should show the focus ring */
-.rf-cardlink:focus-visible { outline: none; }
-.rf-cardlink:focus-visible ~ .rf-focusring,
-:has(> .rf-cardlink:focus-visible) {
+/* Tabbing to a card's primary action should light up the whole card, not
+   just the button, so it is obvious which instrument you are about to open. */
+.card:has(.rf-cardlink:focus-visible) {
   outline: 3px solid var(--rf-orange);
   outline-offset: 3px;
 }
-html[data-theme="night"] :has(> .rf-cardlink:focus-visible) { outline-color: var(--rf-amber); }
+html[data-theme="night"] .card:has(.rf-cardlink:focus-visible) { outline-color: var(--rf-amber); }
 
 /* skip link — off-screen until focused, then unmissable */
 .rf-skip {

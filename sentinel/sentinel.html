@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/orbital.css">
-<script src="../assets/orbital.js" data-title="Sentinel" data-tag="Oversight · Sensitivity"></script>
+<script src="../assets/orbital.js" data-title="Sentinel" data-tag="Oversight · Sensitivity" data-sim="sentinel"></script>
 <style>
 :root{
   --paper:var(--rf-bg); --paper2:var(--rf-bg2); --panel:var(--rf-panel);
@@ -158,8 +158,10 @@ footer{border-top:3px double var(--ink);margin-top:44px;padding-top:14px;
   display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
 </style>
 <link rel="stylesheet" href="../assets/orbital-sim.css">
+<script src="../assets/catalogue.js"></script>
 </head>
 <body>
+<a class="rf-skip" href="#tabs">Skip to the instrument</a>
 <div class="wrap">
 
 <header class="mast">
@@ -177,7 +179,7 @@ footer{border-top:3px double var(--ink);margin-top:44px;padding-top:14px;
   </div>
 </header>
 
-<nav class="tabs" id="tabs">
+<nav class="tabs" id="tabs" tabindex="-1">
   <button class="on" data-t="brief"><span class="n">01</span>Briefing</button>
   <button data-t="console"><span class="n">02</span>Console</button>
   <button data-t="sens"><span class="n">03</span>Sensitivity</button>

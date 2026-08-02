@@ -136,6 +136,29 @@
     window.dispatchEvent(new CustomEvent("orbital:motion", { detail: { paused: now } }));
   }
 
+  /* ---- status strip ---------------------------------------------
+     A simulation page states its own evidentiary standing, so the badge
+     follows the reader through from the catalogue instead of being left
+     behind on the homepage. Driven entirely by assets/catalogue.js.    */
+  function buildSimStrip(after) {
+    var id = script && script.getAttribute("data-sim");
+    if (!id || !window.byId) return;
+    var s = window.byId(id);
+    if (!s) return;
+
+    var strip = document.createElement("div");
+    strip.className = "rf-simstrip";
+    strip.innerHTML =
+      '<span class="rf-ss-q">' + s.question + '</span>' +
+      '<span class="rf-ss-badges">' +
+        evidenceBadge(s.evidence) + stateBadge(s.state) + flagChips(s.flags) +
+      '</span>' +
+      '<span class="rf-ss-v">v' + s.version + ' · ' + s.updated + '</span>' +
+      '<a class="rf-ss-m" href="' + s.methods.split("/").pop() + '">Methods &amp; limitations →</a>';
+
+    after.parentNode.insertBefore(strip, after.nextSibling);
+  }
+
   function build() {
     if (script && script.getAttribute("data-chrome") === "off") return;
     if (document.querySelector(".rf-chrome")) return;
@@ -165,6 +188,7 @@
       '</button>';
 
     document.body.insertBefore(bar, document.body.firstChild);
+    buildSimStrip(bar);
     document.getElementById("rf-switch").addEventListener("click", toggle);
     var mb = document.getElementById("rf-motion");
     if (mb) {
