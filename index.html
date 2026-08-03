@@ -525,6 +525,35 @@ function previewSVG(key) {
       <text x="226" y="169" fill="${PLATE.v}" font-size="7" font-family="monospace">Cit+</text>`,
       "MULLER PLOT — ARA−3 LINEAGE");
   }
+  if (key === "fallingcharge") {
+    /* A charge ladder: horizontal rungs at integer multiples, measured
+       droplets scattered against them with uncertainty bars, and the two
+       plates of the chamber top and bottom. */
+    const r = rng(29);
+    let inner = "";
+    /* plates */
+    inner += `<rect x="14" y="16" width="292" height="5" fill="${PLATE.g}" opacity=".85"/>`;
+    inner += `<rect x="14" y="159" width="292" height="5" fill="${PLATE.g}" opacity=".85"/>`;
+    inner += `<text x="20" y="31" fill="${PLATE.dim}" font-size="7" font-family="monospace">+</text>`;
+    inner += `<text x="20" y="156" fill="${PLATE.dim}" font-size="7" font-family="monospace">\u2212</text>`;
+    /* the lattice rungs */
+    for (let k = 1; k <= 6; k++) {
+      const y = 150 - k * 21;
+      inner += `<line x1="34" y1="${y}" x2="306" y2="${y}" stroke="${PLATE.rule}" stroke-width=".7" stroke-dasharray="3 3"/>`;
+      inner += `<text x="18" y="${y + 2.5}" fill="${PLATE.dim}" font-size="6" font-family="monospace">${k}e</text>`;
+    }
+    /* measured charges, scattered about the rungs with error bars */
+    for (let i = 0; i < 22; i++) {
+      const n = 1 + Math.floor(r() * 6);
+      const x = 44 + i * 11.6;
+      const y = 150 - n * 21 + (r() - 0.5) * 8;
+      const u = 3 + r() * 5;
+      inner += `<line x1="${x.toFixed(1)}" y1="${(y - u).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(y + u).toFixed(1)}" stroke="${PLATE.t}" stroke-width=".8" opacity=".8"/>`;
+      inner += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.9" fill="${PLATE.o}"/>`;
+    }
+    return frame(inner, "CHARGE / ELEMENTARY UNITS");
+  }
+
   if (key === "cce") {
     const r = rng(23); let bars = "";
     for (let i = 0; i < 9; i++) {

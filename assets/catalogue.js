@@ -194,6 +194,35 @@ const CATALOGUE = [
 
   /* ---------------------------------------------------------------- */
   {
+    id: "falling-charge",
+    title: "The Falling Charge",
+    href: "falling-charge/index.html",
+    methods: "falling-charge/methods.html",
+    preview: "fallingcharge",
+    thumb: null,
+
+    domain: "Physics",
+    mode: ["Measure", "Infer"],
+    duration: "10\u201330 minutes",
+    complexity: "Intermediate",
+    model: ["Statistical", "Historical reconstruction"],
+    state: "Research preview",
+    evidence: "Uncalibrated prototype",
+    basis: { label: "After Millikan, 1913", detail: "Robert Millikan's oil-drop experiment, Physical Review 2, 109\u2013143. The apparatus here is period-informed rather than reconstructed \u2014 the 1913 dimensions are not sourced." },
+
+    version: "0.1.0-milestone1",
+    updated: "Aug 2026",
+    flags: ["New", "Experimental"],
+
+    question: "Can an invisible unit of charge be recovered from the motion of falling oil droplets?",
+    role: "Calibrate an optical instrument, measure droplets through a reticle, defend every observation you keep and every one you throw away \u2014 then commit before you are allowed to see the answer.",
+
+    blurb: "Nothing in the apparatus shows you a charge. You measure how fast a droplet falls and how that changes when a field is applied, and the elementary unit appears only as a spacing that keeps recurring. The accepted value is sealed until you lock your analysis.",
+    chips: ["Blind analysis", "Preregistered exclusions", "Brownian-limited precision", "Nothing is ever deleted"]
+  },
+
+  /* ---------------------------------------------------------------- */
+  {
     id: "cce",
     title: "The Cognitive Civilization Experiment",
     href: "cce/cce.html",
