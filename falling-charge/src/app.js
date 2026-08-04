@@ -616,6 +616,22 @@
       h += "</div>";
     }
 
+    /* Droplet suitability — observable facts only, no reference to the
+       charge or to the estimate. docs/EXCLUSION_POLICY.md, spec §4. */
+    if (sel && !S.track) {
+      const su = M.suitability(sel, w);
+      h += '<div class="fc-suit ' + su.level + '">' +
+        '<b>' + (su.level === "good" ? "\u2713" : su.level === "marginal" ? "~" : "\u2715") +
+        " " + esc(su.label) + "</b>";
+      if (su.reasons.length) {
+        h += "<ul>" + su.reasons.map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + "</ul>";
+      }
+      if (su.hints.length) {
+        h += '<div class="fc-dim">' + su.hints.map(esc).join(" ") + "</div>";
+      }
+      h += '<div class="fc-dim" style="margin-top:4px">' + esc(su.note) + "</div></div>";
+    }
+
     const pend = sel && S.pendingFall[sel.id];
     h += '<div class="fc-steps"><b>Procedure</b><ol>' +
       '<li class="' + (pend ? "done" : "now") + '">Field <b>off</b>, track the fall → radius</li>' +
@@ -913,7 +929,7 @@
         '<p class="fc-dim">Locking is not reversible. Nothing is deleted by it; ' +
         'it fixes which measurements the primary analysis consumed.</p>' +
         '<div class="fc-row"><button class="fc-btn primary" id="btnLockData"' +
-        (acc.length >= 2 ? "" : " disabled") + ">Lock dataset and analyse →</button></div>' +
+        (acc.length >= 2 ? "" : " disabled") + ">Lock dataset and analyse →</button></div>" +
         (acc.length >= 2
           ? '<p class="fc-warn">Viewing an estimate before locking is recorded, ' +
             'because it is the moment after which any exclusion becomes outcome-aware.</p>'
@@ -1417,6 +1433,33 @@
     };
   }
 
-  root.FCApp = { boot: boot, state: S };
+  /* ------------------------------------------------------------------
+     TEST HOOKS.
+
+     tests/test-boot.js drives the interface in a DOM stub, where there is
+     no requestAnimationFrame and no real event dispatch. `advanceForTest`
+     runs EXACTLY the body of the frame loop, so the test exercises the
+     same stepping and sampling path the browser does rather than a
+     parallel reimplementation of it — a test that reimplements the thing
+     it is testing proves nothing.
+
+     Nothing in the interface calls any of these. */
+  function advanceForTest(seconds) {
+    const c = ctx();
+    const steps = Math.round(seconds / DT);
+    for (let i = 0; i < steps; i++) {
+      A.step(S.world, DT, c);
+      if (S.track) M.sample(S.track, S.world, c);
+    }
+    drawStage();
+    updateLive();
+  }
+
+  root.FCApp = {
+    boot: boot, state: S,
+    renderDesk: renderDesk, renderAll: renderAll,
+    advanceForTest: advanceForTest,
+    decideForTest: decide
+  };
 
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -623,6 +623,96 @@
   }
 
   /* =================================================================
+     4b. DROPLET SUITABILITY — before you spend thirty seconds on it
+     ---------------------------------------------------------------
+     Built ONLY from quantities an experimenter can see: how sharply the
+     droplet images, how fast it is currently moving, and where it sits
+     between the plates. It uses no hidden value, says nothing about
+     charge, and says nothing about the estimate — it is an instrument
+     diagnostic, like a signal-strength meter, not a hint.
+
+     It exists because the physics is unforgiving in a way that is not
+     obvious. Brownian velocity error scales as r^(-5/2) while fall speed
+     scales as r^2, so a droplet half the radius is roughly six times
+     worse to measure. A user who picks the slow, delicate-looking
+     droplets will produce an unusable dataset and have no idea why.
+     Telling them the observable facts is teaching; telling them whether
+     their answer is improving would not be.
+     ============================================================== */
+
+  /** Fall speed at which Brownian noise starts to dominate, m/s. */
+  const SLOW_WARN = 3.0e-5;
+  const SLOW_BAD  = 2.0e-5;
+
+  function suitability(droplet, world) {
+    if (!droplet) {
+      return { level: "none", label: "No droplet selected", reasons: [], hints: [] };
+    }
+    const reasons = [], hints = [];
+    let score = 2;                                   // 2 good, 1 marginal, 0 poor
+
+    /* focus — the most common and most fixable problem */
+    if (droplet.focus < 0.35) {
+      score = 0;
+      reasons.push("Focus quality " + Math.round(droplet.focus * 100) +
+                   " %, below the 35 % rule");
+      hints.push("Turn the focus control until this droplet sharpens.");
+    } else if (droplet.focus < 0.6) {
+      score = Math.min(score, 1);
+      reasons.push("Focus quality " + Math.round(droplet.focus * 100) + " %, workable but soft");
+      hints.push("A small focus adjustment would improve the position tracking.");
+    }
+
+    /* speed — a proxy for size, and the thing that decides precision */
+    const v = Math.abs(droplet.vy);
+    if (v < SLOW_BAD) {
+      score = 0;
+      reasons.push("Moving at only " + (v * 1e6).toFixed(1) +
+                   " um/s — Brownian motion will dominate the velocity fit");
+      hints.push("Larger droplets fall faster and are far easier to measure: " +
+                 "the relative Brownian error grows as the radius to the power -5/2.");
+    } else if (v < SLOW_WARN) {
+      score = Math.min(score, 1);
+      reasons.push("Moving at " + (v * 1e6).toFixed(1) + " um/s — slow; expect a wide interval");
+      hints.push("Track for longer, or find a faster droplet. Uncertainty falls as the " +
+                 "square root of the observation time.");
+    }
+
+    /* room to run — a track needs the droplet to stay in the region */
+    const gap = world.geom.plateGap;
+    const clearance = Math.min(droplet.y, gap - droplet.y);
+    if (clearance < 5e-4) {
+      score = 0;
+      reasons.push("Only " + (clearance * 1000).toFixed(2) + " mm from a plate");
+      hints.push("Too close to a plate to complete a track inside the calibrated region.");
+    } else {
+      /* will it survive a track of the usual length? */
+      const runway = (droplet.vy < 0 ? droplet.y : gap - droplet.y) - 3e-4;
+      const seconds = v > 0 ? runway / v : Infinity;
+      if (seconds < 8) {
+        score = Math.min(score, 1);
+        reasons.push("About " + seconds.toFixed(0) + " s of travel before it leaves the region");
+        hints.push("Consider reversing the field to bring it back, or pick a droplet " +
+                   "with more room to run.");
+      }
+    }
+
+    if (!droplet.visible) {
+      score = 0;
+      reasons.push("Not currently visible");
+    }
+
+    return {
+      level: score === 2 ? "good" : score === 1 ? "marginal" : "poor",
+      label: score === 2 ? "Suitable" : score === 1 ? "Usable, with caution" : "Unsuitable",
+      reasons: reasons, hints: hints,
+      focus: droplet.focus, speed: v,
+      note: "Judged from what the instrument can see: sharpness, speed and " +
+            "position. Nothing here refers to the droplet's charge or to your estimate."
+    };
+  }
+
+  /* =================================================================
      5. THE MEASUREMENT RECORD
      ============================================================== */
 
@@ -701,6 +791,7 @@
     fitVelocity: fitVelocity,
     derive: derive, quality: quality, checkRules: checkRules,
     makeMeasurement: makeMeasurement, decide: decide,
+    suitability: suitability, SLOW_WARN: SLOW_WARN, SLOW_BAD: SLOW_BAD,
     snapshotInstrument: snapshotInstrument
   };
 

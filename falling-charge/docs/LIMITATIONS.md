@@ -150,3 +150,9 @@ inventions, not values read from Millikan's paper. The mode is labelled
 *period-inspired*, not *historical reconstruction*, until they are sourced.
 
 **L-18 · No assistive-technology testing.** See `ACCESSIBILITY.md`.
+
+**L-21 · The interface is tested in a DOM stub, not a browser.**
+`tests/test-boot.js` proves the scripts parse, the application boots and a full
+experiment completes through the real handlers. It does not test layout, fonts,
+canvas rendering, event dispatch, or anything about how the page actually looks.
+A visual regression is entirely possible and would not be caught.

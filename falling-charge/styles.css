@@ -379,3 +379,15 @@ html.fc-high-contrast .fc-sub { color: var(--rf-ink-dim); }
 @media (prefers-reduced-motion: reduce) {
   .fc-toast { transition: none; }
 }
+
+/* ---------------------- droplet suitability ------------------------ */
+/* Status is carried by a glyph and a word as well as colour. */
+.fc-suit {
+  margin: 8px 0; padding: 7px 10px; font-size: 11.5px;
+  background: var(--rf-panel2); border-left: 3px solid var(--rf-muted);
+}
+.fc-suit.good     { border-left-color: var(--rf-ok); }
+.fc-suit.marginal { border-left-color: var(--rf-watch); }
+.fc-suit.poor     { border-left-color: var(--rf-danger); }
+.fc-suit ul { margin: 4px 0; padding-left: 18px; }
+.fc-suit li { margin: 1px 0; color: var(--rf-ink-dim); }

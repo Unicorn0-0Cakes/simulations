@@ -67,12 +67,26 @@ prerequisite for shipping the feature at all.
 
 Requires Modes F and G.
 
-## Layer 7 — Interface validation · **PARTIALLY EXECUTED**
+## Layer 7 — Interface validation · **EXECUTED** (with one gap)
 
-Confirmed manually: a blind session can be completed start to finish without any
-truth value appearing, and `readTruth` throws before reveal. Not confirmed by an
-automated test that inspects the rendered DOM for leaked truth — that test
-should exist and does not.
+`tests/test-boot.js` loads every `<script>` tag from `index.html` in order into
+a DOM stub, boots the application, and drives a complete blind experiment
+through the real buttons: calibrate, preregister, atomise, focus, select, track
+field-off, apply voltage, track field-on, derive, decide, lock the dataset,
+lock the analysis, reveal, export. It asserts that the truth vault still throws
+after the analysis has run, that the reveal tab contains no verdict language,
+and that rejected measurements survive into the export.
+
+**This layer was added after a shipping defect.** A mismatched quote in
+`app.js` meant the file never parsed, `FCApp` was never defined, and every
+control on the page was dead — while all 176 science tests passed, because none
+of them loaded the interface. The suite could not distinguish a working
+instrument from a blank page.
+
+**Remaining gap:** the stub does not dispatch real events, so the tab buttons
+and the accept/reject buttons are exercised through their handlers rather than
+through synthesised clicks, and layout, fonts and canvas pixels are not tested
+at all. Opening the page in a browser remains necessary and is not automated.
 
 ## Layer 8 — Independent scientific review · **NOT EXECUTED**
 
