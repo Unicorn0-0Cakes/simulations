@@ -235,7 +235,7 @@ const CATALOGUE = [
     duration: "10–30 minutes",
     complexity: "Intermediate",
     model: ["Historical reconstruction", "Statistical"],
-    state: "Development",
+    state: "Playable",
     evidence: null,
     basis: { label: "After Geiger, Marsden & Rutherford, 1909–13", detail: "The gold-foil scattering experiments at Manchester. Both competing angular distributions are implemented as Rutherford set them out side by side in the 1911 paper; the apparatus is schematic rather than reconstructed." },
 

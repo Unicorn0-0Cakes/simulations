@@ -98,6 +98,13 @@ declines to say whether it is positive or negative, and sets the question of the
 entirely. What the scattering experiment established is narrower and firmer than a model of the atom:
 that almost all the positive charge and mass sits in a volume very much smaller than the atom itself.
 
+Because of all this, anything you get by turning the controls is a statement about **this model**, not
+about what Geiger and Marsden would have found. Fire the beam at carbon and the counts that come back
+are what a classical point-charge law with no recoil predicts for carbon — and the recoil correction
+Rutherford calculated for light atoms is precisely the term this model omits. The instrument is at its
+most trustworthy in the regime it was built from: a thin foil of a heavy metal, a few MeV, single
+scattering.
+
 ## Modes
 
 **Guided reconstruction** — the 1909 experiment in five steps: the apparatus, a prediction you commit to
