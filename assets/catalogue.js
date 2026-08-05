@@ -223,6 +223,35 @@ const CATALOGUE = [
 
   /* ---------------------------------------------------------------- */
   {
+    id: "inside-the-atom",
+    title: "Inside the Atom",
+    href: "inside-the-atom/inside-the-atom.html",
+    methods: "inside-the-atom/methods.html",
+    preview: "insidetheatom",
+    thumb: null,
+
+    domain: "Physics",
+    mode: ["Measure", "Infer"],
+    duration: "10–30 minutes",
+    complexity: "Intermediate",
+    model: ["Historical reconstruction", "Statistical"],
+    state: "Development",
+    evidence: null,
+    basis: { label: "After Geiger, Marsden & Rutherford, 1909–13", detail: "The gold-foil scattering experiments at Manchester. Both competing angular distributions are implemented as Rutherford set them out side by side in the 1911 paper; the apparatus is schematic rather than reconstructed." },
+
+    version: "0.1.0",
+    updated: "Aug 2026",
+    flags: ["New"],
+
+    question: "Can the paths of scattered particles reveal structures too small to see?",
+    role: "Operate a finite alpha beam and a movable detector, spend exposures deciding where it is worth looking, and commit to a model before the counts are conclusive.",
+
+    blurb: "Fire alpha particles through thin foil, measure where they emerge, and compare competing models of the atom. Most pass through. A rare few carry the evidence that changes the model.",
+    chips: ["Alpha scattering", "Model comparison", "Detector sweep", "Seeded trials"]
+  },
+
+  /* ---------------------------------------------------------------- */
+  {
     id: "cce",
     title: "The Cognitive Civilization Experiment",
     href: "cce/cce.html",

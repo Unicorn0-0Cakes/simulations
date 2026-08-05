@@ -554,6 +554,65 @@ function previewSVG(key) {
     return frame(inner, "CHARGE / ELEMENTARY UNITS");
   }
 
+  if (key === "insidetheatom") {
+    /* The bench in plan: beam from the left onto a foil at the centre of
+       a graduated arc, sampled trajectories fanning out, and the few that
+       turn back. The impact parameter is sampled the way the instrument
+       samples it, so the fan has the right shape. */
+    const r = rng(79);
+    const cx = 176, cy = 96, R = 76;
+    let inner = "";
+    /* graduated arc */
+    inner += `<path d="M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}" fill="none" stroke="${PLATE.rule}" stroke-width=".8"/>`;
+    inner += `<path d="M${cx - R} ${cy} A${R} ${R} 0 0 0 ${cx + R} ${cy}" fill="none" stroke="${PLATE.rule}" stroke-width=".8" opacity=".45"/>`;
+    for (let d = 0; d <= 180; d += 15) {
+      const a = d * Math.PI / 180, L = (d % 45 === 0) ? 6 : 3;
+      inner += `<line x1="${(cx + (R - L) * Math.cos(a)).toFixed(1)}" y1="${(cy - (R - L) * Math.sin(a)).toFixed(1)}" x2="${(cx + R * Math.cos(a)).toFixed(1)}" y2="${(cy - R * Math.sin(a)).toFixed(1)}" stroke="${PLATE.dim}" stroke-width=".7"/>`;
+    }
+    /* source, shield and slit */
+    inner += `<rect x="${cx - R - 44}" y="${cy - 17}" width="20" height="34" fill="${PLATE.rule}" opacity=".3" stroke="${PLATE.rule}" stroke-width=".7"/>`;
+    inner += `<path d="M${cx - R - 40} ${cy - 4} L${cx - R - 25} ${cy - 1.4} L${cx - R - 25} ${cy + 1.4} L${cx - R - 40} ${cy + 4} Z" fill="${PLATE.g}"/>`;
+    inner += `<rect x="${cx - R - 14}" y="${cy - 15}" width="4" height="12.5" fill="${PLATE.rule}" opacity=".55"/>`;
+    inner += `<rect x="${cx - R - 14}" y="${cy + 2.5}" width="4" height="12.5" fill="${PLATE.rule}" opacity=".55"/>`;
+    /* incident beam */
+    inner += `<path d="M${cx - R - 24} ${cy - 1.6} L${cx} ${cy - 3} L${cx} ${cy + 3} L${cx - R - 24} ${cy + 1.6} Z" fill="${PLATE.g}" opacity=".35"/>`;
+    /* sampled trajectories, cot(phi/2) = 2p/b with p uniform in area */
+    const bOverP = 0.0075;
+    for (let i = 0; i < 54; i++) {
+      const p = Math.sqrt(r());
+      const phi = 2 * Math.atan(bOverP / (2 * p));
+      const sgn = r() < 0.5 ? 1 : -1;
+      const a = sgn * phi;
+      const big = phi > Math.PI / 2;
+      inner += `<line x1="${cx}" y1="${cy}" x2="${(cx + R * Math.cos(a)).toFixed(1)}" y2="${(cy - R * Math.sin(a)).toFixed(1)}" stroke="${big ? PLATE.o : PLATE.g}" stroke-width="${big ? 1.2 : .7}" opacity="${big ? .95 : .3}"/>`;
+    }
+    /* the two that came back */
+    [128, 147].forEach((d, i) => {
+      const a = d * Math.PI / 180;
+      inner += `<line x1="${cx}" y1="${cy}" x2="${(cx + R * Math.cos(a)).toFixed(1)}" y2="${(cy - R * Math.sin(a)).toFixed(1)}" stroke="${PLATE.x}" stroke-width="1.4"/>`;
+      inner += `<circle cx="${(cx + R * Math.cos(a)).toFixed(1)}" cy="${(cy - R * Math.sin(a)).toFixed(1)}" r="2.6" fill="${PLATE.x}"/>`;
+    });
+    /* the foil */
+    inner += `<line x1="${cx}" y1="${cy - 26}" x2="${cx}" y2="${cy + 26}" stroke="${PLATE.t}" stroke-width="2.6"/>`;
+    /* detector at 45 degrees, with its aperture */
+    const da = 45 * Math.PI / 180;
+    inner += `<path d="M${cx} ${cy} L${(cx + (R + 5) * Math.cos(da - .17)).toFixed(1)} ${(cy - (R + 5) * Math.sin(da - .17)).toFixed(1)} A${R + 5} ${R + 5} 0 0 0 ${(cx + (R + 5) * Math.cos(da + .17)).toFixed(1)} ${(cy - (R + 5) * Math.sin(da + .17)).toFixed(1)} Z" fill="${PLATE.o}" opacity=".16"/>`;
+    inner += `<rect x="${(cx + R * Math.cos(da) - 4).toFixed(1)}" y="${(cy - R * Math.sin(da) - 4).toFixed(1)}" width="8" height="8" fill="${PLATE.bg}" stroke="${PLATE.o}" stroke-width="1.4" transform="rotate(-45 ${(cx + R * Math.cos(da)).toFixed(1)} ${(cy - R * Math.sin(da)).toFixed(1)})"/>`;
+    /* the cosec^4 law, as an inset curve on the right */
+    let curve = "";
+    for (let i = 0; i <= 40; i++) {
+      const deg = 6 + (i / 40) * 168, s = Math.sin(deg * Math.PI / 360);
+      const yv = Math.log10(1 / (s * s * s * s));
+      curve += `${i ? "L" : "M"}${(262 + (i / 40) * 46).toFixed(1)} ${(150 - yv * 12.5).toFixed(1)} `;
+    }
+    inner += `<rect x="258" y="28" width="54" height="126" fill="${PLATE.bg}" opacity=".72"/>`;
+    inner += `<path d="${curve}" fill="none" stroke="${PLATE.o}" stroke-width="1.5"/>`;
+    inner += `<text x="262" y="40" fill="${PLATE.dim}" font-size="6" font-family="monospace">cosec⁴ φ/2</text>`;
+    inner += `<text x="${cx - R - 42}" y="${cy - 22}" fill="${PLATE.dim}" font-size="6" font-family="monospace">α</text>`;
+    inner += `<text x="${cx + 4}" y="${cy + 38}" fill="${PLATE.t}" font-size="6" font-family="monospace">Au 210nm</text>`;
+    return frame(inner, "PLAN — FOIL AT CENTRE OF GRADUATED CIRCLE");
+  }
+
   if (key === "cce") {
     const r = rng(23); let bars = "";
     for (let i = 0; i < 9; i++) {
