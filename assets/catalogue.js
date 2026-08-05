@@ -252,6 +252,40 @@ const CATALOGUE = [
 
   /* ---------------------------------------------------------------- */
   {
+    id: "magnetic-ocean",
+    title: "The Magnetic Ocean",
+    href: "magnetic-ocean/magnetic-ocean.html",
+    methods: "magnetic-ocean/methods.html",
+    preview: "magneticocean",
+    thumb: null,
+
+    domain: "Earth",
+    mode: ["Infer", "Measure"],
+    duration: "10–30 minutes",
+    complexity: "Intermediate",
+    model: ["Historical reconstruction", "Statistical"],
+    state: "Research preview",
+    evidence: "Uncalibrated prototype",
+    basis: { label: "After Vine & Matthews, 1963", detail: "The marine-magnetic interpretation linking seafloor spreading with geomagnetic reversals; Lawrence Morley independently developed the same core hypothesis." },
+
+    version: "0.1.0",
+    updated: "Aug 2026",
+    flags: ["New", "Experimental"],
+
+    question: "Can a noisy magnetic trace reveal the hidden motion and age of an ocean floor?",
+    role: "Tow a magnetometer across a ridge, spend a finite survey budget, and infer the ridge axis, polarity history and spreading rate before seeing the hidden geology.",
+
+    blurb: "The stripes are not shown to you. They are buried in basalt beneath the ocean, and all you receive is a noisy magnetic trace collected behind a moving ship. Reconstruct the seafloor history that produced it.",
+    chips: [
+      "Marine magnetometer",
+      "Hidden-stripe inference",
+      "Spreading-rate reconstruction",
+      "Seeded survey noise"
+    ]
+  },
+
+  /* ---------------------------------------------------------------- */
+  {
     id: "cce",
     title: "The Cognitive Civilization Experiment",
     href: "cce/cce.html",
