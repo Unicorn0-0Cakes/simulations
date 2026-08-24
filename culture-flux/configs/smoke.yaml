@@ -6,7 +6,7 @@ description: >-
   result: the transmission rule is the explicit null, so nothing here is a claim
   about cultural change.
 seed: 1
-schema_version: 1
+schema_version: 2
 population:
   initial_size: 1000
   within_source_noise: 0.0

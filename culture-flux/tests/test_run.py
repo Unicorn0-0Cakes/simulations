@@ -280,8 +280,9 @@ def test_source_count_does_move_composition_diversity_under_the_null():
 def test_the_shipped_smoke_run_matches_its_pinned_hash():
     """A cross-platform regression pin.
 
-    This value was produced identically on Python 3.11 / NumPy 2.4.4 and on
-    Python 3.10 / NumPy 2.2.6, which demonstrates that the RNG streams and the
+    Pinned for MODEL_VERSION 0.2.0-homophily. It was produced identically on
+    Python 3.11 / NumPy 2.4.4 and on Python 3.10 / NumPy 2.2.6, which
+    demonstrates that the RNG streams and the
     metric arithmetic are stable across the interpreter and NumPy versions
     tested. NumPy's policy (NEP 19) does NOT guarantee `Generator` stream
     stability across major versions, so this test is the tripwire: if it fails
@@ -289,7 +290,7 @@ def test_the_shipped_smoke_run_matches_its_pinned_hash():
     environment and MODEL_VERSION must be bumped rather than the pin edited.
     """
     r = ExperimentRun(ExperimentConfig.load(ROOT / "configs" / "smoke.json"), seed=1).execute()
-    assert r.run_hash == "69954195bfb45742210948d53e348bbf", (
+    assert r.run_hash == "fb18f49439ed20da2696a2a0d07660a8", (
         f"smoke run hash changed to {r.run_hash}. If the model was changed "
         "deliberately, bump MODEL_VERSION and update this pin. If not, the "
         "environment has broken reproducibility of stored runs."

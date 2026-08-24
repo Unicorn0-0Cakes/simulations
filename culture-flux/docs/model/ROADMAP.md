@@ -19,7 +19,12 @@ Deliberately absent: any cultural transmission.
 
 ---
 
-## Phase 1 — Literature extraction *(next; no code)*
+## Phase 1 — Literature extraction *(SKIPPED — outstanding)*
+
+> **This phase was skipped at the user's direction and Phase 2 was begun without
+> it.** Everything below remains outstanding, and assumption A-016 records the
+> cost: the model's transmission rule was chosen without the corpus behind it.
+> Nothing derived from that rule can be defended until this is done.
 
 **Entry condition:** the six core papers are accessible.
 
@@ -40,23 +45,29 @@ is novel.
 
 ---
 
-## Phase 2 — The first transmission rule
+## Phase 2 — The first transmission rule *(largely complete; entry condition unmet)*
 
-**Entry condition:** Phase 1 complete for at least P1 and P3.
+Done:
+- `axelrod_homophily` implemented against `TransmissionRule`, registered as
+  A-016 — **not** justified by an extracted source, which was the entry
+  condition.
+- Interaction on the well-mixed layer, with partner choice routed through the
+  influence model so that layer is operative rather than decorative.
+- 25 verification tests: conservation, absorbing-state properties, degenerate
+  parameters, the no-innovation invariant, and fast-vs-exact update agreement.
+- Comparison against the null on matched seeds, and a sweep configuration
+  (`configs/sweeps/null_vs_homophily.json`) that runs both arms by construction.
+- Pilot characterisation recorded in `docs/research/pilot_notes.md`.
 
-- One rule, implemented against `TransmissionRule`, justified by an extracted
-  source, registered as an assumption.
-- Interaction on the well-mixed layer.
-- Verification tests for the rule: conservation properties, behaviour at
-  degenerate parameters, and a case with a known analytic answer if one exists.
-- Internal validation target V-1 (Axelrod local convergence / global
-  polarisation) attempted, and the result recorded whether or not it succeeds.
-- Comparison against the null on the same seeds: the compositional baseline
-  subtracted from every result.
-- ODD protocol document, for framework-independent reporting.
+Outstanding:
+- **V-1 cannot be closed without Axelrod (1997).** See the validation strategy.
+- ODD protocol document.
+- A second transmission rule from a different family, without which no
+  substantive result can be reported (A-016 sensitivity requirement).
 
-**Exit condition:** the model produces cultural change that is demonstrably not
-compositional, and V-1 either reproduces or has a written explanation of why not.
+**Exit condition, revised:** the model produces cultural change that is
+demonstrably not compositional — **met** — *and* V-1 has a written outcome —
+**not met, and blocked on Phase 1.**
 
 ---
 

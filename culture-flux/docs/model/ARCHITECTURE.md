@@ -103,11 +103,11 @@ the codebase declares it, in machine-readable form, with an `implemented` flag:
 | What | Where | Declared | Implemented |
 |---|---|---|---|
 | Agent attributes | `agents/attributes.py` | 19 | 5 |
-| Transmission rules | `dynamics/base.py` | 7 | 1 (the null) |
+| Transmission rules | `dynamics/base.py` | 7 | 2 (null, homophily) |
 | Network layers | `networks/base.py` | 5 | 1 (well-mixed) |
 | Feature kinds | `culture/features.py` | 3 | 1 (categorical) |
 | Arrival profiles | `migration/schedule.py` | 4 | 1 (uniform) |
-| Metrics | `metrics/` | 21 | 16 |
+| Metrics | `metrics/` | 25 | 20 |
 
 Three properties follow, and each is deliberate:
 
@@ -121,14 +121,20 @@ Three properties follow, and each is deliberate:
 
 ## The null as a permanent fixture
 
-`NullTransmission` is not a placeholder awaiting deletion. It is the control arm.
+`NullTransmission` is not a placeholder awaiting deletion. It is the control arm,
+and v0.2 keeps it mandatory rather than superseded.
 
 Under it, every metric trajectory is *compositional* — it moves only because the
-mix of people changed. That baseline is quantitatively exact and worth having:
-retention under the null is `1 − M·D̄`, and the response surface over (M, D) is a
-plane. A future transmission rule that produces a plane is reproducing arithmetic,
-not modelling culture. This gives the project a sharp, falsifiable check that most
-simulation work lacks.
+mix of people changed. That baseline is quantitatively exact: retention under the
+null is `1 − M·D̄`, and the response surface over (M, D) is a plane. A
+transmission rule that produces a plane is reproducing arithmetic, not modelling
+culture.
+
+`configs/sweeps/null_vs_homophily.json` sweeps `dynamics.transmission_rule` so
+both arms run on matched seeds from one base configuration. This is why
+`rule_params` is keyed by rule name rather than flattened: one configuration has
+to be able to carry the settings for several rules so that the rule itself can be
+a sweep axis.
 
 ## What a run produces
 

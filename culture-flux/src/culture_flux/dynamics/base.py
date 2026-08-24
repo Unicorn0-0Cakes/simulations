@@ -86,14 +86,26 @@ DECLARED_RULES = (
     "vertical",
     "acculturation_orientation",
 )
-IMPLEMENTED_RULES = ("null",)
+IMPLEMENTED_RULES = ("null", "axelrod_homophily")
 
 _REGISTRY: dict[str, type[TransmissionRule]] = {"null": NullTransmission}
 
 
-def get_transmission_rule(name: str) -> TransmissionRule:
+def get_transmission_rule(name: str, params: dict | None = None) -> TransmissionRule:
+    """Construct a rule by name.
+
+    ``params`` is passed to the rule's constructor. Rules validate their own
+    parameters and reject unknown ones, so a misspelled parameter fails at
+    configuration time rather than being silently ignored -- the same discipline
+    the configuration layer applies to its own keys.
+    """
     if name in _REGISTRY:
-        return _REGISTRY[name]()
+        try:
+            return _REGISTRY[name](**(params or {}))
+        except TypeError as exc:
+            raise ValueError(
+                f"transmission rule {name!r} rejected its parameters {params!r}: {exc}"
+            ) from exc
     if name in DECLARED_RULES:
         raise NotImplementedError(
             f"transmission rule {name!r} is declared but not implemented in v0.1 "
@@ -110,3 +122,15 @@ def register_transmission_rule(name: str, cls: type[TransmissionRule]) -> None:
 
 def available_transmission_rules() -> tuple[str, ...]:
     return tuple(sorted(_REGISTRY))
+
+
+def _register_builtin_rules() -> None:
+    """Deferred import: homophily imports from this module, so registering it at
+    module scope would be circular."""
+    from .homophily import HomophilousTraitCopying
+
+    if "axelrod_homophily" not in _REGISTRY:
+        _REGISTRY["axelrod_homophily"] = HomophilousTraitCopying
+
+
+_register_builtin_rules()

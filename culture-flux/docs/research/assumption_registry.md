@@ -311,15 +311,156 @@ formation (P2) both suggest this is consequential.
 
 **Implementation.** `networks/base.py::WellMixedLayer`.
 
-**Expected effect.** Large and one-directional. Well-mixed populations converge;
-structured ones sustain local diversity. Under a well-mixed assumption the model
-*cannot* produce enclaves, spatial segregation, or network modularity — three of
-the outcomes in the research brief. Any null result on those is an artefact of
-this assumption, not a finding.
+**Expected effect.** **Outcome-determining, and now measured.** Pilot P-1
+(docs/research/pilot_notes.md) ran the homophily rule to 2,000 simulated years
+with no migration at Q ∈ {2, 3, 5, 10}: *every* configuration converged to a
+single culture and froze. Only the time to convergence differed.
 
-**Uncertainty.** Low that it matters; high about which structure to use.
+Under this assumption the model appears to have exactly one long-run outcome —
+monoculture — with the only open question being which culture wins. That removes
+"multicultural equilibrium" and "cultural fragmentation" from the set of
+reachable states, on top of the enclaves, spatial segregation and network
+modularity that were already impossible. Six of the nine outcomes named in the
+research brief are unavailable under A-010.
+
+It also means finite-horizon results describe transients. At 200 years, Q = 5
+showed 379 distinct profiles and `interactable_pair_fraction` = 0.998, which
+reads as sustained diversity and is in fact a way-station to monoculture.
+
+**Uncertainty.** None that it matters — measured. High about which structure to
+replace it with.
+
+**Sensitivity test.** `required`, and reclassified from `required-later`:
+structured layers are now a prerequisite for most research questions, not an
+enhancement. **Reporting rule:** any result under A-010 must report
+`interactable_pair_fraction`, and must state whether it concerns an equilibrium
+or a transient.
+
+**Status.** `provisional`
+
+---
+
+## A-016 — The transmission rule is specified here, not extracted
+
+**Description.** `axelrod_homophily` implements a rule *in the family* Axelrod
+(1997) introduced: interaction probability equal to cultural overlap, one-way
+copying of a single differing feature, no innovation. Every detail — one-way
+copying, the feature-choice weighting, the treatment of overlap 0 and 1, the
+interaction rate — is specified in `dynamics/homophily.py` and nowhere else.
+
+**Justification.** None from the literature. The rule was implemented at the
+user's direction ahead of Phase 1, on the grounds that it is the family the
+current culture representation descends from. That is a reason to try it, not
+evidence that it is right.
+
+**Evidence.** **None.** Axelrod (1997) has not been read; open question L-Q3 is
+open. Where the published model differs from this one, this implementation is
+wrong about Axelrod and right about itself.
+
+**Implementation.** `dynamics/homophily.py`.
+
+**Expected effect.** Determines every dynamic result the model produces. It is
+the single most consequential choice in the codebase and the one with the least
+support behind it.
+
+**Uncertainty.** Maximal. At least four alternative rules sit in the core corpus
+(conformist, prestige-biased, payoff-biased, acculturation-orientation), and the
+answer to RQ2 may depend more on which is chosen than on K.
+
+**Sensitivity test.** `required`. No substantive result may rest on a single
+transmission rule; at least two from different families must agree.
+
+**Reporting rule.** This rule is never to be described as "Axelrod's model" in
+any output until the paper has been read and the correspondence checked. The
+configuration layer emits this warning on every run that uses it.
+
+**Status.** `provisional`
+
+---
+
+## A-017 — Batched updating approximates asynchronous updating
+
+**Description.** By default, interaction events are applied in conflict-free
+batches: within a batch no agent is a focal agent twice, and every event reads
+the pre-batch state. The exact asynchronous process is available as
+`update_scheme: "asynchronous"`.
+
+**Justification.** Speed — 12.6× measured. Asynchronous updating costs one Python
+iteration per event, which at 10^7 events per run makes sweeps impractical.
+
+**Evidence.** Weak, and deliberately labelled so. Eight seeds at N = 200
+comparing the two schemes on retention and off-founding share found no difference
+beyond noise (|z| < 0.6 on all four quantities compared;
+`test_batched_and_asynchronous_schemes_agree_within_noise`). That has low power:
+it rules out a gross discrepancy, not a subtle one, and in a model where
+convergence is driven by rare events a subtle difference in event ordering is
+exactly the kind that could matter.
+
+**Implementation.** `dynamics/homophily.py::_apply_batch`.
+
+**Expected effect.** A batched process is a different stochastic process, not a
+faster version of the same one. Its likely direction is towards slightly slower
+convergence, since events cannot chain within a batch.
+
+**Uncertainty.** Moderate.
+
+**Sensitivity test.** `required`. Before any published result, re-run a
+representative subset asynchronously and compare distributions, not means, at a
+sample size with real power.
+
+**Status.** `provisional`
+
+---
+
+## A-017b — Influence weights are computed once per step
+
+**Description.** The influence model is consulted once per simulation step; every
+event within that step uses the same weights.
+
+**Justification.** Under `UniformInfluence` this is exact. Under a
+state-dependent influence model it is a within-step approximation.
+
+**Evidence.** None needed while influence is uniform; becomes live the moment it
+is not.
+
+**Implementation.** `dynamics/homophily.py::step`.
+
+**Expected effect.** None currently. Under a network-position or prestige model
+it would damp feedback between cultural change and influence within a step.
+
+**Uncertainty.** Low now, moderate from Phase 3.
 
 **Sensitivity test.** `required-later`.
+
+**Status.** `provisional`
+
+---
+
+## A-018 — No innovation, error or drift
+
+**Description.** Traits are only ever copied. No mechanism creates a trait nobody
+holds. Enforced as a test invariant: the set of traits present at each feature
+can shrink but never grow.
+
+**Justification.** The rule family's convention, and one fewer parameter.
+
+**Evidence.** None. Cultural drift and innovation are named in the project's
+secondary corpus and are not yet extracted.
+
+**Implementation.** `dynamics/homophily.py`; invariant tested in
+`test_copying_can_never_introduce_a_trait_nobody_held`.
+
+**Expected effect.** Substantial and one-directional. Without innovation the
+reachable culture space is bounded by the founding profiles, so the only route to
+novelty is recombination across features — which pilot P-2 shows is the usual
+outcome, but which is a much weaker form of novelty than the "emergent synthesis"
+H4 describes. It also guarantees absorbing states exist: with no innovation,
+diversity can only ever decrease.
+
+**Uncertainty.** High. A copying-error rate is one parameter and would change
+whether absorbing states are reachable at all.
+
+**Sensitivity test.** `required`.
 
 **Status.** `provisional`
 
@@ -345,7 +486,8 @@ is permanent, not temporary: it stays as the control arm.
 
 **Sensitivity test.** `n/a`
 
-**Status.** `structural`
+**Status.** `structural` — superseded as the default in v0.2 by A-016, but
+`NullTransmission` remains the control arm and every experiment must run it.
 
 ---
 
@@ -366,10 +508,17 @@ rather than a number that would be quoted.
 **Implementation.** `metrics/cultural.py::hybridization_index`.
 
 **Expected effect.** RQ6 cannot be answered until this is settled. That is the
-correct state to be in.
+correct state to be in — and it is now a live risk rather than a theoretical one,
+because with an active rule the metric would return a plausible-looking number
+that would be quoted. A test asserts it still returns NaN.
 
-**Uncertainty.** High. Likely resolved by reporting the full distance-to-nearest-
-founder distribution rather than any scalar index.
+**Uncertainty.** High. Partly addressed in v0.2 by reporting the
+distance-to-nearest-founding-culture distribution directly
+(`mean_`/`max_distance_to_nearest_founding_culture`,
+`share_off_founding_profiles`) instead of a scalar index. Pilot P-2 shows why the
+naive definition fails: 50–80% of converged runs end on a profile no founding
+population held, which the naive index would call universal hybridisation when it
+is ordinary recombination.
 
 **Sensitivity test.** `required-later`.
 

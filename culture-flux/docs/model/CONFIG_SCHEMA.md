@@ -44,7 +44,8 @@ that looks like a null result.
 ### `dynamics`
 | Key | Type | Default | Meaning |
 |---|---|---|---|
-| `transmission_rule` | declared name | `null` | Only `null` implemented (A-011). **In YAML, quote it** — bare `null` is a YAML null |
+| `transmission_rule` | declared name | `null` | Implemented: `null` (A-011), `axelrod_homophily` (A-016). **In YAML, quote `"null"`** — bare `null` is a YAML null |
+| `rule_params` | dict keyed by rule name | `{}` | e.g. `{"axelrod_homophily": {"events_per_agent_per_step": 1.0, "update_scheme": "batched"}}`. Keyed so one config can serve a sweep across rules. Unknown parameters rejected; unknown rule names rejected; parameters for declared-but-unimplemented rules are kept and validated when the rule arrives |
 | `influence_model` | registered name | `uniform` | A-009 |
 
 ### `runtime`
@@ -84,8 +85,10 @@ Renaming an experiment or moving its output does not change any of them.
 Wrong raises; questionable warns and is carried into the run manifest. Current
 warnings: migration window extending past the end of the run; F < 10; one step
 per year; a declared-but-unimplemented transmission rule; the null rule (always);
-too few migrants per source for the requested share distribution to survive
-integer rounding.
+`axelrod_homophily` (always — it is not a verified reproduction of Axelrod 1997);
+`update_scheme: batched` (an approximation, not an optimisation); too few
+migrants per source for the requested share distribution to survive integer
+rounding.
 
 ## Sweeps
 

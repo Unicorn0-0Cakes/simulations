@@ -15,32 +15,45 @@ that difference matters is what this instrument exists to find out.
 
 ---
 
-## Status: v0.1.0-skeleton — scientific skeleton, no cultural dynamics
+## Status: v0.2.0-homophily — one transmission rule, chosen without the literature
 
-**There is no cultural transmission mechanism in this version.** Nobody changes
-their culture. Every metric trajectory a v0.1 run produces is *compositional* —
-it moves only because the mix of people changed.
+**Read this before using any result.** The model now has an active transmission
+rule, `axelrod_homophily`. It is a rule *in the family* Axelrod (1997)
+introduced; it is **not** a verified reproduction of that model, because the
+paper has not been read. Every detail is specified in `dynamics/homophily.py` and
+nowhere else. This is registered as **assumption A-016**, the least-supported
+choice in the codebase, and the configuration layer warns on every run that uses
+it.
 
-That is the intended state, and the null model is worth having on its own:
-retention under it is exactly `1 − M·D̄`, and the response surface over
-(magnitude, distance) is a plane. A future transmission rule that reproduces a
-plane is reproducing arithmetic, not modelling culture. `NullTransmission` stays
-permanently as the control arm of every experiment.
+The null rule remains and remains mandatory: retention under it is exactly
+`1 − M·D̄`, so subtracting the null arm removes the compositional component from
+any result. A rule that reproduces the plane is reproducing arithmetic.
+`configs/sweeps/null_vs_homophily.json` runs both arms by construction.
+
+**The most important thing found so far is a limit, not a result.** Under the
+well-mixed network assumption (A-010), every configuration tested converges to a
+single culture and freezes. Sustained diversity was never a long-run outcome —
+which removes six of the nine outcomes in the research brief from the reachable
+set, and means any finite-horizon result describes a transient. See
+[docs/research/pilot_notes.md](docs/research/pilot_notes.md). Structured networks
+(Phase 3) are now a prerequisite rather than an enhancement.
 
 | | Declared | Implemented |
 |---|---|---|
 | Agent attributes | 19 | 5 |
-| Transmission rules | 7 | 1 (the null) |
+| Transmission rules | 7 | 2 (null, homophily) |
 | Network layers | 5 | 1 (well-mixed) |
 | Cultural feature kinds | 3 | 1 (categorical) |
-| Metrics | 21 | 16 |
+| Metrics | 25 | 20 |
 
 Requesting anything unimplemented raises `NotImplementedError` with a pointer to
 the roadmap — never a silent approximation. `culture-flux status` prints both
 columns, and the counts are pinned in the test suite so the gap cannot drift.
 
-**Nothing here has been empirically validated.** No output has been compared to
-data from any real population, and no parameter is calibrated to anything. See
+**Nothing here has been empirically validated, and internal validation is
+blocked.** No output has been compared to data from any real population, no
+parameter is calibrated, and validation target V-1 cannot be closed without the
+Axelrod paper. See
 [docs/research/validation_strategy.md](docs/research/validation_strategy.md).
 
 ---
@@ -90,7 +103,7 @@ python3 -m culture_flux.cli verify results/smoke__<hash>__seed0001
 # expand a sweep without spending compute on it
 python3 -m culture_flux.cli sweep configs/sweeps/source_count_at_fixed_M.json --dry-run
 
-# the invariant suite (180 tests)
+# the invariant suite (205 tests)
 python3 tests/run_tests.py        # no dependencies
 pytest                            # if pytest is installed
 ```
@@ -138,13 +151,13 @@ src/culture_flux/
   migration/     source composition and geometry, arrival accounting
   influence/     cultural influence, separate from population share
   networks/      multiplex layer abstractions
-  dynamics/      transmission rules (the null only)
+  dynamics/      transmission rules (null + homophilous trait copying)
   metrics/       diversity indices, outcome metrics, registry
   experiment/    configuration, run, sweep
   io/            manifests, writers, run directories
   cli.py
-configs/         smoke (json + yaml), reference baseline, two sweeps
-tests/           180 invariant tests + a dependency-free runner
+configs/         smoke (json + yaml), reference baselines, three sweeps
+tests/           205 invariant tests + a dependency-free runner
 results/         run output (gitignored)
 notebooks/       analysis (empty — nothing worth analysing yet)
 ```
@@ -153,38 +166,49 @@ notebooks/       analysis (empty — nothing worth analysing yet)
 
 ## Where the assumptions are
 
-Fifteen registered in
+Twenty registered in
 [docs/research/assumption_registry.md](docs/research/assumption_registry.md),
 each with justification, implementation location, expected effect, uncertainty
 and whether a sensitivity analysis is required before publication. The ones most
 likely to change conclusions:
 
+- **A-016** the transmission rule was specified here, not extracted from any paper
+- **A-010** the city is a single well-mixed pool — now measured as
+  *outcome-determining*, not merely consequential
+- **A-018** no innovation, error or drift: traits are only ever copied, so
+  novelty is bounded by what the founding cultures jointly contain
 - **A-001** all cultural features are interchangeable
 - **A-006** how multiple source cultures are arranged in culture space
 - **A-009** cultural influence is uniform across agents
-- **A-010** the city is a single well-mixed pool
 - **A-013** F = 20 features of 5 traits, chosen for convenience
 
-Three of the outcomes named in the research brief — enclaves, spatial
-segregation, network modularity — are *impossible* under A-010. A null result on
-any of them before structured networks exist is an artefact, not a finding.
+Six of the nine outcomes named in the research brief are unavailable under A-010:
+enclaves, spatial segregation and network modularity require structured networks,
+and multicultural equilibrium, fragmentation and transitions between persistent
+states did not occur in any run tested. A null result on any of them is an
+artefact, not a finding.
 
 ---
 
 ## What comes next
 
-Phase 1 is literature extraction, and it involves no code. The transmission rule
-is the single most consequential choice in the model, there are at least four
-plausible candidates in the core corpus, and choosing one before reading would
-mean choosing it arbitrarily. See [docs/model/ROADMAP.md](docs/model/ROADMAP.md).
+**Phase 1 — literature extraction — was skipped and is still outstanding.** The
+transmission rule was chosen without it, which is what A-016 records. Two things
+are blocked on it: internal validation target V-1, and any defence of the rule.
+
+Beyond that, Phase 3 (structured networks) has been promoted from enhancement to
+prerequisite by the well-mixed convergence result. See
+[docs/model/ROADMAP.md](docs/model/ROADMAP.md).
 
 ---
 
 ## Citing the state of this work
 
-Any output derived from this version must state: the model version, the seed and
-configuration hash of every run behind it, that no transmission mechanism was
-active, and that no empirical validation has been performed.
+Any output derived from this version must state: the model version; the seed and
+configuration hash of every run behind it; which transmission rule was active and
+that it is unvalidated against the literature (A-016); whether the runs reached an
+absorbing state or describe transients; and that no empirical validation has been
+performed. The rule must not be described as "Axelrod's model".
 
 Reproducibility is a property of `(model_version, config_hash, seed)`. Runs
 across different model versions are not comparable and `verify` refuses to

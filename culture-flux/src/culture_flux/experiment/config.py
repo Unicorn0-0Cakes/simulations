@@ -96,6 +96,13 @@ class NetworkConfig:
 @dataclass
 class DynamicsConfig:
     transmission_rule: str = "null"
+    #: Keyed BY RULE NAME: {"axelrod_homophily": {...}, "conformist": {...}}.
+    #: Keying rather than flattening is what lets one configuration carry the
+    #: settings for several rules, so a sweep can vary `transmission_rule` --
+    #: which is how the null control arm and an active arm are run from a single
+    #: base config. Parameters for rules not currently selected are kept and
+    #: still validated, so a typo in an unused block is not stored up for later.
+    rule_params: dict = field(default_factory=dict)
     influence_model: str = "uniform"
 
 
@@ -223,6 +230,33 @@ class ExperimentConfig:
                 f"dynamics.transmission_rule {d.transmission_rule!r} is not declared; "
                 f"declared: {DECLARED_RULES}"
             )
+        if not isinstance(d.rule_params, dict):
+            raise ConfigError(
+                "dynamics.rule_params must be a mapping keyed by rule name, e.g. "
+                '{"axelrod_homophily": {"events_per_agent_per_step": 1.0}}'
+            )
+        from ..dynamics.base import get_transmission_rule
+
+        for rule_name, params in d.rule_params.items():
+            if rule_name not in DECLARED_RULES:
+                raise ConfigError(
+                    f"dynamics.rule_params names an undeclared rule {rule_name!r}; "
+                    f"declared: {DECLARED_RULES}"
+                )
+            if not isinstance(params, dict):
+                raise ConfigError(
+                    f"dynamics.rule_params[{rule_name!r}] must be a mapping"
+                )
+            if rule_name not in IMPLEMENTED_RULES:
+                continue
+            # Construct now so bad parameters are rejected by `validate` rather
+            # than three minutes into a sweep.
+            try:
+                get_transmission_rule(rule_name, params)
+            except (ValueError, TypeError) as exc:
+                raise ConfigError(
+                    f"dynamics.rule_params[{rule_name!r}] invalid: {exc}"
+                ) from exc
         if d.influence_model not in available_influence_models():
             raise ConfigError(
                 f"dynamics.influence_model {d.influence_model!r} is not registered; "
@@ -276,6 +310,20 @@ class ExperimentConfig:
                 "transmission_rule = 'null': no agent will change culture. Metric "
                 "movement is compositional only."
             )
+        if d.transmission_rule == "axelrod_homophily":
+            w.append(
+                "transmission_rule = 'axelrod_homophily' is an Axelrod-FAMILY rule "
+                "specified in dynamics/homophily.py, not a verified reproduction of "
+                "Axelrod (1997), which has not been read (L-Q3). See A-016."
+            )
+            if (
+                d.rule_params.get("axelrod_homophily", {}).get("update_scheme", "batched")
+                == "batched"
+            ):
+                w.append(
+                    "update_scheme = 'batched' is an approximation to asynchronous "
+                    "updating, not an optimisation of it (A-017)."
+                )
         n_mig_approx = int(round(m.total_share * p.initial_size / max(1e-12, 1 - m.total_share)))
         if m.source_count > 1 and n_mig_approx < 10 * m.source_count:
             w.append(

@@ -20,7 +20,9 @@ from culture_flux.rng import RunRNG
 SCHEMA = CultureSchema.uniform(10, 5)
 
 
-def _ctx(pop, seed=0):
+def _ctx(pop, seed=0, founders="auto"):
+    if founders == "auto":
+        founders = np.unique(pop.culture, axis=0)
     return MetricContext(
         population=pop,
         schema=SCHEMA,
@@ -31,6 +33,7 @@ def _ctx(pop, seed=0):
         initial_culture=pop.culture.copy(),
         influence=UniformInfluence(),
         rng=np.random.default_rng(seed),
+        founding_profiles=founders,
     )
 
 
@@ -144,6 +147,21 @@ def test_every_placeholder_metric_returns_nan_rather_than_a_plausible_zero():
 def test_every_placeholder_says_what_it_is_blocked_on():
     for name, spec in available_metrics("placeholder").items():
         assert spec.blocked_on.strip(), name
+
+
+def test_founder_relative_metrics_degrade_to_nan_without_a_founding_set():
+    """Not to zero. `(nan > 0).mean()` would return a confident 0.0, which reads
+    as 'nothing novel has appeared' rather than 'not measured'."""
+    values = compute_metrics(
+        _ctx(_city(), founders=None),
+        (
+            "mean_distance_to_nearest_founding_culture",
+            "max_distance_to_nearest_founding_culture",
+            "share_off_founding_profiles",
+        ),
+    )
+    for name, v in values.items():
+        assert v != v, f"{name} returned {v}, not NaN"
 
 
 def test_every_implemented_metric_returns_a_finite_number():

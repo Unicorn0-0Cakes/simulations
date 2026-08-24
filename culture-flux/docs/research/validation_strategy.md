@@ -6,7 +6,7 @@ and because conflating them is the standard way simulation work overclaims.
 | Kind | Question | Status |
 |---|---|---|
 | Verification | Does the software do what the specification says? | **partially complete** |
-| Internal validation | Does the model reproduce known qualitative behaviour of its predecessors when configured like them? | **not started** |
+| Internal validation | Does the model reproduce known qualitative behaviour of its predecessors when configured like them? | **blocked — see below** |
 | Empirical validation | Do outputs correspond to real-world observations? | **not started, and not close** |
 
 **The model has not been empirically validated. Nothing in this repository has
@@ -22,7 +22,7 @@ The only one of the three currently in progress.
 
 ### What is verified
 
-180 invariant tests, all passing, run under warnings-as-errors. They test
+205 invariant tests, all passing, run under warnings-as-errors. They test
 scientifically meaningful properties, not that functions return without raising:
 
 **Determinism and provenance**
@@ -94,6 +94,23 @@ scientifically meaningful properties, not that functions return without raising:
 - Unimplemented transmission rules, network layers, feature kinds and arrival
   profiles raise `NotImplementedError` rather than silently approximating.
 
+**The transmission rule (v0.2)**
+- Copying never introduces a trait nobody held — the set of traits present at
+  each feature can shrink but never grow. A rule with innovation or copying error
+  would violate this, so an undeclared one could not be added silently.
+- Agents with zero cultural overlap never influence each other, exactly.
+- A homogeneous population is an absorbing state; a zero interaction rate changes
+  nothing; a feature with zero transmission rate or full resistance never changes.
+- Population size and trait admissibility are preserved under transmission.
+- Influence weighting demonstrably biases whose culture spreads, so the influence
+  layer is operative rather than decorative.
+- The rule departs measurably from the compositional baseline, and changes
+  founder culture, which the null never does.
+- Batched and asynchronous update schemes agree within noise (weak evidence —
+  see A-017) and obey the same invariants.
+- The hybridisation placeholder still returns NaN even though novel profiles now
+  exist and it would return a plausible number.
+
 **Guards against the model prejudging its own question**
 - Every placeholder metric returns NaN, never a plausible zero, and every one
   states what it is blocked on.
@@ -135,9 +152,28 @@ scientifically meaningful properties, not that functions return without raising:
 
 ## 2. Internal validation — does it behave like its predecessors?
 
-**Not started.** It cannot start before a transmission rule exists, and the
-targets cannot be specified before the literature matrix is filled (open
-questions L-Q3 and L-Q10).
+**Blocked, and blocked for a reason that a transmission rule did not unblock.**
+
+v0.2 implements an Axelrod-*family* rule (A-016), so target V-1 is now
+*runnable*. It is not *closeable*: closing it means comparing this model's
+behaviour against what Axelrod (1997) reports, and the paper has not been read.
+Comparing against a remembered summary would be worse than not comparing at all,
+because it would produce a validation claim with nothing behind it.
+
+**What has been measured instead** is this model's own behaviour, which is a
+legitimate thing to know and is not validation. See
+[pilot_notes.md](pilot_notes.md):
+
+- Dependence on traits-per-feature: at Q = 2 the population freezes into
+  monoculture within 200 simulated years; higher Q takes longer but reaches the
+  same state by 2,000 years. Time to convergence rises with Q; the endpoint does
+  not change.
+- In a well-mixed population, every configuration tested converged to a single
+  culture. Sustained diversity was never a long-run outcome.
+
+Whether either matches what the source paper reports is unknown. **V-1 remains
+open.** Its status must not be changed to "reproduced" or "failed" on the basis
+of anything except the paper.
 
 ### Planned procedure
 
@@ -151,7 +187,7 @@ reports it:
 
 | Target | Source | Behaviour to reproduce | Extraction dependency |
 |---|---|---|---|
-| V-1 | P3 Axelrod 1997 | Local convergence with global polarisation: stable multi-culture end states under local interaction, and dependence of the outcome on traits-per-feature | L-Q2, L-Q3, L-Q10 |
+| V-1 | P3 Axelrod 1997 | Local convergence with global polarisation: stable multi-culture end states under local interaction, and dependence of the outcome on traits-per-feature. **Runnable in v0.2; not closeable without the paper.** Note that this model is well-mixed (A-010), so the *local* interaction the target concerns is not yet available — V-1 may need Phase 3 regardless of the reading. | L-Q2, L-Q3, L-Q10 |
 | V-2 | P1 Mesoudi 2018 | Whatever relationship between migration rate and between-group variation the paper reports | L-Q5, L-Q10 |
 | V-3 | P4 Erten et al. 2018 | Dependence of multicultural outcomes on acculturation orientations | L-Q9 |
 | V-4 | P5 Chuang et al. 2019 | Enclave formation versus integration as a function of network structure | L-Q8 |

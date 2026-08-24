@@ -126,7 +126,10 @@ class ExperimentRun:
             total_years=config.runtime.total_years,
         )
         self.influence = get_influence_model(config.dynamics.influence_model)
-        self.rule = get_transmission_rule(config.dynamics.transmission_rule)
+        self.rule = get_transmission_rule(
+            config.dynamics.transmission_rule,
+            config.dynamics.rule_params.get(config.dynamics.transmission_rule, {}),
+        )
         self.metric_names = self._resolve_metric_names()
 
     def _resolve_metric_names(self) -> tuple[str, ...]:
@@ -181,6 +184,10 @@ class ExperimentRun:
         )
         network = build_network({"layers": cfg.network.layers}, population.size)
 
+        founding_profiles = np.vstack(
+            [initial_resident_profile.reshape(1, -1), source_set.profiles]
+        )
+
         arrivals_by_step: dict[int, np.ndarray] = {
             int(s): plan.arrivals[i] for i, s in enumerate(plan.arrival_steps)
         }
@@ -203,6 +210,7 @@ class ExperimentRun:
                 generation=self.clock.generation,
                 initial_resident_profile=initial_resident_profile,
                 initial_culture=initial_culture,
+                founding_profiles=founding_profiles,
                 influence=self.influence,
                 rng=metric_gen,
                 distance_metric=cfg.culture.distance_metric,

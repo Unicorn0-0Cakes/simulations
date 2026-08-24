@@ -337,3 +337,106 @@ def cross_cultural_interaction_rate(ctx: MetricContext) -> float:
 )
 def dominant_cultural_lineage(ctx: MetricContext) -> float:
     return float("nan")
+
+
+# ---------------------------------------------------------------------------
+# Novelty relative to the founding cultures
+#
+# These do NOT define "hybrid" -- that is A-012, still open. They report the
+# distance-to-nearest-founder distribution, which is the raw material any
+# eventual definition would be built from, and which is informative on its own.
+# ---------------------------------------------------------------------------
+
+def _nearest_founder_distance(ctx: MetricContext) -> np.ndarray | None:
+    """Per-agent distance to the closest founding profile, or None.
+
+    None -- rather than an array of NaN -- when the founding set was not
+    supplied, so that each metric returns NaN explicitly instead of averaging
+    NaNs and emitting a warning, or worse, comparing NaN to zero and getting a
+    confident False.
+    """
+
+    def compute() -> np.ndarray | None:
+        founders = ctx.founding_profiles
+        if founders is None or len(founders) == 0:
+            return None
+        dists = np.stack(
+            [
+                distance_to_profile(ctx.population.culture, f, ctx.schema, ctx.distance_metric)
+                for f in founders
+            ],
+            axis=0,
+        )
+        return dists.min(axis=0)
+
+    return ctx.cached("nearest_founder_distance", compute)
+
+
+@register_metric(
+    "mean_distance_to_nearest_founding_culture",
+    description="Mean over agents of the distance to the closest founding profile "
+    "(resident or incoming). Exactly 0 while no trait has moved. Rises as "
+    "recombination carries agents away from every founding culture.",
+    category="hybridisation",
+)
+def mean_distance_to_nearest_founding_culture(ctx: MetricContext) -> float:
+    d = _nearest_founder_distance(ctx)
+    if d is None or ctx.population.size == 0:
+        return float("nan")
+    return float(d.mean())
+
+
+@register_metric(
+    "max_distance_to_nearest_founding_culture",
+    description="The furthest any single agent has moved from every founding "
+    "profile. The leading edge of novelty, which a mean hides.",
+    category="hybridisation",
+)
+def max_distance_to_nearest_founding_culture(ctx: MetricContext) -> float:
+    d = _nearest_founder_distance(ctx)
+    if d is None or ctx.population.size == 0:
+        return float("nan")
+    return float(d.max())
+
+
+@register_metric(
+    "share_off_founding_profiles",
+    description="Share of agents whose profile is not exactly equal to any "
+    "founding profile. Reported WITHOUT being called hybridisation: a single "
+    "copied trait satisfies it, which is precisely why it cannot serve as a "
+    "hybridisation index on its own (A-012).",
+    category="hybridisation",
+)
+def share_off_founding_profiles(ctx: MetricContext) -> float:
+    d = _nearest_founder_distance(ctx)
+    if d is None or ctx.population.size == 0:
+        return float("nan")
+    return float((d > 0).mean())
+
+
+# ---------------------------------------------------------------------------
+# Convergence diagnostics
+# ---------------------------------------------------------------------------
+
+@register_metric(
+    "interactable_pair_fraction",
+    description="Estimated fraction of agent pairs that could still influence "
+    "each other -- overlap strictly between 0 and 1. Reaching 0 means the "
+    "population is in an absorbing state and further simulation cannot change "
+    "it, which distinguishes a genuine equilibrium from a run that was too short.",
+    category="convergence",
+)
+def interactable_pair_fraction(ctx: MetricContext) -> float:
+    pop = ctx.population
+    n = pop.size
+    if n < 2:
+        return float("nan")
+    rng = ctx.rng
+    sample = 20_000
+    i = rng.integers(0, n, size=sample)
+    j = rng.integers(0, n - 1, size=sample)
+    j = j + (j >= i)
+    from ..culture.distance import get_distance
+
+    d = get_distance(ctx.distance_metric)(pop.culture[i], pop.culture[j], ctx.schema)
+    return float(((d > 0.0) & (d < 1.0)).mean())

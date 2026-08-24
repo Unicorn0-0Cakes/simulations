@@ -44,6 +44,10 @@ class MetricContext:
     initial_culture: np.ndarray
     influence: InfluenceModel
     rng: np.random.Generator
+    #: (1+K, F) -- the resident founding profile stacked with every incoming
+    #: source profile. The reference set for "has anything genuinely new
+    #: appeared", which only becomes a meaningful question once traits can move.
+    founding_profiles: np.ndarray | None = None
     distance_metric: str = "hamming"
     source_labels: dict[int, str] = field(default_factory=dict)
     extras: dict[str, Any] = field(default_factory=dict)

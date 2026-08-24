@@ -25,19 +25,25 @@ Each row says what the state would look like *in metric space* — a hypothesis
 about a region, to be checked, not a rule to be applied. The signatures are
 provisional and several are not yet measurable.
 
+**Updated for v0.2.** With an active rule the "measurable now?" column changed
+less than expected, because pilot P-1 found that the well-mixed assumption drives
+every configuration to monoculture. Several outcomes are now measurable in
+principle and unreachable in practice, which is a different and more useful kind
+of "no".
+
 | Term | Provisional signature | Measurable now? |
 |---|---|---|
 | Resident persistence | High `resident_trait_retention`; `dominant_profile_share` high and located at the founding profile | Partly — the location of the dominant profile is not yet reported |
-| Assimilation | Incoming agents' cultures converge on the founding profile; low `cultural_fractionalization`; high retention | No — requires transmission |
-| Integration | Sustained moderate `cultural_fractionalization`; retention neither near 1 nor near 0; no single dominant profile | No |
-| Incoming dominance | `dominant_profile_share` high at a non-founding profile; low retention | No |
-| Hybridisation | Mass at profiles far from *every* founding profile | No — and undefined (A-012) |
-| Multicultural equilibrium | Several profiles at stable non-trivial shares, persisting over time | No — "stable" requires dynamics to stabilise |
-| Fragmentation | High `cultural_richness`, low `dominant_profile_share`, high effective number | No |
+| Assimilation | Incoming agents' cultures converge on the founding profile; low `cultural_fractionalization`; high retention | **Yes** — and observed: pilot P-2 ended on the resident profile in 17–50% of runs |
+| Integration | Sustained moderate `cultural_fractionalization`; retention neither near 1 nor near 0; no single dominant profile | Measurable, **unreachable** under A-010 — appears only as a transient |
+| Incoming dominance | `dominant_profile_share` high at an incoming founding profile; low retention | **Yes**, and did not occur in any of 30 pilot runs at M = 0.30 |
+| Hybridisation | Mass at profiles far from *every* founding profile | Distribution now reported; the **index** stays NaN, undefined (A-012). Pilot P-2: 50–80% of converged runs ended on a recombinant, which is why the naive index is useless |
+| Multicultural equilibrium | Several profiles at stable non-trivial shares, persisting over time | Measurable, **unreachable** under A-010 |
+| Fragmentation | High `cultural_richness`, low `dominant_profile_share`, high effective number | Measurable, **unreachable** under A-010 |
 | Enclave | Cultural clustering *within network or spatial structure* rather than in the population as a whole | No — requires structured network layers |
-| Phase transition | Discontinuity in an outcome under a smooth parameter change, with between-replicate variance peaking at the same location | No — requires dynamics and large replicate counts |
+| Phase transition | Discontinuity in an outcome under a smooth parameter change, with between-replicate variance peaking at the same location | Not yet — needs replicate counts sized to estimate rates, and persistent states to transition between |
 
-Every "No" is a statement about v0.1, not a permanent limitation.
+Every "No" and every "unreachable" is a statement about the current assumptions — chiefly A-010 — not a permanent limitation. `interactable_pair_fraction` is the metric that distinguishes "this outcome persisted" from "this outcome was passed through on the way to monoculture", and must be reported alongside any of these.
 
 ## How classification should eventually work
 

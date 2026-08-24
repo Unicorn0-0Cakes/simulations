@@ -11,10 +11,13 @@ from .base import (
     get_transmission_rule,
     register_transmission_rule,
 )
+from .homophily import UPDATE_SCHEMES, HomophilousTraitCopying
 
 __all__ = [
     "TransmissionRule",
     "NullTransmission",
+    "HomophilousTraitCopying",
+    "UPDATE_SCHEMES",
     "get_transmission_rule",
     "register_transmission_rule",
     "available_transmission_rules",
