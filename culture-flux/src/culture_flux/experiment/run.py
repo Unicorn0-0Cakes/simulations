@@ -205,6 +205,13 @@ class ExperimentRun:
         metric_gen = self.rng("misc")
 
         timeseries: list[dict[str, float]] = []
+        # Absorption tracking. A run that has not changed for a long time is a
+        # candidate equilibrium; a run that is still changing is not one,
+        # however stable its aggregate metrics look. Pilot P-6 found an
+        # 1,800-year plateau in cultural richness that then collapsed, so
+        # "the metrics stopped moving" is NOT sufficient evidence and this
+        # counter is deliberately about trait changes, not about metrics.
+        last_change_step = 0
         arrived_total = 0
         displaced_total = 0
         trait_changes_total = 0
@@ -240,6 +247,7 @@ class ExperimentRun:
                 "rewires_cumulative": float(rewires_total),
                 "displaced_cumulative": float(displaced_total),
                 "trait_changes_cumulative": float(trait_changes_total),
+                "steps_since_last_change": float(self.clock.step - last_change_step),
             }
             row.update(compute_metrics(ctx, self.metric_names))
             return row
@@ -268,9 +276,12 @@ class ExperimentRun:
                     arrived_total += n
                 if cfg.migration.mode == "replacement":
                     displaced_total += self._displace(population, int(counts.sum()), sched_gen)
-            trait_changes_total += int(
+            step_changes = int(
                 self.rule.step(population, network, self.influence, step, interaction_gen)
             )
+            trait_changes_total += step_changes
+            if step_changes > 0:
+                last_change_step = step
             if step % cfg.network.rewire_every_steps == 0:
                 rewires_total += network.rewire(population, rewire_gen)
             if self.clock.is_measurement_step():
@@ -289,6 +300,7 @@ class ExperimentRun:
             plan=plan,
             network=network,
             rewires_total=rewires_total,
+            last_change_step=last_change_step,
             timeseries=timeseries,
             started_iso=started_iso,
             duration_s=finished_wall - started_wall,
@@ -351,6 +363,12 @@ class ExperimentRun:
             "migration_plan": plan.to_dict(),
             "network": kw["network"].describe(),
             "network_rewires_total": kw["rewires_total"],
+            "absorption": _absorption_report(
+                total_steps=self.clock.total_steps,
+                last_change_step=kw["last_change_step"],
+                steps_per_year=cfg.runtime.steps_per_year,
+                changes_culture=self.rule.changes_culture,
+            ),
             "dynamics": {
                 "transmission_rule": self.rule.describe(),
                 "influence_model": self.influence.describe(),
@@ -394,6 +412,45 @@ class ExperimentRun:
                 "platform": platform.platform(),
             },
         }
+
+
+def _absorption_report(
+    *, total_steps: int, last_change_step: int, steps_per_year: int, changes_culture: bool
+) -> dict:
+    """Whether the run ended in an absorbing state, and how confidently.
+
+    ``absorbed`` requires that no trait changed for the final tenth of the run
+    AND for at least one simulated generation-scale span. Both, because a short
+    run can pass the first test trivially.
+
+    This is deliberately conservative and still not proof. Pilot P-6 recorded a
+    1,600-year plateau during which cultural richness was stable and even drifted
+    upward, before collapsing to monoculture -- so "nothing has changed lately"
+    is evidence, not a guarantee, and `quiescent_years` is reported so a reader
+    can judge it against the timescale of their own question.
+    """
+    if not changes_culture:
+        return {
+            "absorbed": True,
+            "reason": "null transmission rule: no change is possible by construction",
+            "quiescent_years": total_steps / steps_per_year,
+            "confidence": "certain",
+        }
+    quiescent_steps = total_steps - last_change_step
+    quiescent_years = quiescent_steps / steps_per_year
+    long_enough = quiescent_steps >= max(total_steps // 10, steps_per_year * 25)
+    return {
+        "absorbed": bool(long_enough),
+        "reason": (
+            "no trait changed for the final tenth of the run"
+            if long_enough
+            else "the population was still changing when the run ended"
+        ),
+        "quiescent_years": quiescent_years,
+        "quiescent_fraction_of_run": quiescent_steps / total_steps if total_steps else 0.0,
+        # Never "certain" for an active rule: a long plateau can still break.
+        "confidence": "provisional" if long_enough else "not absorbed",
+    }
 
 
 def _hash_result(population: Population, timeseries: list[dict[str, float]]) -> str:

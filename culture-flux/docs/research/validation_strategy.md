@@ -22,7 +22,7 @@ The only one of the three currently in progress.
 
 ### What is verified
 
-244 invariant tests, all passing, run under warnings-as-errors. They test
+263 invariant tests, all passing, run under warnings-as-errors. They test
 scientifically meaningful properties, not that functions return without raising:
 
 **Determinism and provenance**
@@ -110,6 +110,28 @@ scientifically meaningful properties, not that functions return without raising:
   see A-017) and obey the same invariants.
 - The hybridisation placeholder still returns NaN even though novel profiles now
   exist and it would return a plausible number.
+
+**Absorption and metastability (v0.4)**
+- A null run reports certain absorption; an active run never does, at any length,
+  because pilot P-6 found an 1,800-year plateau that then collapsed.
+- A still-changing run is reported as not absorbed with zero quiescent years.
+- Absorption tracks trait changes rather than metric stability — the distinction
+  P-6 turns on, since richness was flat while traits changed underneath it.
+
+**Sweep execution (v0.4)**
+- A completed sweep is entirely skipped on re-run; resume off re-runs everything;
+  extending a sweep runs only the new conditions.
+- A half-written directory, a corrupt manifest, or a manifest from another model
+  version is re-run rather than trusted. Resume never trusts a directory just
+  because it exists.
+- **Serial and parallel execution produce identical run hashes.** Determinism
+  comes from (seed, config) alone — never from execution order, worker identity,
+  or worker count.
+- Failed runs are recorded with their error and listed individually in the batch
+  manifest, not merely counted: a batch that quietly dropped 3% of its runs would
+  still look complete in an aggregate table.
+- Dict-valued sweep axes (a whole network specification) flatten to stable
+  strings so the summary stays a rectangular, diffable table.
 
 **Network structure (v0.3)**
 - Group layers keep interaction local: sampled partners always share the focal
@@ -216,6 +238,7 @@ reports it:
 | V-3 | P4 Erten et al. 2018 | Dependence of multicultural outcomes on acculturation orientations | L-Q9 |
 | V-4 | P5 Chuang et al. 2019 | Enclave formation versus integration as a function of network structure | L-Q8 |
 | V-5 | P2 Paolillo & Jager 2020 | Interaction between network formation and acculturation | L-Q8 |
+| V-6 | S1 Klemm et al. 2003, S2 Flache & Macy 2011 | A transition from sustained diversity to monoculture as long-range interaction rises. **Qualitatively consistent with pilots P-5/P-6 but NOT verified** — the papers have not been read, so neither the published direction nor the published threshold has been compared. Note that P-6 reframes the effect as plateau duration rather than a true threshold, which may or may not match the published account. | secondary corpus |
 
 V-1 is the priority: Axelrod's model is the direct ancestor of the current
 representation, it is fully specified in its paper, and reproducing it would

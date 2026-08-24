@@ -15,7 +15,7 @@ that difference matters is what this instrument exists to find out.
 
 ---
 
-## Status: v0.3.0-structure — structured city, and a threshold nobody was looking for
+## Status: v0.4.0-metastability — the equilibria are plateaus
 
 **Read this before using any result.** The model now has an active transmission
 rule, `axelrod_homophily`. It is a rule *in the family* Axelrod (1997)
@@ -30,34 +30,41 @@ The null rule remains and remains mandatory: retention under it is exactly
 any result. A rule that reproduces the plane is reproducing arithmetic.
 `configs/sweeps/null_vs_homophily.json` runs both arms by construction.
 
-**The most important thing found so far is not about migration.**
+**The most important thing found so far is a hazard, not a result.**
 
-Adding household, neighbourhood, workplace and attention layers did *not* rescue
-cultural diversity. A city of overlapping local groups still collapses to a
-single culture, because random overlapping memberships stitch it into one
-connected component. What sustains diversity is **disconnection**, not locality.
+Two cultural configurations held ~30 distinct cultures for **1,600 simulated
+years** — stable, with richness even drifting slightly upward — and then
+collapsed to a single culture. Both seeds. Anyone reporting the year-1,000 state
+of those runs would have reported a robust multicultural equilibrium and been
+wrong.
 
-And the dependence on connectivity is sharp. With ten disconnected
-neighbourhoods, ten cultures persist indefinitely — until roughly **0.5% of
-encounters are with strangers**, at which point the whole city homogenises.
-Between-replicate variance peaks inside that transition, which is the signature
-RQ7 names as evidence of a critical region.
+That retracted this project's own previous headline. v0.3 reported a sharp
+threshold in how much long-range interaction a city can sustain; extending the
+runs showed it was the boundary at which collapse happened to fall inside the
+observation window. There is no threshold — there is a plateau whose *duration*
+depends on the parameters. Every connected configuration tested ends in
+monoculture. Only exact disconnection sustains diversity, and that is true by
+construction rather than by observation.
 
-So the instrument has produced a clean threshold — in a **structural** parameter
-nobody proposed studying, whose default (0.05) sits an order of magnitude into
-the homogenising regime. Any migration threshold this model reports is
-conditional on that number. The weak-tie weight is now an experimental variable,
-not a setting.
+**"The metrics stopped moving" is not evidence of equilibrium.** Cultural
+richness was flat while traits changed underneath it continuously. So absorption
+is now tracked by trait changes, written into every manifest, and never reported
+as certain under an active rule.
 
-Details and caveats in
-[docs/research/pilot_notes.md](docs/research/pilot_notes.md) (P-4, P-5). It is
-very likely a rediscovery of the small-world effect; open question **L-Q13**
-holds that until the corpus is read.
+This generalises past the parameter that produced it: every outcome state in the
+research brief — multicultural equilibrium, integration, fragmentation — and any
+migration threshold could be a horizon artefact in exactly the same way.
+
+Details in [docs/research/pilot_notes.md](docs/research/pilot_notes.md)
+(P-4 to P-6). **L-Q13 is answered:** this is established territory — Klemm et al.
+(2003), Flache & Macy (2011), Battiston et al. (2017) — so the network pilots are
+replications, and are registered as validation target V-6 rather than as findings.
 
 | | Declared | Implemented |
 |---|---|---|
 | Agent attributes | 19 | 5 |
 | Transmission rules | 7 | 2 (null, homophily) |
+| Sweep execution | — | parallel, resumable |
 | Network layers | 5 | **5** |
 | Influence models | — | 2 (uniform, network degree) |
 | Cultural feature kinds | 3 | 1 (categorical) |
@@ -120,7 +127,11 @@ python3 -m culture_flux.cli verify results/smoke__<hash>__seed0001
 # expand a sweep without spending compute on it
 python3 -m culture_flux.cli sweep configs/sweeps/source_count_at_fixed_M.json --dry-run
 
-# the invariant suite (244 tests)
+# run one, in parallel, resuming anything already complete
+python3 -m culture_flux.cli sweep configs/sweeps/null_vs_homophily.json \
+        --out results/batch-1 --workers 0
+
+# the invariant suite (263 tests)
 python3 tests/run_tests.py        # no dependencies
 pytest                            # if pytest is installed
 ```
@@ -174,7 +185,7 @@ src/culture_flux/
   io/            manifests, writers, run directories
   cli.py
 configs/         smoke (json + yaml), three reference baselines, four sweeps
-tests/           244 invariant tests + a dependency-free runner
+tests/           263 invariant tests + a dependency-free runner
 results/         run output (gitignored)
 notebooks/       analysis (empty — nothing worth analysing yet)
 ```
@@ -183,14 +194,17 @@ notebooks/       analysis (empty — nothing worth analysing yet)
 
 ## Where the assumptions are
 
-Twenty-nine registered in
+Thirty registered in
 [docs/research/assumption_registry.md](docs/research/assumption_registry.md),
 each with justification, implementation location, expected effect, uncertainty
 and whether a sensitivity analysis is required before publication. The ones most
 likely to change conclusions:
 
+- **A-028** a finite horizon may report a plateau as an equilibrium — the hazard
+  that retracted this project's own previous headline
 - **A-019** how encounters divide across social settings — the weak-tie weight
-  has a sharp transition in it and the default sits on the wrong side
+  governs how long diversity lasts, and the default sits in the fast-collapse
+  regime
 - **A-016** the transmission rule was specified here, not extracted from any paper
 - **A-027** connectivity, not locality, is what determines whether diversity
   persists — recorded as a finding that constrains interpretation
@@ -217,13 +231,17 @@ before reading any null result as a finding.
 transmission rule was chosen without it, which is what A-016 records. Two things
 are blocked on it: internal validation target V-1, and any defence of the rule.
 
-Phase 3 (structured networks) is now done. Two things it changed about what
-should come next:
+Phase 3 is done and Phase 5's design has changed because of it:
 
-- **The weak-tie weight belongs on the experimental axes**, alongside M, K, D, H
-  and V. `configs/sweeps/weak_tie_threshold.json` is that design.
-- **How the transition scales with population size and neighbourhood count is
-  untested**, and the threshold's location should be expected to move with both.
+- **Absorption status must be reported with every result**, and time-to-collapse
+  is probably a more honest dependent variable than any end-state label.
+- **The weak-tie weight belongs on the experimental axes** — it governs plateau
+  duration. `configs/sweeps/weak_tie_threshold.json` is that design.
+- **Convergence time grows steeply with population size.** A design must either
+  run every cell to absorption or state its horizon and treat every result as
+  conditional on it.
+- **Read the secondary corpus (S1–S3) before further network work.** S3's title
+  indicates the multiplex ground is already taken.
 
 See [docs/model/ROADMAP.md](docs/model/ROADMAP.md).
 
@@ -235,7 +253,8 @@ Any output derived from this version must state: the model version; the seed and
 configuration hash of every run behind it; which transmission rule was active and
 that it is unvalidated against the literature (A-016); the network configuration
 and in particular the weak-tie weight (A-019); whether the runs reached an
-absorbing state or describe transients; and that no empirical validation has been
+absorbing state or describe transients, with the `absorption` block from the
+manifest; and that no empirical validation has been
 performed. The rule must not be described as "Axelrod's model".
 
 Reproducibility is a property of `(model_version, config_hash, seed)`. Runs

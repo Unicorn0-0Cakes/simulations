@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -27,14 +28,8 @@ from .experiment.sweep import SweepSpec
 from .influence.base import available_influence_models
 from .io.manifest import check_replayable, load_manifest
 from .io.paths import run_directory
-from .io.writers import (
-    aggregate_culture_rows,
-    parquet_available,
-    population_rows,
-    resolve_format,
-    write_json,
-    write_table,
-)
+from .experiment.executor import execute_sweep, write_run
+from .io.writers import parquet_available
 from .metrics.base import metric_table
 from .networks.base import DECLARED_LAYERS, IMPLEMENTED_LAYERS
 from .version import MODEL_VERSION, OUTPUT_SCHEMA_VERSION, RNG_LAYOUT_VERSION
@@ -103,29 +98,6 @@ def cmd_validate(args: argparse.Namespace) -> int:
     return 0
 
 
-def _write_run(result: RunResult, out_dir: Path) -> dict[str, str]:
-    fmt = resolve_format(result.config.output.format)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    written: dict[str, str] = {}
-    manifest = dict(result.manifest)
-    manifest["output"] = {"format": fmt, "directory": str(out_dir)}
-    written["manifest"] = str(write_json(out_dir / "manifest.json", manifest))
-    written["config"] = str(write_json(out_dir / "config.resolved.json", result.config.to_dict()))
-    written["metrics_final"] = str(write_json(out_dir / "metrics_final.json", result.final_metrics))
-    if result.config.output.write_timeseries:
-        written["timeseries"] = str(write_table(out_dir / "timeseries", result.timeseries, fmt))
-    written["culture_distribution"] = str(
-        write_table(out_dir / "culture_distribution", aggregate_culture_rows(result.population), fmt)
-    )
-    if result.config.output.write_final_population:
-        written["final_population"] = str(
-            write_table(out_dir / "final_population", population_rows(result.population), fmt)
-        )
-    (out_dir / "run_hash.txt").write_text(result.run_hash + "\n", encoding="utf-8")
-    written["run_hash"] = str(out_dir / "run_hash.txt")
-    return written
-
-
 def cmd_run(args: argparse.Namespace) -> int:
     try:
         cfg = ExperimentConfig.load(args.config)
@@ -138,7 +110,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     root = args.out or cfg.output.directory
     out_dir = Path(args.out_dir) if args.out_dir else run_directory(root, cfg.name, cfg.config_hash, seed)
-    written = _write_run(result, out_dir)
+    written = write_run(result, out_dir)
 
     acct = result.manifest["accounting"]
     print(f"run      {cfg.name}  seed {seed}")
@@ -194,7 +166,7 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     print(f"  conditions {summary['n_conditions']}  replicates {summary['replicates']}  "
           f"runs {summary['n_runs']}")
     for axis, values in summary["axes"].items():
-        print(f"    {axis}: {values}")
+        print(f"    {axis}: {_short(values)}")
     if args.dry_run:
         pairs = spec.expand()
         print(f"  expanded to {len(pairs)} (config, seed) pairs")
@@ -207,13 +179,38 @@ def cmd_sweep(args: argparse.Namespace) -> int:
                 file=sys.stderr,
             )
         return 0
-    root = args.out or spec.base.output.directory
-    for i, (cfg, seed) in enumerate(spec.expand(), start=1):
-        result = ExperimentRun(cfg, seed=seed).execute()
-        out_dir = run_directory(root, cfg.name, cfg.config_hash, seed)
-        _write_run(result, out_dir)
-        print(f"  [{i}/{spec.n_runs}] {cfg.name} seed={seed} -> {out_dir.name}")
+
+    root = Path(args.out or spec.base.output.directory)
+    workers = args.workers if args.workers > 0 else (os.cpu_count() or 1)
+    print(f"  workers {workers}   resume {'on' if not args.no_resume else 'off'}   out {root}")
+
+    def progress(done: int, total: int, outcome) -> None:
+        flag = {"completed": " ", "skipped": "-", "failed": "!"}[outcome.status]
+        line = f"  [{done}/{total}]{flag} {outcome.name} seed={outcome.seed}"
+        if outcome.status == "failed":
+            print(f"{line}  FAILED: {outcome.error}", file=sys.stderr)
+        elif done % max(1, total // 20) == 0 or done == total:
+            print(line)
+
+    manifest = execute_sweep(
+        spec, root, workers=workers, resume=not args.no_resume, on_progress=progress
+    )
+    counts = manifest["counts"]
+    print(f"  done: {counts}")
+    print(f"  compute {manifest['wall_seconds_total']:.1f}s across {manifest['total_runs']} runs")
+    print(f"  summary {root / 'run_summary.csv'}")
+    if manifest["failures"]:
+        print(f"  {len(manifest['failures'])} RUNS FAILED -- see batch_manifest.json", file=sys.stderr)
+        return 6
     return 0
+
+
+def _short(values: list, limit: int = 3) -> str:
+    """Axis values can be whole network specifications; keep the listing readable."""
+    rendered = [str(v) for v in values]
+    if len(rendered) <= limit and all(len(r) < 60 for r in rendered):
+        return "[" + ", ".join(rendered) + "]"
+    return f"{len(values)} values, first: {rendered[0][:70]}..."
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -251,13 +248,26 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("spec")
     s.add_argument("--dry-run", action="store_true", help="expand and report, run nothing")
     s.add_argument("--out", default=None)
+    s.add_argument("--workers", type=int, default=1,
+                   help="parallel worker processes; 0 uses every core")
+    s.add_argument("--no-resume", action="store_true",
+                   help="re-run conditions that already have complete output")
     s.set_defaults(func=cmd_sweep)
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    return int(args.func(args))
+    try:
+        return int(args.func(args))
+    except BrokenPipeError:
+        # `culture-flux metrics | head` closes the pipe early. That is normal
+        # shell use, not an error, and a research tool that tracebacks when
+        # piped is a tool people stop piping. Redirect stdout to devnull so the
+        # interpreter's own flush at exit does not raise again.
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, sys.stdout.fileno())
+        return 0
 
 
 if __name__ == "__main__":  # pragma: no cover

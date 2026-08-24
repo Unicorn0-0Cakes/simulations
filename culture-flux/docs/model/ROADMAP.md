@@ -118,7 +118,8 @@ observed on the timescale at which it is usually studied.
 
 **Entry condition:** all `required` sensitivity analyses from the assumption
 registry have been run and the results are robust to A-001, A-003, A-006, A-013,
-A-019 and A-022.
+A-019 and A-022 — **and** the horizon question in A-028 is settled, because a
+design that cannot tell a plateau from an equilibrium cannot answer RQ7.
 
 The full M × K × D × H × V **× W** design with adequate replication, where W is
 the weak-tie weight — promoted to an experimental variable by pilot P-5, because

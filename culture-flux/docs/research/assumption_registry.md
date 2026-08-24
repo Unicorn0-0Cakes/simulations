@@ -618,22 +618,30 @@ uncontroversial; the *numbers* are invented.
 
 **Implementation.** `networks/base.py::DEFAULT_LAYER_SPECS`.
 
-**Expected effect.** **Decisive, and measured.** Pilot P-5 finds a sharp
-transition in the citywide weight between roughly 0.002 and 0.0075: below it, ten
-neighbourhood cultures persist indefinitely; above it, the city homogenises
-completely. Between-replicate variance peaks inside the transition.
+**Expected effect.** **Decisive, and measured — but not in the way P-5 first
+reported.** Pilot P-6 retracts the threshold: extending the runs shows the
+citywide weight governs *how long* cultural diversity lasts, not whether it
+survives. At N = 1000 the weight that produced monoculture at N = 500 sustains
+~30 cultures for 1,800 years before collapsing anyway. Every connected
+configuration tested ends in monoculture.
 
-**The default of 0.05 sits an order of magnitude above the transition, deep in
-the homogenising regime** — the regime least able to distinguish the outcomes the
-project exists to study.
+**The default of 0.05 still sits deep in the fast-collapse regime.** And plateau
+duration is now the thing this parameter controls, which makes it *harder* to
+reason about than a threshold would have been, not easier.
 
-**Uncertainty.** Maximal, and it is the wrong shape for a sensitivity analysis to
-fix quietly. A threshold in M could appear, move or vanish purely as a function
-of this number.
+**Uncertainty.** Maximal. A migration result could appear, move or vanish purely
+as a function of this number *and* of the observation horizon, which interact:
+this parameter sets how long a plateau lasts, and the horizon decides whether the
+plateau or the collapse is what gets measured.
 
 **Sensitivity test.** `required`, and stronger than that: **the citywide weight
 must be treated as an experimental variable alongside M, K, D, H and V**, not as
 a setting. No threshold claim is meaningful without it on an axis.
+
+**Note on prior art.** The transition itself is established in the literature
+(secondary corpus S1, S2). That does not weaken the requirement — it strengthens
+it, because it means the sensitivity of this project's results to a known-critical
+parameter is a thing reviewers will expect to see addressed.
 
 **Status.** `provisional`
 
@@ -845,6 +853,43 @@ here. Structure must be checked for connectivity, not assumed to imply it.
 
 **Sensitivity test.** `n/a`. **Reporting rule:** report the effective weak-tie
 weight alongside any diversity outcome.
+
+**Status.** `structural`
+
+---
+
+## A-028 — A finite horizon may report a plateau as an equilibrium
+
+**Description.** Not a parameter — a hazard, recorded so that it constrains every
+result the project produces.
+
+**Evidence.** Pilot P-6. Two seeds at N = 1000 held ~30 distinct cultures for
+1,600 simulated years, with richness stable and drifting slightly upward, before
+collapsing to a single culture. Anyone reporting the year-1,000 state of those
+runs would have reported a robust multicultural equilibrium and been wrong.
+
+**Implementation.** `experiment/run.py::_absorption_report` writes
+`absorption.absorbed`, `quiescent_years`, `quiescent_fraction_of_run` and a
+confidence into every manifest; the time series carries
+`steps_since_last_change`. Absorption is tracked by **trait changes**, never by
+metric stability — in P-6 the metrics were flat while traits changed continuously
+underneath them.
+
+**Expected effect.** Every outcome state in the research brief is exposed to
+this: multicultural equilibrium, integration and fragmentation could each be a
+plateau. So could a migration threshold.
+
+**Uncertainty.** The existence of the hazard is established. Its magnitude —
+how long plateaus last as a function of the parameters — is not characterised at
+all.
+
+**Sensitivity test.** `required`, and it is a *design* requirement rather than a
+post-hoc check: either run every cell to absorption, or state the horizon and
+report every result as conditional on it.
+
+**Reporting rule.** No result may use the words "equilibrium", "stable" or
+"persists" unless the runs behind it are absorbed. Confidence is never reported
+as certain under an active rule, because a long plateau can still break.
 
 **Status.** `structural`
 

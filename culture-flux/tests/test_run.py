@@ -280,7 +280,7 @@ def test_source_count_does_move_composition_diversity_under_the_null():
 def test_the_shipped_smoke_run_matches_its_pinned_hash():
     """A cross-platform regression pin.
 
-    Pinned for MODEL_VERSION 0.3.0-structure. It was produced identically on
+    Pinned for MODEL_VERSION 0.4.0-metastability. It was produced identically on
     Python 3.11 / NumPy 2.4.4 and on Python 3.10 / NumPy 2.2.6, which
     demonstrates that the RNG streams and the
     metric arithmetic are stable across the interpreter and NumPy versions
@@ -290,8 +290,84 @@ def test_the_shipped_smoke_run_matches_its_pinned_hash():
     environment and MODEL_VERSION must be bumped rather than the pin edited.
     """
     r = ExperimentRun(ExperimentConfig.load(ROOT / "configs" / "smoke.json"), seed=1).execute()
-    assert r.run_hash == "d0c405e820de00bad6d820e3cfe6bcc7", (
+    assert r.run_hash == "9f8929f68ca52ea62c724255e343d846", (
         f"smoke run hash changed to {r.run_hash}. If the model was changed "
         "deliberately, bump MODEL_VERSION and update this pin. If not, the "
         "environment has broken reproducibility of stored runs."
     )
+
+
+def test_a_null_run_is_reported_as_certainly_absorbed():
+    a = run().manifest["absorption"]
+    assert a["absorbed"] is True
+    assert a["confidence"] == "certain"
+
+
+def test_an_active_run_is_never_reported_as_certainly_absorbed():
+    """Pilot P-6 found an 1,800-year plateau that then collapsed. No amount of
+    quiescence under an active rule may be reported as certainty."""
+    r = ExperimentRun(
+        cfg(**{
+            "dynamics.transmission_rule": "axelrod_homophily",
+            "dynamics.rule_params": {},
+            "runtime.total_years": 6.0,
+        }),
+        seed=1,
+    ).execute()
+    a = r.manifest["absorption"]
+    assert a["confidence"] in ("provisional", "not absorbed")
+    assert a["confidence"] != "certain"
+
+
+def test_a_still_changing_run_is_reported_as_not_absorbed():
+    r = ExperimentRun(
+        cfg(**{
+            "dynamics.transmission_rule": "axelrod_homophily",
+            "dynamics.rule_params": {},
+            "population.initial_size": 400,
+            "runtime.total_years": 8.0,
+        }),
+        seed=1,
+    ).execute()
+    a = r.manifest["absorption"]
+    assert a["absorbed"] is False
+    assert a["quiescent_years"] == 0.0
+
+
+def test_absorption_tracks_TRAIT_CHANGES_not_metric_stability():
+    """The distinction P-6 turns on: cultural richness sat stable for 1,600
+    years while traits kept changing underneath it."""
+    r = ExperimentRun(
+        cfg(**{
+            "dynamics.transmission_rule": "axelrod_homophily",
+            "dynamics.rule_params": {},
+            "runtime.total_years": 8.0,
+        }),
+        seed=1,
+    ).execute()
+    steps_since = [row["steps_since_last_change"] for row in r.timeseries]
+    assert all(v >= 0 for v in steps_since)
+    assert r.manifest["dynamics"]["trait_changes_total"] > 0
+
+
+def test_the_time_series_reports_steps_since_last_change():
+    rows = run().timeseries
+    assert "steps_since_last_change" in rows[0]
+
+
+def test_the_cli_does_not_traceback_when_its_output_is_piped_to_head():
+    """`culture-flux metrics | head` is normal shell use. A research tool that
+    tracebacks when piped is a tool people stop piping."""
+    import subprocess
+    import sys as _sys
+
+    proc = subprocess.run(
+        f"{_sys.executable} -m culture_flux.cli metrics | head -3",
+        shell=True,
+        capture_output=True,
+        text=True,
+        cwd=str(ROOT),
+        env={"PYTHONPATH": str(ROOT / "src"), "PATH": "/usr/bin:/bin:/usr/local/bin"},
+    )
+    assert "BrokenPipeError" not in proc.stderr, proc.stderr
+    assert "Traceback" not in proc.stderr, proc.stderr
