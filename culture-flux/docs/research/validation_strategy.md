@@ -22,7 +22,7 @@ The only one of the three currently in progress.
 
 ### What is verified
 
-205 invariant tests, all passing, run under warnings-as-errors. They test
+244 invariant tests, all passing, run under warnings-as-errors. They test
 scientifically meaningful properties, not that functions return without raising:
 
 **Determinism and provenance**
@@ -110,6 +110,30 @@ scientifically meaningful properties, not that functions return without raising:
   see A-017) and obey the same invariants.
 - The hybridisation placeholder still returns NaN even though novel profiles now
   exist and it would return a plausible number.
+
+**Network structure (v0.3)**
+- Group layers keep interaction local: sampled partners always share the focal
+  agent's group, and an agent alone in a group returns itself rather than a
+  stranger, so a rule cannot cross a boundary the network says is closed.
+- Layer weights are honoured in proportion and normalised, so only ratios matter;
+  a zero-weight layer is built and measurable but never sampled.
+- A single-layer multiplex reproduces that layer's sampling exactly, draw for
+  draw — so the citywide-only configuration is bit-identical to the pre-multiplex
+  engine and every earlier result still stands.
+- Rewiring preserves out-degree exactly, never creates a self-tie, and
+  demonstrably raises cultural similarity across ties. With one candidate
+  (no homophily) it demonstrably does not — the control condition is pinned.
+- Theil's H is 0 when every unit mirrors the city, exactly 1 under complete
+  separation, between the two under partial sorting, 0 rather than NaN with one
+  category or one unit, and invariant to relabelling.
+- Structure metrics return NaN, never 0, when the context has no network: "no
+  spatial layer exists" and "there is no segregation" must not share a value.
+- `network_degree` influence refuses to fall back to uniform when unbound or
+  when no attention layer exists, because a silent fallback would be
+  indistinguishable in the output from a run that meant to be uniform. At
+  exponent 0 it reproduces the uniform null exactly.
+- Configurations that name a structure-reading influence model without a
+  friendship layer are rejected at validation.
 
 **Guards against the model prejudging its own question**
 - Every placeholder metric returns NaN, never a plausible zero, and every one

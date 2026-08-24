@@ -15,7 +15,7 @@ that difference matters is what this instrument exists to find out.
 
 ---
 
-## Status: v0.2.0-homophily — one transmission rule, chosen without the literature
+## Status: v0.3.0-structure — structured city, and a threshold nobody was looking for
 
 **Read this before using any result.** The model now has an active transmission
 rule, `axelrod_homophily`. It is a rule *in the family* Axelrod (1997)
@@ -30,21 +30,38 @@ The null rule remains and remains mandatory: retention under it is exactly
 any result. A rule that reproduces the plane is reproducing arithmetic.
 `configs/sweeps/null_vs_homophily.json` runs both arms by construction.
 
-**The most important thing found so far is a limit, not a result.** Under the
-well-mixed network assumption (A-010), every configuration tested converges to a
-single culture and freezes. Sustained diversity was never a long-run outcome —
-which removes six of the nine outcomes in the research brief from the reachable
-set, and means any finite-horizon result describes a transient. See
-[docs/research/pilot_notes.md](docs/research/pilot_notes.md). Structured networks
-(Phase 3) are now a prerequisite rather than an enhancement.
+**The most important thing found so far is not about migration.**
+
+Adding household, neighbourhood, workplace and attention layers did *not* rescue
+cultural diversity. A city of overlapping local groups still collapses to a
+single culture, because random overlapping memberships stitch it into one
+connected component. What sustains diversity is **disconnection**, not locality.
+
+And the dependence on connectivity is sharp. With ten disconnected
+neighbourhoods, ten cultures persist indefinitely — until roughly **0.5% of
+encounters are with strangers**, at which point the whole city homogenises.
+Between-replicate variance peaks inside that transition, which is the signature
+RQ7 names as evidence of a critical region.
+
+So the instrument has produced a clean threshold — in a **structural** parameter
+nobody proposed studying, whose default (0.05) sits an order of magnitude into
+the homogenising regime. Any migration threshold this model reports is
+conditional on that number. The weak-tie weight is now an experimental variable,
+not a setting.
+
+Details and caveats in
+[docs/research/pilot_notes.md](docs/research/pilot_notes.md) (P-4, P-5). It is
+very likely a rediscovery of the small-world effect; open question **L-Q13**
+holds that until the corpus is read.
 
 | | Declared | Implemented |
 |---|---|---|
 | Agent attributes | 19 | 5 |
 | Transmission rules | 7 | 2 (null, homophily) |
-| Network layers | 5 | 1 (well-mixed) |
+| Network layers | 5 | **5** |
+| Influence models | — | 2 (uniform, network degree) |
 | Cultural feature kinds | 3 | 1 (categorical) |
-| Metrics | 25 | 20 |
+| Metrics | 27 | 25 |
 
 Requesting anything unimplemented raises `NotImplementedError` with a pointer to
 the roadmap — never a silent approximation. `culture-flux status` prints both
@@ -103,7 +120,7 @@ python3 -m culture_flux.cli verify results/smoke__<hash>__seed0001
 # expand a sweep without spending compute on it
 python3 -m culture_flux.cli sweep configs/sweeps/source_count_at_fixed_M.json --dry-run
 
-# the invariant suite (205 tests)
+# the invariant suite (244 tests)
 python3 tests/run_tests.py        # no dependencies
 pytest                            # if pytest is installed
 ```
@@ -150,14 +167,14 @@ src/culture_flux/
   agents/        struct-of-arrays population, attribute registry
   migration/     source composition and geometry, arrival accounting
   influence/     cultural influence, separate from population share
-  networks/      multiplex layer abstractions
+  networks/      household, neighbourhood, workplace, attention ties, citywide
   dynamics/      transmission rules (null + homophilous trait copying)
   metrics/       diversity indices, outcome metrics, registry
   experiment/    configuration, run, sweep
   io/            manifests, writers, run directories
   cli.py
-configs/         smoke (json + yaml), reference baselines, three sweeps
-tests/           205 invariant tests + a dependency-free runner
+configs/         smoke (json + yaml), three reference baselines, four sweeps
+tests/           244 invariant tests + a dependency-free runner
 results/         run output (gitignored)
 notebooks/       analysis (empty — nothing worth analysing yet)
 ```
@@ -166,15 +183,17 @@ notebooks/       analysis (empty — nothing worth analysing yet)
 
 ## Where the assumptions are
 
-Twenty registered in
+Twenty-nine registered in
 [docs/research/assumption_registry.md](docs/research/assumption_registry.md),
 each with justification, implementation location, expected effect, uncertainty
 and whether a sensitivity analysis is required before publication. The ones most
 likely to change conclusions:
 
+- **A-019** how encounters divide across social settings — the weak-tie weight
+  has a sharp transition in it and the default sits on the wrong side
 - **A-016** the transmission rule was specified here, not extracted from any paper
-- **A-010** the city is a single well-mixed pool — now measured as
-  *outcome-determining*, not merely consequential
+- **A-027** connectivity, not locality, is what determines whether diversity
+  persists — recorded as a finding that constrains interpretation
 - **A-018** no innovation, error or drift: traits are only ever copied, so
   novelty is bounded by what the founding cultures jointly contain
 - **A-001** all cultural features are interchangeable
@@ -182,11 +201,13 @@ likely to change conclusions:
 - **A-009** cultural influence is uniform across agents
 - **A-013** F = 20 features of 5 traits, chosen for convenience
 
-Six of the nine outcomes named in the research brief are unavailable under A-010:
-enclaves, spatial segregation and network modularity require structured networks,
-and multicultural equilibrium, fragmentation and transitions between persistent
-states did not occur in any run tested. A null result on any of them is an
-artefact, not a finding.
+All nine outcomes named in the research brief are now *measurable* — spatial
+segregation, network modularity and cross-cultural interaction rate are
+implemented, and only the hybridisation index remains deliberately undefined
+(A-012). But measurable is not reachable: under the default weak-tie weight,
+multicultural equilibrium, fragmentation and enclaves do not occur, because the
+city homogenises. Check `interactable_pair_fraction` and the weak-tie weight
+before reading any null result as a finding.
 
 ---
 
@@ -196,9 +217,15 @@ artefact, not a finding.
 transmission rule was chosen without it, which is what A-016 records. Two things
 are blocked on it: internal validation target V-1, and any defence of the rule.
 
-Beyond that, Phase 3 (structured networks) has been promoted from enhancement to
-prerequisite by the well-mixed convergence result. See
-[docs/model/ROADMAP.md](docs/model/ROADMAP.md).
+Phase 3 (structured networks) is now done. Two things it changed about what
+should come next:
+
+- **The weak-tie weight belongs on the experimental axes**, alongside M, K, D, H
+  and V. `configs/sweeps/weak_tie_threshold.json` is that design.
+- **How the transition scales with population size and neighbourhood count is
+  untested**, and the threshold's location should be expected to move with both.
+
+See [docs/model/ROADMAP.md](docs/model/ROADMAP.md).
 
 ---
 
@@ -206,7 +233,8 @@ prerequisite by the well-mixed convergence result. See
 
 Any output derived from this version must state: the model version; the seed and
 configuration hash of every run behind it; which transmission rule was active and
-that it is unvalidated against the literature (A-016); whether the runs reached an
+that it is unvalidated against the literature (A-016); the network configuration
+and in particular the weak-tie weight (A-019); whether the runs reached an
 absorbing state or describe transients; and that no empirical validation has been
 performed. The rule must not be described as "Axelrod's model".
 

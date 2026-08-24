@@ -164,10 +164,30 @@ def test_founder_relative_metrics_degrade_to_nan_without_a_founding_set():
         assert v != v, f"{name} returned {v}, not NaN"
 
 
+#: Metrics that are undefined without a network in the context. They return NaN
+#: rather than 0, because "no spatial layer exists" and "there is no segregation"
+#: are different statements and must not share a value.
+NEEDS_NETWORK = (
+    "spatial_segregation",
+    "origin_spatial_segregation",
+    "network_modularity",
+    "cross_cultural_interaction_rate",
+    "mean_group_cultural_homogeneity",
+)
+
+
 def test_every_implemented_metric_returns_a_finite_number():
     values = compute_metrics(_ctx(_city()))
     for name, value in values.items():
+        if name in NEEDS_NETWORK:
+            continue
         assert np.isfinite(value), f"{name} returned {value}"
+
+
+def test_structure_metrics_are_nan_without_a_network_not_zero():
+    values = compute_metrics(_ctx(_city()), NEEDS_NETWORK)
+    for name, value in values.items():
+        assert value != value, f"{name} returned {value}, not NaN"
 
 
 def test_metric_names_are_unique_and_described():

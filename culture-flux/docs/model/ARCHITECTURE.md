@@ -57,6 +57,21 @@ because they are from group X". If externally-imposed categorical treatment is
 ever needed — discrimination, legal status — it must be added as an explicit
 treatment layer that says so, not by letting origin leak into behaviour.
 
+### 1b. Locality is not disconnection
+
+A late addition, forced by measurement rather than design. `MultiplexNetwork`
+weights determine how often each layer supplies an interaction partner, and it is
+tempting to read a rich set of local layers as "the city now has structure". It
+does not follow: pilot P-4 found that households, neighbourhoods and workplaces
+with random overlapping memberships leave the city one connected component, and
+one connected component homogenises regardless of how local each individual
+encounter is.
+
+`MultiplexNetwork.is_well_mixed_only` therefore reports a *syntactic* property
+(only the citywide layer is weighted), not the property that matters. The
+property that matters — effective connectivity — has no cheap test, and A-027
+records that it must be checked rather than assumed.
+
 ### 2. Population share is not cultural influence
 
 `PopulationShare` is computed from counts by the metrics layer. `CulturalInfluence`
@@ -104,10 +119,10 @@ the codebase declares it, in machine-readable form, with an `implemented` flag:
 |---|---|---|---|
 | Agent attributes | `agents/attributes.py` | 19 | 5 |
 | Transmission rules | `dynamics/base.py` | 7 | 2 (null, homophily) |
-| Network layers | `networks/base.py` | 5 | 1 (well-mixed) |
+| Network layers | `networks/base.py` | 5 | 5 |
 | Feature kinds | `culture/features.py` | 3 | 1 (categorical) |
 | Arrival profiles | `migration/schedule.py` | 4 | 1 (uniform) |
-| Metrics | `metrics/` | 25 | 20 |
+| Metrics | `metrics/` | 27 | 25 |
 
 Three properties follow, and each is deliberate:
 

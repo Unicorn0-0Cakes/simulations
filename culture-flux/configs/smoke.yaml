@@ -6,7 +6,7 @@ description: >-
   result: the transmission rule is the explicit null, so nothing here is a claim
   about cultural change.
 seed: 1
-schema_version: 2
+schema_version: 3
 population:
   initial_size: 1000
   within_source_noise: 0.0
@@ -25,7 +25,8 @@ migration:
   duration_years: 10.0
   arrival_profile: uniform
 network:
-  layers: [citywide]
+  layers:
+    citywide: {}
 dynamics:
   # NOTE: quoted. Unquoted `null` is a YAML null, not the rule named "null".
   transmission_rule: "null"

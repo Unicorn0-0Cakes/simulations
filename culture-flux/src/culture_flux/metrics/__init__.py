@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from . import cultural as _cultural  # noqa: F401  (registers the metrics)
+from . import structure as _structure  # noqa: F401  (registers the metrics)
 from . import diversity
 from .base import (
     METRIC_STATUSES,

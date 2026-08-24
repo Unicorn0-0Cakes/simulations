@@ -2,7 +2,7 @@
   "name": "homophily-v0",
   "description": "Reference configuration for the first active transmission rule. The rule is an Axelrod-FAMILY rule specified in dynamics/homophily.py -- NOT a verified reproduction of Axelrod (1997), which has not been read. See assumption A-016. Every parameter is a placeholder; nothing here is calibrated.",
   "seed": 1,
-  "schema_version": 2,
+  "schema_version": 3,
   "population": {
     "initial_size": 2000,
     "within_source_noise": 0.0
@@ -24,9 +24,9 @@
     "arrival_profile": "uniform"
   },
   "network": {
-    "layers": [
-      "citywide"
-    ]
+    "layers": {
+      "citywide": {}
+    }
   },
   "dynamics": {
     "transmission_rule": "axelrod_homophily",

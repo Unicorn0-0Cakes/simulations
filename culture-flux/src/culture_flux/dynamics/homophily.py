@@ -14,14 +14,19 @@ The rule, as specified here
 One *interaction event* is:
 
 1. Draw a focal agent i uniformly from the population.
-2. Draw a partner j from i's neighbours, with probability proportional to j's
-   cultural influence weight. Under ``UniformInfluence`` this is uniform, and the
-   rule reduces to the conventional form.
+2. Draw a partner j from i's neighbours, by asking the multiplex network: an
+   interaction layer is chosen in proportion to its weight, then a neighbour
+   within it. With a citywide-only network this is a uniform draw over everyone.
 3. Compute their cultural overlap -- the salience-weighted fraction of features
    on which they agree, i.e. ``1 - distance(i, j)``.
-4. With probability equal to that overlap, the interaction succeeds. Similar
-   agents interact readily; agents with nothing in common do not interact at all.
-   This is the homophily.
+4. With probability ``overlap * attention(j)``, the interaction succeeds, where
+   ``attention(j) = influence_weight(j) / max influence weight``. Similar agents
+   interact readily; agents with nothing in common do not interact at all. That
+   is the homophily. Influence enters as a multiplier on being copied rather
+   than on being encountered, so that it composes with any network structure
+   instead of competing with it (A-024). Under ``UniformInfluence`` attention is
+   1 for everyone and the term vanishes, reproducing earlier versions exactly --
+   including their random draw sequence.
 5. On success, pick one feature on which they differ (weighted by that feature's
    ``transmission_rate``) and set i's trait on it to j's.
 6. That copy is refused with probability equal to the feature's ``resistance``.
@@ -95,6 +100,9 @@ class HomophilousTraitCopying(TransmissionRule):
         self.update_scheme = update_scheme
         self.batch_size = batch_size
         self.distance_metric = distance_metric
+        self.encounters = 0
+        self.cross_cultural_encounters = 0
+        self.successful_interactions = 0
 
     # -- configuration reporting ------------------------------------------
     def describe(self) -> dict:
@@ -107,6 +115,8 @@ class HomophilousTraitCopying(TransmissionRule):
                 "distance_metric": self.distance_metric,
                 "copying": "one-way (focal adopts from partner)",
                 "creates_novel_traits": False,
+                "influence_enters_as": "multiplier on being copied, normalised by the "
+                "maximum weight (A-024)",
             }
         )
         return d
@@ -137,53 +147,56 @@ class HomophilousTraitCopying(TransmissionRule):
         # Influence weights are computed once per step, not once per event. At
         # uniform influence this is exact; under a state-dependent influence
         # model it is a within-step approximation (assumption A-017b).
-        weights = influence.weights(population, step)
-        cumulative = self._partner_cdf(weights)
+        attention = self._attention(influence.weights(population, step))
 
         if self.update_scheme == "asynchronous":
             batch = 1
         else:
             batch = self.batch_size or max(1, min(n // 10, 4096))
 
+        self.reset_counters()
         changes = 0
         remaining = n_events
         while remaining > 0:
             b = min(batch, remaining)
-            changes += self._apply_batch(population, rng, cumulative, b)
+            changes += self._apply_batch(population, network, rng, attention, b)
             remaining -= b
         return changes
 
     @staticmethod
-    def _partner_cdf(weights: np.ndarray) -> np.ndarray | None:
-        """Cumulative distribution for partner choice, or None when uniform.
+    def _attention(weights: np.ndarray) -> np.ndarray | None:
+        """Per-agent multiplier on being copied, in (0, 1], or None when uniform.
 
-        Returning None for the uniform case is not only faster -- it keeps the
-        RNG draw sequence identical to a rule that never consulted an influence
-        model, so introducing the influence layer did not perturb the null.
+        Normalising by the MAXIMUM rather than the mean keeps the multiplier
+        bounded by 1, so it can never inflate an interaction probability above
+        the overlap. Returning None in the uniform case keeps the random draw
+        sequence identical to a rule that never consulted an influence model --
+        so adding the influence layer did not perturb any earlier result.
         """
         w = np.asarray(weights, dtype=np.float64)
         if w.size == 0:
             return None
-        first = w[0]
-        if bool(np.all(w == first)):
+        if bool(np.all(w == w[0])):
             return None
-        total = w.sum()
-        if total <= 0:
+        if (w < 0).any():
+            raise ValueError("influence weights must be non-negative")
+        top = w.max()
+        if top <= 0:
             raise ValueError("total cultural influence must be positive")
-        return np.cumsum(w) / total
+        return w / top
 
-    def _draw_partners(
-        self, rng: np.random.Generator, cumulative: np.ndarray | None, n: int, size: int
-    ) -> np.ndarray:
-        if cumulative is None:
-            return rng.integers(0, n, size=size)
-        return np.searchsorted(cumulative, rng.random(size), side="right").clip(0, n - 1)
+    def reset_counters(self) -> None:
+        """Zero the per-step interaction tallies."""
+        self.encounters = 0
+        self.cross_cultural_encounters = 0
+        self.successful_interactions = 0
 
     def _apply_batch(
         self,
         population: Population,
+        network: MultiplexNetwork,
         rng: np.random.Generator,
-        cumulative: np.ndarray | None,
+        attention: np.ndarray | None,
         size: int,
     ) -> int:
         n = population.size
@@ -191,7 +204,7 @@ class HomophilousTraitCopying(TransmissionRule):
         schema = population.schema
 
         focal = rng.integers(0, n, size=size)
-        partner = self._draw_partners(rng, cumulative, n, size)
+        partner = network.sample_partners(focal, rng)
         accept_u = rng.random(size)
         feature_u = rng.random(size)
         resist_u = rng.random(size)
@@ -215,7 +228,15 @@ class HomophilousTraitCopying(TransmissionRule):
         total_salience = float(salience.sum())
         overlap = 1.0 - (differs * salience[None, :]).sum(axis=1) / total_salience
 
-        active = (accept_u[alive] < overlap) & (differs.sum(axis=1) > 0)
+        # Counters for the cross-cultural interaction metric. An "encounter" is a
+        # drawn pair, whether or not it results in a copy -- the quantity of
+        # interest is who meets whom, not who succeeds in influencing whom.
+        n_diff = differs.sum(axis=1)
+        self.encounters += int(f_idx.size)
+        self.cross_cultural_encounters += int((n_diff > 0).sum())
+
+        probability = overlap if attention is None else overlap * attention[p_idx]
+        active = (accept_u[alive] < probability) & (n_diff > 0)
         if not bool(active.any()):
             return 0
 
@@ -236,6 +257,7 @@ class HomophilousTraitCopying(TransmissionRule):
             return 0
 
         culture[f_idx, feature] = culture[p_idx, feature]
+        self.successful_interactions += int(f_idx.size)
         return int(f_idx.size)
 
     @staticmethod

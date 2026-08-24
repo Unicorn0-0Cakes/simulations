@@ -78,16 +78,83 @@ class UniformInfluence(InfluenceModel):
         return np.ones(population.size, dtype=np.float64)
 
 
-_REGISTRY: dict[str, type[InfluenceModel]] = {"uniform": UniformInfluence}
+class NetworkDegreeInfluence(InfluenceModel):
+    """Influence proportional to how many people attend to you.
+
+    The cheapest non-uniform model, and the first thing that breaks the
+    share-equals-influence identity (A-009). In-degree in the attention layer is
+    "how many people are exposed to my culture" -- a structural position, not a
+    property of the person and not a property of their origin.
+
+    ``exponent`` tunes how sharply influence scales with position: 0 reproduces
+    the uniform null exactly, 1 is linear in in-degree. Anything above 1 is
+    available and unjustified. The ``floor`` keeps an agent nobody attends to
+    from having exactly zero influence, which would make them unlearnable-from
+    rather than merely obscure (A-026).
+
+    Requires an attention layer. Without one it raises rather than silently
+    falling back to uniform, because a run that quietly reverted to the null
+    influence model would be indistinguishable in its output from one that
+    used this one.
+    """
+
+    name = "network_degree"
+
+    def __init__(self, exponent: float = 1.0, floor: float = 0.1) -> None:
+        if exponent < 0:
+            raise ValueError("influence exponent must be >= 0")
+        if not 0.0 < floor <= 1.0:
+            raise ValueError("influence floor must lie in (0, 1]")
+        self.exponent = float(exponent)
+        self.floor = float(floor)
+        self.network = None
+
+    def bind(self, network) -> None:
+        """Attach the network this model reads. Called once per run."""
+        self.network = network
+
+    def weights(self, population: Population, step: int) -> np.ndarray:
+        if self.network is None:
+            raise RuntimeError(
+                "network_degree influence was not bound to a network. It cannot "
+                "fall back to uniform, because the output would be "
+                "indistinguishable from a run that meant to be uniform."
+            )
+        layer = self.network.layers.get("friendship")
+        if layer is None or not hasattr(layer, "ties"):
+            raise RuntimeError(
+                "network_degree influence requires a 'friendship' attention layer; "
+                "the configured network has none"
+            )
+        n = population.size
+        in_degree = np.bincount(layer.ties.ravel(), minlength=n)[:n].astype(np.float64)
+        scaled = np.power(in_degree, self.exponent) if self.exponent != 0 else np.ones(n)
+        top = scaled.max()
+        if top <= 0:
+            return np.ones(n, dtype=np.float64)
+        return self.floor + (1.0 - self.floor) * (scaled / top)
+
+    def describe(self) -> dict:
+        d = super().describe()
+        d.update({"exponent": self.exponent, "floor": self.floor, "reads": "friendship in-degree"})
+        return d
 
 
-def get_influence_model(name: str) -> InfluenceModel:
+_REGISTRY: dict[str, type[InfluenceModel]] = {
+    "uniform": UniformInfluence,
+    "network_degree": NetworkDegreeInfluence,
+}
+
+
+def get_influence_model(name: str, params: dict | None = None) -> InfluenceModel:
+    if name not in _REGISTRY:
+        raise KeyError(f"unknown influence model {name!r}; registered: {sorted(_REGISTRY)}")
     try:
-        return _REGISTRY[name]()
-    except KeyError:
-        raise KeyError(
-            f"unknown influence model {name!r}; registered: {sorted(_REGISTRY)}"
-        ) from None
+        return _REGISTRY[name](**(params or {}))
+    except TypeError as exc:
+        raise ValueError(
+            f"influence model {name!r} rejected its parameters {params!r}: {exc}"
+        ) from exc
 
 
 def register_influence_model(name: str, cls: type[InfluenceModel]) -> None:

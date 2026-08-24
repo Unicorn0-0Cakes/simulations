@@ -42,6 +42,7 @@ from ..metrics.base import available_metrics
 from ..migration.schedule import DECLARED_ARRIVAL_PROFILES, MIGRATION_MODES
 from ..migration.sources import ARRANGEMENTS, DISTANCE_PRESETS, SHARE_DISTRIBUTIONS
 from ..networks.base import DECLARED_LAYERS
+from ..networks.layers import ASSIGNMENT_SCHEMES
 from ..version import CONFIG_SCHEMA_VERSION
 
 
@@ -90,7 +91,19 @@ class MigrationConfig:
 
 @dataclass
 class NetworkConfig:
-    layers: list[str] = field(default_factory=lambda: ["citywide"])
+    #: Layer name -> parameters, e.g.
+    #: {"household": {"weight": 0.3, "target_size": 3}, "citywide": {"weight": 0.05}}
+    #: A mapping rather than a list because each layer needs a weight and its own
+    #: shape, and because a layer at weight 0 is still built and measurable.
+    layers: dict = field(default_factory=lambda: {"citywide": {}})
+    #: How arriving agents are placed into group layers. Applied to every group
+    #: layer that does not override it.
+    assignment: str = "random"
+    #: Probability that an arrival joins a group already holding someone from its
+    #: own source population. 0 = no residential sorting (A-022).
+    clustering: float = 0.0
+    #: Steps between rewiring passes on tie layers. 12 = yearly at the default clock.
+    rewire_every_steps: int = 12
 
 
 @dataclass
@@ -104,6 +117,7 @@ class DynamicsConfig:
     #: still validated, so a typo in an unused block is not stored up for later.
     rule_params: dict = field(default_factory=dict)
     influence_model: str = "uniform"
+    influence_params: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -216,13 +230,40 @@ class ExperimentConfig:
             raise ConfigError("migration.start_year must be >= 0")
         self._validate_distance(m.cultural_distance, m.source_count)
 
-        for layer in self.network.layers:
+        net = self.network
+        if not isinstance(net.layers, dict):
+            raise ConfigError(
+                "network.layers must be a mapping of layer name to parameters, e.g. "
+                '{"household": {"weight": 0.3, "target_size": 3}}'
+            )
+        if not net.layers:
+            raise ConfigError("network.layers must name at least one layer")
+        for layer, params in net.layers.items():
             if layer not in DECLARED_LAYERS:
                 raise ConfigError(
                     f"network layer {layer!r} is not declared; declared: {DECLARED_LAYERS}"
                 )
-        if not self.network.layers:
-            raise ConfigError("network.layers must name at least one layer")
+            if params is not None and not isinstance(params, dict):
+                raise ConfigError(f"network.layers[{layer!r}] must be a mapping")
+        if all(float((p or {}).get("weight", 1.0)) <= 0 for p in net.layers.values()):
+            raise ConfigError("at least one network layer must carry a positive weight")
+        if net.assignment not in ASSIGNMENT_SCHEMES:
+            raise ConfigError(f"network.assignment must be one of {ASSIGNMENT_SCHEMES}")
+        if not 0.0 <= net.clustering <= 1.0:
+            raise ConfigError("network.clustering must lie in [0, 1]")
+        if net.rewire_every_steps < 1:
+            raise ConfigError("network.rewire_every_steps must be >= 1")
+        # Build now so that a bad layer parameter is rejected by `validate`
+        # rather than after a sweep has already started.
+        from ..networks.base import build_network
+
+        try:
+            build_network(
+                {"layers": net.layers}, max(2, self.population.initial_size),
+                __import__("numpy").random.default_rng(0),
+            )
+        except (ValueError, TypeError) as exc:
+            raise ConfigError(f"network.layers invalid: {exc}") from exc
 
         d = self.dynamics
         if d.transmission_rule not in DECLARED_RULES:
@@ -262,6 +303,19 @@ class ExperimentConfig:
                 f"dynamics.influence_model {d.influence_model!r} is not registered; "
                 f"available: {available_influence_models()}"
             )
+        if not isinstance(d.influence_params, dict):
+            raise ConfigError("dynamics.influence_params must be a mapping")
+        from ..influence.base import get_influence_model
+
+        try:
+            get_influence_model(d.influence_model, d.influence_params)
+        except (ValueError, TypeError) as exc:
+            raise ConfigError(f"dynamics.influence_params invalid: {exc}") from exc
+        if d.influence_model != "uniform" and "friendship" not in self.network.layers:
+            raise ConfigError(
+                f"dynamics.influence_model {d.influence_model!r} reads network position "
+                "but network.layers has no 'friendship' layer"
+            )
 
         r = self.runtime
         if r.total_years <= 0:
@@ -294,6 +348,14 @@ class ExperimentConfig:
                 f"culture.features = {c.features}: achievable cultural distances are "
                 f"multiples of {1 / c.features:.3g}, so the realised distance may differ "
                 "noticeably from the target"
+            )
+        active_layers = [k for k, v in self.network.layers.items() if float((v or {}).get("weight", 1.0)) > 0]
+        if active_layers == ["citywide"]:
+            w.append(
+                "network is citywide-only: the city is a single well-mixed pool (A-010). "
+                "Every configuration tested under this assumption converged to a single "
+                "culture; multicultural equilibrium, fragmentation and enclaves are not "
+                "reachable outcomes. See docs/research/pilot_notes.md."
             )
         if r.steps_per_year == 1:
             w.append(

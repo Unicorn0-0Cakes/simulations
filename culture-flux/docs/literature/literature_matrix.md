@@ -83,6 +83,7 @@ in brackets is the assumption the answer would settle.
 | L-Q10 | What outcome measures are reported, and how are qualitative regimes (enclave, integration, polarisation) identified from them? | the metrics layer, RQ7 | P3, P5, P1 |
 | L-Q11 | How many replicates per condition, and how is stochastic variation handled in the analysis? | the experimental design | all six |
 | L-Q12 | Is majority-group (resident) cultural change modelled, or is acculturation treated as something only migrants do? | the influence layer | P6, P1 |
+| L-Q13 | Is the collapse of local cultural diversity under a small share of long-range interaction already an established result in this literature? Pilot P-5 finds a sharp transition below 1% of encounters; this looks like the small-world effect and is very likely a rediscovery. What is the established account, and where does the threshold sit in published work? | whether P-5 is a contribution or a replication; A-019 | P3, P5, P2 |
 
 ---
 

@@ -293,40 +293,6 @@ def hybridization_index(ctx: MetricContext) -> float:
 
 
 @register_metric(
-    "spatial_segregation",
-    description="Dissimilarity or isolation index over neighbourhood units.",
-    category="structure",
-    status="placeholder",
-    blocked_on="an implemented neighbourhood network layer",
-)
-def spatial_segregation(ctx: MetricContext) -> float:
-    return float("nan")
-
-
-@register_metric(
-    "network_modularity",
-    description="Newman modularity of the friendship layer under a cultural partition.",
-    category="structure",
-    status="placeholder",
-    blocked_on="an implemented friendship layer and a choice of partition definition",
-)
-def network_modularity(ctx: MetricContext) -> float:
-    return float("nan")
-
-
-@register_metric(
-    "cross_cultural_interaction_rate",
-    description="Fraction of realised interactions occurring between agents of "
-    "different cultural profiles.",
-    category="interaction",
-    status="placeholder",
-    blocked_on="an interaction mechanism -- no interactions occur in v0.1",
-)
-def cross_cultural_interaction_rate(ctx: MetricContext) -> float:
-    return float("nan")
-
-
-@register_metric(
     "dominant_cultural_lineage",
     description="Which founding culture the currently dominant profile descends "
     "from, as a share of the population.",

@@ -71,7 +71,30 @@ def test_unknown_transmission_rule_rejected():
 
 def test_unknown_network_layer_rejected():
     with raises(ConfigError, "network layer"):
-        cfg(**{"network.layers": ["subway"]})
+        cfg(**{"network.layers": {"subway": {}}})
+
+
+def test_network_layers_as_a_list_is_rejected():
+    """The v0.2 form. Rejected rather than migrated, so an old config fails
+    loudly instead of running with default weights nobody chose."""
+    with raises(ConfigError, "mapping"):
+        cfg(**{"network.layers": ["citywide"]})
+
+
+def test_unknown_layer_parameters_are_rejected():
+    with raises(ConfigError, "network.layers invalid"):
+        cfg(**{"network.layers": {"household": {"target_sizes": 3}}})
+
+
+def test_a_network_with_no_positive_weight_is_rejected():
+    with raises(ConfigError, "positive weight"):
+        cfg(**{"network.layers": {"citywide": {"weight": 0.0}}})
+
+
+def test_an_influence_model_needing_structure_is_rejected_without_it():
+    with raises(ConfigError, "no 'friendship' layer"):
+        cfg(**{"dynamics.influence_model": "network_degree",
+               "network.layers": {"citywide": {}}})
 
 
 def test_unknown_metric_name_rejected():

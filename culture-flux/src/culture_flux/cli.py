@@ -62,12 +62,15 @@ def cmd_status(args: argparse.Namespace) -> int:
     print()
     print("DECLARED BUT NOT IMPLEMENTED")
     print(f"  transmission rules  : {', '.join(r for r in DECLARED_RULES if r not in IMPLEMENTED_RULES)}")
-    print(f"  network layers      : {', '.join(l for l in DECLARED_LAYERS if l not in IMPLEMENTED_LAYERS)}")
+    missing_layers = [l for l in DECLARED_LAYERS if l not in IMPLEMENTED_LAYERS]
+    print(f"  network layers      : {', '.join(missing_layers) if missing_layers else '(none)'}")
     print(f"  agent attributes    : {', '.join(a.name for a in unimplemented)}")
     print(f"  metrics             : {', '.join(m['name'] for m in placeholders)}")
     print()
-    print("No cultural transmission mechanism exists in this version. Runs measure")
-    print("compositional change only. See docs/model/ROADMAP.md.")
+    print("The null rule remains the mandatory control arm: under it all metric")
+    print("movement is compositional. Under the well-mixed citywide-only network,")
+    print("every configuration tested converged to a single culture -- see")
+    print("docs/research/pilot_notes.md and docs/model/ROADMAP.md.")
     return 0
 
 

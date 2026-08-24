@@ -125,7 +125,9 @@ class ExperimentRun:
             ),
             total_years=config.runtime.total_years,
         )
-        self.influence = get_influence_model(config.dynamics.influence_model)
+        self.influence = get_influence_model(
+            config.dynamics.influence_model, config.dynamics.influence_params
+        )
         self.rule = get_transmission_rule(
             config.dynamics.transmission_rule,
             config.dynamics.rule_params.get(config.dynamics.transmission_rule, {}),
@@ -182,11 +184,16 @@ class ExperimentRun:
             duration_years=cfg.migration.duration_years,
             profile=cfg.migration.arrival_profile,
         )
-        network = build_network({"layers": cfg.network.layers}, population.size)
+        network = build_network(
+            {"layers": cfg.network.layers}, population.size, self.rng("network_init")
+        )
 
         founding_profiles = np.vstack(
             [initial_resident_profile.reshape(1, -1), source_set.profiles]
         )
+
+        if hasattr(self.influence, "bind"):
+            self.influence.bind(network)
 
         arrivals_by_step: dict[int, np.ndarray] = {
             int(s): plan.arrivals[i] for i, s in enumerate(plan.arrival_steps)
@@ -194,12 +201,14 @@ class ExperimentRun:
         migrant_gen = self.rng("migrant_init")
         sched_gen = self.rng("migration_schedule")
         interaction_gen = self.rng("interaction")
+        rewire_gen = self.rng("network_rewire")
         metric_gen = self.rng("misc")
 
         timeseries: list[dict[str, float]] = []
         arrived_total = 0
         displaced_total = 0
         trait_changes_total = 0
+        rewires_total = 0
 
         def measure() -> dict[str, float]:
             ctx = MetricContext(
@@ -215,12 +224,20 @@ class ExperimentRun:
                 rng=metric_gen,
                 distance_metric=cfg.culture.distance_metric,
                 source_labels=population.source_labels,
+                extras={
+                    "network": network,
+                    "encounters": getattr(self.rule, "encounters", 0),
+                    "cross_cultural_encounters": getattr(
+                        self.rule, "cross_cultural_encounters", 0
+                    ),
+                },
             )
             row: dict[str, float] = {
                 "step": float(self.clock.step),
                 "year": float(self.clock.year),
                 "generation": float(self.clock.generation),
                 "arrivals_cumulative": float(arrived_total),
+                "rewires_cumulative": float(rewires_total),
                 "displaced_cumulative": float(displaced_total),
                 "trait_changes_cumulative": float(trait_changes_total),
             }
@@ -247,12 +264,15 @@ class ExperimentRun:
                     population.add_agents(
                         culture, source_id=j + 1, arrival_step=step, migration_generation=1
                     )
+                    network.add_agents(n, sched_gen, source_id=j + 1)
                     arrived_total += n
                 if cfg.migration.mode == "replacement":
                     displaced_total += self._displace(population, int(counts.sum()), sched_gen)
             trait_changes_total += int(
                 self.rule.step(population, network, self.influence, step, interaction_gen)
             )
+            if step % cfg.network.rewire_every_steps == 0:
+                rewires_total += network.rewire(population, rewire_gen)
             if self.clock.is_measurement_step():
                 timeseries.append(measure())
 
@@ -268,6 +288,7 @@ class ExperimentRun:
             source_set=source_set,
             plan=plan,
             network=network,
+            rewires_total=rewires_total,
             timeseries=timeseries,
             started_iso=started_iso,
             duration_s=finished_wall - started_wall,
@@ -329,6 +350,7 @@ class ExperimentRun:
             "source_set": source_set.to_dict(),
             "migration_plan": plan.to_dict(),
             "network": kw["network"].describe(),
+            "network_rewires_total": kw["rewires_total"],
             "dynamics": {
                 "transmission_rule": self.rule.describe(),
                 "influence_model": self.influence.describe(),

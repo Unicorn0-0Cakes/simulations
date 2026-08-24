@@ -71,17 +71,30 @@ demonstrably not compositional — **met** — *and* V-1 has a written outcome �
 
 ---
 
-## Phase 3 — Structure and influence
+## Phase 3 — Structure and influence *(complete)*
 
-**Entry condition:** Phase 2 exited.
+**Entry condition:** Phase 2 exited. (Exited on its revised condition only.)
 
-- Structured network layers: household, neighbourhood, workplace, friendship.
-  Construction via NetworkX, simulation over NumPy adjacency.
-- The first non-uniform influence model — network degree is the cheapest and
-  breaks the share-equals-influence identity (A-009) at minimal cost.
-- Spatial segregation, network modularity and cross-cultural interaction metrics
-  become computable; three placeholders retire.
-- Homophilous rewiring, and with it the possibility of enclave formation.
+Done:
+- Household, neighbourhood and workplace group layers; a directed attention-tie
+  layer with homophilous rewiring; the citywide layer demoted to the weak tail it
+  should always have been. Built in NumPy throughout — NetworkX was not needed
+  and was not added.
+- `network_degree` influence, breaking the share-equals-influence identity.
+- Three placeholders retired: spatial segregation (multi-group Theil's H),
+  network modularity, cross-cultural interaction rate. Plus origin segregation
+  and local homogeneity.
+- 39 new tests.
+
+What it found, which was not what it was for:
+- Structure did **not** rescue diversity. Connectivity is the operative variable
+  (A-027), and overlapping local groups are one connected component.
+- A sharp transition in the weak-tie weight (A-019, pilot P-5), with variance
+  peaking inside it. The default sat an order of magnitude past it.
+
+Outstanding from this phase:
+- Scaling of the transition with N and neighbourhood count.
+- L-Q13: is P-5 a contribution or a replication of the small-world effect?
 
 **Note:** three of the outcomes in the brief — enclaves, spatial segregation,
 network modularity — are *impossible* before this phase. A null result on any of
@@ -104,9 +117,12 @@ observed on the timescale at which it is usually studied.
 ## Phase 5 — The experimental programme
 
 **Entry condition:** all `required` sensitivity analyses from the assumption
-registry have been run and the results are robust to A-001, A-003, A-006, A-013.
+registry have been run and the results are robust to A-001, A-003, A-006, A-013,
+A-019 and A-022.
 
-The full M × K × D × H × V design with adequate replication. Threshold-surface
+The full M × K × D × H × V **× W** design with adequate replication, where W is
+the weak-tie weight — promoted to an experimental variable by pilot P-5, because
+a migration threshold located at one value of W may not exist at another. Threshold-surface
 detection per RQ7. Pre-registered analysis plan, frozen hypothesis registry
 commit hash.
 

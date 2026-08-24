@@ -39,14 +39,27 @@ that looks like a null result.
 ### `network`
 | Key | Type | Default | Meaning |
 |---|---|---|---|
-| `layers` | list[str] | `["citywide"]` | Declared: household, neighbourhood, workplace, friendship, citywide. Only `citywide` implemented (A-010) |
+| `layers` | dict | `{"citywide": {}}` | Layer name -> parameters. All five implemented. A mapping, not a list: each layer needs a `weight` and its own shape. A layer at weight 0 is built and measurable but never sampled |
+| `assignment` | `random` \| `clustered` | `random` | How arrivals are placed into group layers (A-022) |
+| `clustering` | float [0,1] | 0.0 | Probability an arrival joins a group already holding someone from its own source. 0 = no residential sorting |
+| `rewire_every_steps` | int >= 1 | 12 | Steps between rewiring passes on tie layers |
+
+**Layer parameters.** `household` / `neighbourhood` / `workplace`: `weight`,
+`target_size`, `assignment`, `clustering`. `friendship`: `weight`, `degree`,
+`rewire_rate`, `rewire_candidates`. `citywide`: `weight` only.
+
+**The weak-tie weight is an experimental variable, not a setting.** The citywide
+layer's weight has a sharp transition in it — below roughly 0.002 of encounters
+neighbourhood cultures persist, above roughly 0.0075 the city homogenises — and
+the shipped default of 0.05 sits well past it (A-019, pilot P-5).
 
 ### `dynamics`
 | Key | Type | Default | Meaning |
 |---|---|---|---|
 | `transmission_rule` | declared name | `null` | Implemented: `null` (A-011), `axelrod_homophily` (A-016). **In YAML, quote `"null"`** — bare `null` is a YAML null |
 | `rule_params` | dict keyed by rule name | `{}` | e.g. `{"axelrod_homophily": {"events_per_agent_per_step": 1.0, "update_scheme": "batched"}}`. Keyed so one config can serve a sweep across rules. Unknown parameters rejected; unknown rule names rejected; parameters for declared-but-unimplemented rules are kept and validated when the rule arrives |
-| `influence_model` | registered name | `uniform` | A-009 |
+| `influence_model` | registered name | `uniform` | `uniform` (A-009) or `network_degree`, which requires a `friendship` layer |
+| `influence_params` | dict | `{}` | e.g. `{"exponent": 1.0, "floor": 0.1}` for `network_degree` (A-026) |
 
 ### `runtime`
 | Key | Type | Default | Meaning |
@@ -88,7 +101,7 @@ per year; a declared-but-unimplemented transmission rule; the null rule (always)
 `axelrod_homophily` (always — it is not a verified reproduction of Axelrod 1997);
 `update_scheme: batched` (an approximation, not an optimisation); too few
 migrants per source for the requested share distribution to survive integer
-rounding.
+rounding; a citywide-only network (the city is a single well-mixed pool).
 
 ## Sweeps
 
