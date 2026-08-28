@@ -41,11 +41,15 @@ they bound what the rule can show:
   the mechanism that permits stable diversity, and it is also the reason a
   configuration can freeze: once every adjacent pair has overlap 0 or 1, nothing
   further can happen and the population is in an absorbing state.
-- **No novel traits are created.** Traits are only ever copied, so the reachable
-  culture space is bounded by the founding profiles. Recombination ACROSS
-  features can produce profiles no founding population held -- which is the only
-  route to hybridisation this rule offers, and it is a weak one. A rule allowing
-  innovation or error would be a different rule; see A-018.
+- **Copying creates no novel traits.** Traits are only ever copied, so without
+  drift the reachable culture space is bounded by the founding profiles, and
+  diversity is a non-renewable resource. Recombination ACROSS features can still
+  produce profiles no founding population held.
+
+- **``drift_rate`` changes that, and changes it structurally.** With drift, the
+  set of traits present at a feature can grow again, so monoculture stops being
+  an absorbing state. This is the A-018 sensitivity parameter and it defaults to
+  0, which is the copying-only regime every pilot before P-7 ran in.
 
 Update scheme
 -------------
@@ -70,6 +74,7 @@ from ..agents.population import Population
 from ..influence.base import InfluenceModel
 from ..networks.base import MultiplexNetwork
 from .base import TransmissionRule
+from .drift import apply_drift
 
 UPDATE_SCHEMES = ("batched", "asynchronous")
 
@@ -87,9 +92,12 @@ class HomophilousTraitCopying(TransmissionRule):
         update_scheme: str = "batched",
         batch_size: int | None = None,
         distance_metric: str = "hamming",
+        drift_rate: float = 0.0,
     ) -> None:
         if events_per_agent_per_step < 0:
             raise ValueError("events_per_agent_per_step must be >= 0")
+        if not 0.0 <= drift_rate <= 1.0:
+            raise ValueError("drift_rate must lie in [0, 1]")
         if update_scheme not in UPDATE_SCHEMES:
             raise ValueError(
                 f"unknown update_scheme {update_scheme!r}; known: {UPDATE_SCHEMES}"
@@ -100,6 +108,7 @@ class HomophilousTraitCopying(TransmissionRule):
         self.update_scheme = update_scheme
         self.batch_size = batch_size
         self.distance_metric = distance_metric
+        self.drift_rate = float(drift_rate)
         self.encounters = 0
         self.cross_cultural_encounters = 0
         self.successful_interactions = 0
@@ -113,8 +122,9 @@ class HomophilousTraitCopying(TransmissionRule):
                 "update_scheme": self.update_scheme,
                 "batch_size": self.batch_size,
                 "distance_metric": self.distance_metric,
+                "drift_rate": self.drift_rate,
                 "copying": "one-way (focal adopts from partner)",
-                "creates_novel_traits": False,
+                "creates_novel_traits": self.drift_rate > 0.0,
                 "influence_enters_as": "multiplier on being copied, normalised by the "
                 "maximum weight (A-024)",
             }
@@ -131,8 +141,14 @@ class HomophilousTraitCopying(TransmissionRule):
         rng: np.random.Generator,
     ) -> int:
         n = population.size
-        if n < 2 or self.events_per_agent_per_step == 0:
+        if n < 2:
             return 0
+        # Drift is applied first and unconditionally, so a configuration with
+        # drift but no interaction is still a meaningful model rather than a
+        # silent no-op.
+        changes = apply_drift(population, self.drift_rate, rng)
+        if self.events_per_agent_per_step == 0:
+            return changes
 
         # Expected events per step; the fractional part is resolved by a
         # Bernoulli draw so that a rate of 0.5 means half a round per step in
@@ -142,7 +158,7 @@ class HomophilousTraitCopying(TransmissionRule):
         if rng.random() < exact - n_events:
             n_events += 1
         if n_events == 0:
-            return 0
+            return changes
 
         # Influence weights are computed once per step, not once per event. At
         # uniform influence this is exact; under a state-dependent influence
@@ -155,7 +171,6 @@ class HomophilousTraitCopying(TransmissionRule):
             batch = self.batch_size or max(1, min(n // 10, 4096))
 
         self.reset_counters()
-        changes = 0
         remaining = n_events
         while remaining > 0:
             b = min(batch, remaining)

@@ -86,7 +86,7 @@ DECLARED_RULES = (
     "vertical",
     "acculturation_orientation",
 )
-IMPLEMENTED_RULES = ("null", "axelrod_homophily")
+IMPLEMENTED_RULES = ("null", "axelrod_homophily", "conformist")
 
 _REGISTRY: dict[str, type[TransmissionRule]] = {"null": NullTransmission}
 
@@ -127,10 +127,13 @@ def available_transmission_rules() -> tuple[str, ...]:
 def _register_builtin_rules() -> None:
     """Deferred import: homophily imports from this module, so registering it at
     module scope would be circular."""
+    from .conformist import ConformistTransmission
     from .homophily import HomophilousTraitCopying
 
     if "axelrod_homophily" not in _REGISTRY:
         _REGISTRY["axelrod_homophily"] = HomophilousTraitCopying
+    if "conformist" not in _REGISTRY:
+        _REGISTRY["conformist"] = ConformistTransmission
 
 
 _register_builtin_rules()

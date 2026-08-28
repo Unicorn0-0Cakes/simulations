@@ -1,0 +1,12 @@
+{
+  "name": "rq2-three-arm",
+  "description": "RQ2 as a design: does the number of source cultures affect resident-culture retention when total migration is held constant? Three mechanisms (null control, homophilous copying, conformist transmission) across K, on matched seeds. All arms share a baseline key and a scenario key, so they face a byte-identical city and byte-identical arrivals -- only the mechanism differs. Pilot P-9 ran a 4-seed version of this and found no K effect under either rule; the replicate count here is set for a mean, NOT for the rate H3 needs, which would take hundreds. Report the null arm alongside the others, report distributions rather than means for the homophily arm (it looks bimodal at K=4), and state the drift regime.",
+  "base": "../three_arm.json",
+  "axes": {
+    "dynamics.transmission_rule": ["null", "axelrod_homophily", "conformist"],
+    "migration.source_count": [1, 2, 4, 10],
+    "migration.source_distribution": ["even"]
+  },
+  "replicates": 20,
+  "seed_start": 1
+}

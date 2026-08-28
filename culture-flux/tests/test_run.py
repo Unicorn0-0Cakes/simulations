@@ -107,7 +107,7 @@ def test_migrant_cultures_are_exactly_their_source_profiles_under_the_null():
 
 def test_unimplemented_transmission_rules_raise_at_construction():
     with raises(NotImplementedError, "not implemented"):
-        get_transmission_rule("conformist")
+        get_transmission_rule("prestige_biased")
 
 
 # -- migration accounting --------------------------------------------------
@@ -280,7 +280,7 @@ def test_source_count_does_move_composition_diversity_under_the_null():
 def test_the_shipped_smoke_run_matches_its_pinned_hash():
     """A cross-platform regression pin.
 
-    Pinned for MODEL_VERSION 0.4.0-metastability. It was produced identically on
+    Pinned for MODEL_VERSION 0.5.0-two-rules. It was produced identically on
     Python 3.11 / NumPy 2.4.4 and on Python 3.10 / NumPy 2.2.6, which
     demonstrates that the RNG streams and the
     metric arithmetic are stable across the interpreter and NumPy versions
@@ -290,7 +290,7 @@ def test_the_shipped_smoke_run_matches_its_pinned_hash():
     environment and MODEL_VERSION must be bumped rather than the pin edited.
     """
     r = ExperimentRun(ExperimentConfig.load(ROOT / "configs" / "smoke.json"), seed=1).execute()
-    assert r.run_hash == "9f8929f68ca52ea62c724255e343d846", (
+    assert r.run_hash == "87c45b24b5e46fd3f6fc4603ab2ea713", (
         f"smoke run hash changed to {r.run_hash}. If the model was changed "
         "deliberately, bump MODEL_VERSION and update this pin. If not, the "
         "environment has broken reproducibility of stored runs."

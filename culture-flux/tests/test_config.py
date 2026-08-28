@@ -169,11 +169,33 @@ def test_changing_a_scientific_parameter_changes_the_hash():
 
 
 def test_migration_settings_do_not_change_the_baseline_key():
-    """This is what guarantees 'same M, different K' compares like with like."""
+    """This is what guarantees 'same M, different K' compares like with like:
+    both arms arrive into a byte-identical city."""
     a = cfg(**{"migration.source_count": 1, "migration.source_distribution": "single"})
     b = cfg(**{"migration.source_count": 10})
     assert a.baseline_key == b.baseline_key
+    assert a.scenario_key != b.scenario_key
+    assert a.condition_key == b.condition_key
+
+
+def test_the_transmission_rule_does_not_change_the_scenario_key():
+    """A comparison across rules must face identical arrivals (A-016)."""
+    a = cfg(**{"dynamics.transmission_rule": "axelrod_homophily", "dynamics.rule_params": {}})
+    b = cfg(**{"dynamics.transmission_rule": "conformist", "dynamics.rule_params": {}})
+    assert a.baseline_key == b.baseline_key
+    assert a.scenario_key == b.scenario_key
     assert a.condition_key != b.condition_key
+
+
+def test_the_network_does_not_change_the_scenario_key():
+    a = cfg(**{"network.layers": {"citywide": {}}})
+    b = cfg(**{"network.layers": {"household": {}, "citywide": {}}})
+    assert a.scenario_key == b.scenario_key
+    assert a.condition_key != b.condition_key
+
+
+def test_migration_settings_do_change_the_scenario_key():
+    assert cfg().scenario_key != cfg(**{"migration.total_share": 0.31}).scenario_key
 
 
 def test_population_settings_do_change_the_baseline_key():

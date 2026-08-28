@@ -62,8 +62,9 @@ Done:
 Outstanding:
 - **V-1 cannot be closed without Axelrod (1997).** See the validation strategy.
 - ODD protocol document.
-- A second transmission rule from a different family, without which no
-  substantive result can be reported (A-016 sensitivity requirement).
+- ~~A second transmission rule from a different family~~ **done in v0.5**
+  (`conformist`), and it immediately earned its keep: the two rules disagree
+  about the direction of the migration effect (pilot P-9).
 
 **Exit condition, revised:** the model produces cultural change that is
 demonstrably not compositional — **met** — *and* V-1 has a written outcome —

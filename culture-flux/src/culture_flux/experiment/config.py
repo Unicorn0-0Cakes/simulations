@@ -506,13 +506,19 @@ class ExperimentConfig:
         )
 
     @property
+    def scenario_key(self) -> str:
+        """Identifies the migration scenario: who arrives, how many, when.
+
+        Runs sharing (seed, baseline_key, scenario_key) face identical arrivals
+        whatever their network or dynamics, which is what makes a comparison
+        across transmission rules a controlled contrast.
+        """
+        return _digest({"migration": asdict(self.migration)})
+
+    @property
     def condition_key(self) -> str:
-        """Identifies everything that may differ between conditions."""
-        d = self._scientific_dict()
-        d.pop("population", None)
-        d.pop("culture", None)
-        d.pop("seed", None)
-        return _digest(d)
+        """Identifies the network and dynamics settings."""
+        return _digest({"network": asdict(self.network), "dynamics": asdict(self.dynamics)})
 
 
 def canonical_json(obj: Any) -> str:

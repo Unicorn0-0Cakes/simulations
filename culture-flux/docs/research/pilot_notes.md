@@ -6,8 +6,8 @@ find out whether the instrument behaves sensibly and where its limits are. They
 were run before any pre-registered analysis plan exists, so nothing here may be
 reported as a finding, and every number below should be expected to move.
 
-Model versions 0.2.0-homophily (P-1 to P-3), 0.3.0-structure (P-4, P-5) and
-0.4.0-metastability (P-6). Rule: `axelrod_homophily` as specified in
+Model versions 0.2.0-homophily (P-1 to P-3), 0.3.0-structure (P-4, P-5) 0.4.0-metastability (P-6)
+0.5.0-two-rules (P-7 to P-9). Rule: `axelrod_homophily` as specified in
 `dynamics/homophily.py` (assumption A-016), batched update scheme (A-017),
 uniform influence (A-009), well-mixed network (A-010).
 
@@ -292,6 +292,200 @@ consistent across every seed examined, but its timing is not characterised.
 
 ---
 
+## P-7 — Monoculture was an artefact of an unexamined default
+
+**Setup.** N = 500, ten neighbourhoods of 50, weak-tie weight 0.05 — the
+*fast-collapse* regime in which P-1, P-4, P-5 and P-6 all produced monoculture.
+3,000 years. The only thing varied is `drift_rate`: the per-agent-per-step
+probability of one feature changing to a random different trait. Two seeds each.
+
+Cultural richness by year:
+
+| drift | 0 | 250 | 500 | 750 | 1000 | 1250 | 1500 | 1750 | 2000 | 2250 | 2500 | 2750 | 3000 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0 | 500 | 16 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| 10⁻⁵ | 500 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 1 |
+| 10⁻⁴ | 500 | 22 | 1 | 2 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 1 |
+| **10⁻³** | 500 | 52 | 24 | **109** | 14 | 12 | 9 | 16 | 12 | 20 | 19 | 22 | **66** |
+| 10⁻² | 500 | 321 | 329 | 400 | 385 | 365 | 381 | 372 | 330 | 356 | 433 | 402 | 370 |
+
+Final state, averaged over seeds:
+
+| drift | richness | segregation | dominant share |
+|---|---|---|---|
+| 0 | 1.0 | 0.00 | 1.000 |
+| 10⁻⁵ | 1.0 | 0.00 | 1.000 |
+| 10⁻⁴ | 1.5 | 0.14 | 0.998 |
+| 10⁻³ | 48.5 | 0.36 | 0.186 |
+| 10⁻² | 401.5 | 0.40 | 0.041 |
+
+### What this does to the previous pilots
+
+**"Every connected configuration ends in monoculture" was conditional on
+`drift_rate = 0`, and nobody had examined that default.** It was inherited from
+the rule family (A-018) rather than chosen. Somewhere between 10⁻⁴ and 10⁻³ the
+system stops collapsing at all and settles into a sustained, fluctuating state
+with real spatial segregation.
+
+P-1, P-4, P-5 and P-6 are not wrong — they are results about a copying-only
+world. But the headline they supported ("monoculture is the only long-run
+outcome") is now known to be a statement about one corner of the parameter space,
+and a corner chosen by default.
+
+**P-6's hazard survives intact and gets sharper.** At drift ≥ 10⁻³ there is no
+absorbing state at all, so "has it converged?" is not even the right question:
+the right question is whether the *distribution* is stationary. And the
+trajectory at 10⁻³ swings hard — 24, then 109, then 14, then 66 — so a single
+snapshot of a single run is close to meaningless there. Time-averaging over a
+stationary window is required, and no analysis code does that yet.
+
+### What it does not establish
+
+Where the transition sits. Two seeds, one N, one neighbourhood size, one
+weak-tie weight, one rule. The interaction between drift and the weak-tie weight
+is unexamined and is likely to matter: both govern the same balance between
+mixing and regeneration.
+
+### And it is prior art again — with a direction that may contradict this
+
+**Klemm, Eguíluz, Toral & San Miguel (2003), "Global culture: A noise-induced
+transition in finite systems", *Phys. Rev. E* 67, 045101(R)** — a companion to
+S1, same group, same year. Citation verified; contents not extracted.
+
+The title is worth reading twice. It says noise *induces global culture* — that
+is, drives the system towards monoculture. What P-7 observes is drift
+*sustaining* diversity, which is the opposite direction. Three possibilities, and
+no way to choose between them without reading the paper:
+
+1. The title compresses a non-monotone result (plausible: a small amount of noise
+   can behave very differently from a lot).
+2. Their noise enters differently from this drift.
+3. This implementation is wrong.
+
+**That is exactly why the paper must be read rather than cited from its title**,
+and it is the sharpest illustration so far of why Phase 1 was not optional.
+Registered as validation target **V-7**, explicitly unresolved.
+
+---
+
+## P-8 — There is a drift rate above which transmission stops mattering
+
+**Why this exists.** A first attempt at the three-arm comparison (P-9) was run at
+`drift_rate = 10⁻³`, the rate P-7 identified as sustaining diversity. It produced
+a striking result: retention 0.278 under the homophily rule, far below the
+compositional baseline of 0.850. Before writing that up, one control:
+
+**Setup.** N = 500, M = 0.30, D = 0.50, 1,500 years, tail-averaged over years
+1,000–1,500. Three seeds. Random-culture expectation at Q = 5 is retention 0.200;
+the compositional baseline is 0.850.
+
+| condition | retention | richness |
+|---|---|---|
+| drift only, no interaction at all | 0.304 | 714.0 |
+| homophily + drift 10⁻³ | **0.278** | 36.8 |
+| homophily + drift 10⁻⁴ | 0.765 | 2.0 |
+| homophily, no drift | 0.900 | 1.0 |
+
+**The homophily arm at 10⁻³ is indistinguishable from drift alone** — in fact
+marginally below it. That arm was measuring noise, not cultural transmission, and
+the parameter choice for the comparison was wrong. The first attempt at P-9 is
+therefore discarded rather than reported.
+
+### What this does to P-7
+
+P-7 said drift above ~10⁻³ "sustains diversity". True, and now qualified:
+transmission is still doing something at that rate — richness 36.8 against 714
+without it, so it suppresses drift-generated variety twentyfold — but the
+*founding cultures* are not retained above chance. The diversity at 10⁻³ is
+churn, not cultural persistence.
+
+So there are two regimes, and the boundary between them is somewhere between
+10⁻⁴ and 10⁻³ at these settings:
+
+* **transmission-dominated** (drift ≤ 10⁻⁴): the founding cultures still organise
+  the population, and questions about their fate are answerable.
+* **drift-dominated** (drift ≥ 10⁻³): culture is noise, and any measured "effect"
+  of migration, source count or network structure is measuring the noise floor.
+
+**Any result must state which regime it is in**, and any parameter sweep that
+crosses the boundary is reporting two different models. This is the second time a
+default has silently decided an outcome (A-018 was the first) and it is the
+strongest argument yet that the registry should be consulted before the
+experiment, not after.
+
+---
+
+## P-9 — The first answer to RQ2, and it is a null
+
+**Setup.** The three-arm design A-016 requires: null, homophilous copying, and
+conformist transmission (conformity = 3, 5 models), on matched seeds, in the
+transmission-dominated regime (drift = 10⁻⁴). M = 0.30 held constant,
+D = 0.50, N = 500 in ten neighbourhoods, weak-tie weight 0.05, K ∈ {1, 4, 10},
+four seeds each, 1,500 years, tail-averaged over years 1,000–1,500.
+
+All three arms share a seed, a baseline key and a **scenario key**, so they face
+a byte-identical city and byte-identical arrivals. Only the mechanism differs.
+
+| rule | K | retention | sd | richness | dominant share | segregation |
+|---|---|---|---|---|---|---|
+| null | 1 | 0.8501 | 0.0000 | 2.0 | 0.700 | 0.008 |
+| null | 4 | 0.8501 | 0.0000 | 5.0 | 0.700 | 0.030 |
+| null | 10 | 0.8501 | 0.0000 | 11.0 | 0.700 | 0.057 |
+| homophily | 1 | 0.7299 | 0.1135 | 2.0 | 0.919 | 0.168 |
+| homophily | 4 | 0.6748 | 0.2211 | 1.6 | 0.947 | 0.130 |
+| homophily | 10 | 0.7648 | 0.0435 | 1.8 | 0.933 | 0.137 |
+| conformist | 1 | 0.9999 | 0.0000 | 1.8 | 0.999 | 0.158 |
+| conformist | 4 | 0.9999 | 0.0000 | 1.7 | 0.999 | 0.153 |
+| conformist | 10 | 0.9999 | 0.0000 | 1.8 | 0.999 | 0.172 |
+
+### Finding 1 — the two rules disagree about direction
+
+Against the compositional baseline of 0.850:
+
+* **Homophilous copying erodes the resident culture** (≈0.73). Migrants pull
+  residents partway towards them.
+* **Conformist transmission assimilates the migrants almost completely** (0.9999).
+  The majority wins, decisively and with zero variance across seeds.
+
+Same city, same arrivals, same seeds, opposite outcomes. **No claim about whether
+migration erodes or preserves resident culture can be made from one transmission
+rule.** A-016 required two rules before any result; this is what that requirement
+was for, and a single-rule study here would have been confidently wrong in
+whichever direction its author happened to pick.
+
+### Finding 2 — source count has no detectable effect
+
+The project's central question, at this one parameter point:
+
+| rule | retention at K=10 minus K=1 | se | z |
+|---|---|---|---|
+| null | +0.0000 | 0.0000 | — (arithmetic) |
+| homophily | +0.0349 | 0.0608 | +0.57 |
+| conformist | −0.0000 | 0.0000 | −0.06 |
+
+Nothing. Under both rules, holding total migration constant, splitting the
+incoming population into ten cultures instead of one made no detectable
+difference to how much of the resident culture survived.
+
+That is **H0-1**, and it contradicts H1, H2 *and* H3 — all three predict a K
+effect, in various directions. A null here is a substantive outcome, not a failed
+search.
+
+### What this is not
+
+Four seeds. One value each of M, D, drift, conformity, network configuration,
+arrangement and neighbourhood size. The homophily arm at K = 4 has a standard
+deviation of 0.22 against 0.04 at K = 10, which hints at bimodality — some runs
+the residents hold, some they do not — and a mean is the wrong summary for a
+bimodal outcome. H3 in particular is about a *rate*, and four runs cannot
+estimate one.
+
+So: a pilot pointing at a design, not a result. But it is the first time the
+instrument has been asked its own central question and returned an answer, and
+the answer was "no effect, under either mechanism".
+
+---
+
 ## What these notes are for
 
 They set the agenda for the next design rather than answering anything:
@@ -310,3 +504,15 @@ They set the agenda for the next design rather than answering anything:
 6. `arrangement` must be crossed with K, or the K effect is unattributable.
 7. **L-Q13 is answered: P-5/P-6 are replications.** Read S1–S3 before designing
    further network work; S3's title indicates the multiplex ground is also taken.
+8. **Read S5 before anything else.** Its title points the opposite way from P-7's
+   observation, so either the result or the implementation is not what it seems.
+9. **Cross drift with the weak-tie weight.** Both govern the balance between
+   mixing and regeneration and neither has been examined against the other.
+10. **Time-average over a stationary window** wherever drift is non-zero. Single
+    snapshots swing by a factor of ten there.
+11. **State the regime.** Every result must say whether it is transmission- or
+    drift-dominated (P-8). A sweep crossing that boundary reports two models.
+12. **Report every arm.** The two rules disagree about the *direction* of the
+    migration effect (P-9), so a single-rule result is not a result.
+13. **Report distributions, not means, for the homophily arm.** Its variance
+    across seeds is large and possibly bimodal.

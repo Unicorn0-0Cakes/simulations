@@ -92,7 +92,8 @@ def cmd_validate(args: argparse.Namespace) -> int:
         return 2
     print(f"VALID   {args.config}")
     print(f"  config_hash  {cfg.config_hash}")
-    print(f"  baseline_key {cfg.baseline_key}")
+    print(f"  baseline_key  {cfg.baseline_key}")
+    print(f"  scenario_key  {cfg.scenario_key}")
     print(f"  condition_key {cfg.condition_key}")
     _emit_warnings(cfg)
     return 0

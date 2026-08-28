@@ -240,8 +240,8 @@ def test_rule_parameters_for_a_declared_but_unimplemented_rule_are_kept():
     """A configuration may legitimately carry settings for a rule that does not
     exist yet -- that is how one base config serves a sweep across rules. They
     are stored, and validated as soon as the rule is implemented."""
-    c = cfg(**{"dynamics.rule_params": {"conformist": {"strength": 2.0}}})
-    assert c.dynamics.rule_params["conformist"]["strength"] == 2.0
+    c = cfg(**{"dynamics.rule_params": {"prestige_biased": {"strength": 2.0}}})
+    assert c.dynamics.rule_params["prestige_biased"]["strength"] == 2.0
 
 
 def test_rule_parameters_change_the_config_hash():
@@ -306,13 +306,30 @@ def test_the_rule_changes_founder_culture_which_the_null_never_does():
 
 def test_the_rule_departs_from_the_compositional_baseline():
     """The point of having a null: retention under transmission must differ from
-    `1 - M*D`, or the mechanism is not doing anything culture-specific."""
-    active = ExperimentRun(cfg(), seed=1).execute()
-    null = ExperimentRun(cfg(**{"dynamics.transmission_rule": "null", "dynamics.rule_params": {}}), seed=1).execute()
-    assert abs(
-        active.final_metrics["resident_trait_retention"]
-        - null.final_metrics["resident_trait_retention"]
-    ) > 0.01
+    `1 - M*D`, or the mechanism is not doing anything culture-specific.
+
+    Averaged over seeds, deliberately. A single-seed version of this test passed
+    for months and then failed when an unrelated change shifted which draws seed
+    1 consumed -- the effect is real but its size varies by seed, and a test that
+    cannot tell those apart is not testing the model.
+    """
+    seeds = range(1, 6)
+    active = [
+        ExperimentRun(cfg(), seed=s).execute().final_metrics["resident_trait_retention"]
+        for s in seeds
+    ]
+    null = [
+        ExperimentRun(
+            cfg(**{"dynamics.transmission_rule": "null", "dynamics.rule_params": {}}), seed=s
+        )
+        .execute()
+        .final_metrics["resident_trait_retention"]
+        for s in seeds
+    ]
+    assert abs(float(np.mean(active)) - float(np.mean(null))) > 0.01
+    # The null is pure arithmetic, so it cannot vary across seeds at all.
+    assert float(np.std(null)) < 1e-12
+    assert float(np.std(active)) > 0.0
 
 
 def test_recombination_produces_profiles_no_founding_population_held():
@@ -330,3 +347,75 @@ def test_the_hybridisation_placeholder_still_refuses_to_answer():
     would now return a plausible-looking number."""
     r = ExperimentRun(cfg(), seed=1).execute()
     assert r.final_metrics["hybridization_index"] != r.final_metrics["hybridization_index"]
+
+
+# -- cultural drift (A-018 sensitivity) ------------------------------------
+
+def test_drift_can_reintroduce_a_trait_nobody_held():
+    """The invariant that copying-only guarantees, deliberately broken. This is
+    the whole point of drift: diversity stops being non-renewable."""
+    schema = CultureSchema.uniform(6, 5)
+    pop = _pop_from(np.zeros((200, 6), dtype=np.int16), schema)
+    _drive(pop, HomophilousTraitCopying(drift_rate=0.05), events=100)
+    assert int(np.unique(pop.culture).size) > 1
+
+
+def test_zero_drift_preserves_the_copying_only_invariant():
+    schema = CultureSchema.uniform(6, 5)
+    pop = _pop_from(np.zeros((200, 6), dtype=np.int16), schema)
+    assert _drive(pop, HomophilousTraitCopying(drift_rate=0.0), events=100) == 0
+    assert int(np.unique(pop.culture).size) == 1
+
+
+def test_drift_always_changes_the_trait_when_it_fires():
+    """A redraw that could return the original would silently halve the rate."""
+    schema = CultureSchema.uniform(4, 3)
+    pop = _pop_from(np.zeros((5000, 4), dtype=np.int16), schema)
+    rule = HomophilousTraitCopying(events_per_agent_per_step=0.0, drift_rate=1.0)
+    changed = _drive(pop, rule, events=1, seed=2)
+    assert changed == 5000
+    assert int((pop.culture != 0).sum()) > 4800  # one feature each, all changed
+
+
+def test_drift_never_produces_an_inadmissible_trait():
+    schema = CultureSchema.uniform(6, 4)
+    pop = _pop_from(np.zeros((2000, 6), dtype=np.int16), schema)
+    _drive(pop, HomophilousTraitCopying(drift_rate=0.3), events=50)
+    assert int(pop.culture.min()) >= 0
+    assert bool((pop.culture < schema.n_traits[None, :]).all())
+
+
+def test_drift_works_with_interaction_switched_off():
+    """A drift-only model is meaningful, not a silent no-op."""
+    schema = CultureSchema.uniform(6, 4)
+    pop = _pop_from(np.zeros((300, 6), dtype=np.int16), schema)
+    rule = HomophilousTraitCopying(events_per_agent_per_step=0.0, drift_rate=0.1)
+    assert _drive(pop, rule, events=20) > 0
+
+
+def test_a_negative_or_excessive_drift_rate_is_rejected():
+    with raises(ValueError, "drift_rate"):
+        HomophilousTraitCopying(drift_rate=-0.1)
+    with raises(ValueError, "drift_rate"):
+        HomophilousTraitCopying(drift_rate=1.5)
+
+
+def test_a_drifting_run_reports_that_no_absorbing_state_exists():
+    """Not the same statement as 'the run was too short', and must not read the
+    same way."""
+    r = ExperimentRun(
+        cfg(**{"dynamics.rule_params": {"axelrod_homophily": {"drift_rate": 0.01}}}), seed=1
+    ).execute()
+    a = r.manifest["absorption"]
+    assert a["absorbed"] is False
+    assert a["confidence"] == "no absorbing state"
+    assert "no absorbing state exists" in a["reason"]
+
+
+def test_the_manifest_records_that_drift_creates_novel_traits():
+    r = ExperimentRun(
+        cfg(**{"dynamics.rule_params": {"axelrod_homophily": {"drift_rate": 0.01}}}), seed=1
+    ).execute()
+    assert r.manifest["dynamics"]["transmission_rule"]["creates_novel_traits"] is True
+    plain = ExperimentRun(cfg(), seed=1).execute()
+    assert plain.manifest["dynamics"]["transmission_rule"]["creates_novel_traits"] is False
