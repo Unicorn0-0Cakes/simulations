@@ -83,6 +83,7 @@ in brackets is the assumption the answer would settle.
 | L-Q10 | What outcome measures are reported, and how are qualitative regimes (enclave, integration, polarisation) identified from them? | the metrics layer, RQ7 | P3, P5, P1 |
 | L-Q11 | How many replicates per condition, and how is stochastic variation handled in the analysis? | the experimental design | all six |
 | L-Q12 | Is majority-group (resident) cultural change modelled, or is acculturation treated as something only migrants do? | the influence layer | P6, P1 |
+| L-Q13 | **ANSWERED (bibliographically): yes, an established literature exists.** See the secondary corpus below. Pilot P-5 must be treated as a replication until those papers are read. What remains open is the *quantitative* comparison — where the published threshold sits, and under what topology. | whether P-5 is a contribution or a replication; A-019 | secondary corpus S1–S4 |
 
 ---
 

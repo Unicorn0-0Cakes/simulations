@@ -43,9 +43,26 @@ run directories as the unit of grouping and `config_hash` as the condition key.
 `manifest.json` files are small enough to load in bulk into a single table of
 conditions, joined to the time series by `config_hash` and `seed`.
 
-Nothing writes an aggregated cross-run summary yet. That belongs with the
-analysis layer in Phase 2, and writing it before there is anything to aggregate
-would fix a schema around guesses.
+Every sweep writes two batch-level files alongside the run directories:
+
+| File | Rows | Purpose |
+|---|---|---|
+| `batch_manifest.json` | — | Sweep summary, model version, worker count, resume setting, per-status counts, total compute, and **every failure listed individually** — a batch that quietly dropped 3% of its runs would still look complete in an aggregate table |
+| `run_summary.csv` | one per run | The swept parameters plus every final metric. The table an analysis actually starts from |
+
+Dict-valued axes (a whole network specification) are flattened to canonical JSON
+strings so the summary stays rectangular and diffable.
+
+## Reporting absorption
+
+Every manifest carries an `absorption` block: whether the run ended absorbed, how
+many quiescent years it had, and a confidence that is **never "certain" under an
+active transmission rule**. The time series carries `steps_since_last_change`.
+
+This is not bookkeeping. Pilot P-6 recorded an 1,800-year plateau of stable
+cultural richness that then collapsed to monoculture, so a run whose metrics have
+stopped moving is not thereby at equilibrium. No result may use "equilibrium",
+"stable" or "persists" unless the runs behind it are absorbed (A-028).
 
 ## Rules for figures
 

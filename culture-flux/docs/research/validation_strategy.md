@@ -6,7 +6,7 @@ and because conflating them is the standard way simulation work overclaims.
 | Kind | Question | Status |
 |---|---|---|
 | Verification | Does the software do what the specification says? | **partially complete** |
-| Internal validation | Does the model reproduce known qualitative behaviour of its predecessors when configured like them? | **not started** |
+| Internal validation | Does the model reproduce known qualitative behaviour of its predecessors when configured like them? | **blocked — see below** |
 | Empirical validation | Do outputs correspond to real-world observations? | **not started, and not close** |
 
 **The model has not been empirically validated. Nothing in this repository has
@@ -22,7 +22,7 @@ The only one of the three currently in progress.
 
 ### What is verified
 
-180 invariant tests, all passing, run under warnings-as-errors. They test
+263 invariant tests, all passing, run under warnings-as-errors. They test
 scientifically meaningful properties, not that functions return without raising:
 
 **Determinism and provenance**
@@ -94,6 +94,69 @@ scientifically meaningful properties, not that functions return without raising:
 - Unimplemented transmission rules, network layers, feature kinds and arrival
   profiles raise `NotImplementedError` rather than silently approximating.
 
+**The transmission rule (v0.2)**
+- Copying never introduces a trait nobody held — the set of traits present at
+  each feature can shrink but never grow. A rule with innovation or copying error
+  would violate this, so an undeclared one could not be added silently.
+- Agents with zero cultural overlap never influence each other, exactly.
+- A homogeneous population is an absorbing state; a zero interaction rate changes
+  nothing; a feature with zero transmission rate or full resistance never changes.
+- Population size and trait admissibility are preserved under transmission.
+- Influence weighting demonstrably biases whose culture spreads, so the influence
+  layer is operative rather than decorative.
+- The rule departs measurably from the compositional baseline, and changes
+  founder culture, which the null never does.
+- Batched and asynchronous update schemes agree within noise (weak evidence —
+  see A-017) and obey the same invariants.
+- The hybridisation placeholder still returns NaN even though novel profiles now
+  exist and it would return a plausible number.
+
+**Absorption and metastability (v0.4)**
+- A null run reports certain absorption; an active run never does, at any length,
+  because pilot P-6 found an 1,800-year plateau that then collapsed.
+- A still-changing run is reported as not absorbed with zero quiescent years.
+- Absorption tracks trait changes rather than metric stability — the distinction
+  P-6 turns on, since richness was flat while traits changed underneath it.
+
+**Sweep execution (v0.4)**
+- A completed sweep is entirely skipped on re-run; resume off re-runs everything;
+  extending a sweep runs only the new conditions.
+- A half-written directory, a corrupt manifest, or a manifest from another model
+  version is re-run rather than trusted. Resume never trusts a directory just
+  because it exists.
+- **Serial and parallel execution produce identical run hashes.** Determinism
+  comes from (seed, config) alone — never from execution order, worker identity,
+  or worker count.
+- Failed runs are recorded with their error and listed individually in the batch
+  manifest, not merely counted: a batch that quietly dropped 3% of its runs would
+  still look complete in an aggregate table.
+- Dict-valued sweep axes (a whole network specification) flatten to stable
+  strings so the summary stays a rectangular, diffable table.
+
+**Network structure (v0.3)**
+- Group layers keep interaction local: sampled partners always share the focal
+  agent's group, and an agent alone in a group returns itself rather than a
+  stranger, so a rule cannot cross a boundary the network says is closed.
+- Layer weights are honoured in proportion and normalised, so only ratios matter;
+  a zero-weight layer is built and measurable but never sampled.
+- A single-layer multiplex reproduces that layer's sampling exactly, draw for
+  draw — so the citywide-only configuration is bit-identical to the pre-multiplex
+  engine and every earlier result still stands.
+- Rewiring preserves out-degree exactly, never creates a self-tie, and
+  demonstrably raises cultural similarity across ties. With one candidate
+  (no homophily) it demonstrably does not — the control condition is pinned.
+- Theil's H is 0 when every unit mirrors the city, exactly 1 under complete
+  separation, between the two under partial sorting, 0 rather than NaN with one
+  category or one unit, and invariant to relabelling.
+- Structure metrics return NaN, never 0, when the context has no network: "no
+  spatial layer exists" and "there is no segregation" must not share a value.
+- `network_degree` influence refuses to fall back to uniform when unbound or
+  when no attention layer exists, because a silent fallback would be
+  indistinguishable in the output from a run that meant to be uniform. At
+  exponent 0 it reproduces the uniform null exactly.
+- Configurations that name a structure-reading influence model without a
+  friendship layer are rejected at validation.
+
 **Guards against the model prejudging its own question**
 - Every placeholder metric returns NaN, never a plausible zero, and every one
   states what it is blocked on.
@@ -135,9 +198,28 @@ scientifically meaningful properties, not that functions return without raising:
 
 ## 2. Internal validation — does it behave like its predecessors?
 
-**Not started.** It cannot start before a transmission rule exists, and the
-targets cannot be specified before the literature matrix is filled (open
-questions L-Q3 and L-Q10).
+**Blocked, and blocked for a reason that a transmission rule did not unblock.**
+
+v0.2 implements an Axelrod-*family* rule (A-016), so target V-1 is now
+*runnable*. It is not *closeable*: closing it means comparing this model's
+behaviour against what Axelrod (1997) reports, and the paper has not been read.
+Comparing against a remembered summary would be worse than not comparing at all,
+because it would produce a validation claim with nothing behind it.
+
+**What has been measured instead** is this model's own behaviour, which is a
+legitimate thing to know and is not validation. See
+[pilot_notes.md](pilot_notes.md):
+
+- Dependence on traits-per-feature: at Q = 2 the population freezes into
+  monoculture within 200 simulated years; higher Q takes longer but reaches the
+  same state by 2,000 years. Time to convergence rises with Q; the endpoint does
+  not change.
+- In a well-mixed population, every configuration tested converged to a single
+  culture. Sustained diversity was never a long-run outcome.
+
+Whether either matches what the source paper reports is unknown. **V-1 remains
+open.** Its status must not be changed to "reproduced" or "failed" on the basis
+of anything except the paper.
 
 ### Planned procedure
 
@@ -151,11 +233,12 @@ reports it:
 
 | Target | Source | Behaviour to reproduce | Extraction dependency |
 |---|---|---|---|
-| V-1 | P3 Axelrod 1997 | Local convergence with global polarisation: stable multi-culture end states under local interaction, and dependence of the outcome on traits-per-feature | L-Q2, L-Q3, L-Q10 |
+| V-1 | P3 Axelrod 1997 | Local convergence with global polarisation: stable multi-culture end states under local interaction, and dependence of the outcome on traits-per-feature. **Runnable in v0.2; not closeable without the paper.** Note that this model is well-mixed (A-010), so the *local* interaction the target concerns is not yet available — V-1 may need Phase 3 regardless of the reading. | L-Q2, L-Q3, L-Q10 |
 | V-2 | P1 Mesoudi 2018 | Whatever relationship between migration rate and between-group variation the paper reports | L-Q5, L-Q10 |
 | V-3 | P4 Erten et al. 2018 | Dependence of multicultural outcomes on acculturation orientations | L-Q9 |
 | V-4 | P5 Chuang et al. 2019 | Enclave formation versus integration as a function of network structure | L-Q8 |
 | V-5 | P2 Paolillo & Jager 2020 | Interaction between network formation and acculturation | L-Q8 |
+| V-6 | S1 Klemm et al. 2003, S2 Flache & Macy 2011 | A transition from sustained diversity to monoculture as long-range interaction rises. **Qualitatively consistent with pilots P-5/P-6 but NOT verified** — the papers have not been read, so neither the published direction nor the published threshold has been compared. Note that P-6 reframes the effect as plateau duration rather than a true threshold, which may or may not match the published account. | secondary corpus |
 
 V-1 is the priority: Axelrod's model is the direct ancestor of the current
 representation, it is fully specified in its paper, and reproducing it would
