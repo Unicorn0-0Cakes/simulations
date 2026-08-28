@@ -47,10 +47,10 @@ result; this is what that requirement was for.
 
 **And the project's central question returned a null.** Holding total migration
 constant and splitting the incoming population into ten cultures instead of one
-made no detectable difference to retention under *either* rule (+0.03 ± 0.06 and
-−0.00). That is H0-1, and it contradicts H1, H2 and H3 alike. Four seeds at one
-parameter point — a pilot pointing at a design, not a result — but it is the first
-time the instrument has been asked its own question and answered.
+made no detectable difference to retention under *either* rule: +0.011 ± 0.032
+(z = 0.35) and +0.0000 (z = 0.88), across 240 runs at 20 seeds per cell. That is
+H0-1, and it contradicts H1, H2 and H3 alike. Still one point in a
+six-dimensional parameter space — but it is a designed comparison, not a pilot.
 
 **The mechanism moved the outcome far more than the source diversity did.** If
 that survives a proper design, the research questions are aimed at the wrong
@@ -116,6 +116,22 @@ usually bring to this topic:
   modelled.
 
 ---
+
+## The instrument page
+
+`culture-flux.html` is a self-contained results explorer — real output from the
+stored runs, embedded at build time, with no second implementation of the model
+and no network access. Open it in any browser. Regenerate it from stored output
+with:
+
+```bash
+python3 -m culture_flux.cli sweep configs/sweeps/rq2_three_arm.json \
+        --out results/rq2 --workers 0
+python3 analysis/export_web_data.py --batch results/rq2
+```
+
+See `USER_MANUAL.md` for how to read it, and `methods.html` for the full
+specification, parameters and validation status.
 
 ## Quick start
 

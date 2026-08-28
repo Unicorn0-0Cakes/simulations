@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Culture Flux — migration, mechanism and what survives</title>
+<meta name="description" content="A migration model run under three transmission mechanisms on matched seeds. The mechanisms disagree about the direction of the effect, and the number of incoming cultures does not appear to matter. Research instrument; two of its own earlier findings were retracted.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/orbital.css">
+<script src="../assets/orbital.js" data-title="Culture Flux" data-tag="Three mechanisms · matched seeds" data-sim="culture-flux"></script>
+<link rel="stylesheet" href="css/culture-flux.css">
+<link rel="stylesheet" href="../assets/orbital-sim.css">
+<script src="../assets/catalogue.js"></script>
+</head>
+<body>
+<a class="rf-skip" href="#main-content">Skip to the instrument</a>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Society · Agent-based · Research instrument</p>
+    <h1>Culture Flux</h1>
+    <p class="lede">
+      Thirty per cent of a city arrives from somewhere else. Whether that changes the
+      city's culture, and in which direction, turns out to depend almost entirely on a
+      mechanism nobody can observe directly — how people are influenced by each other.
+      Change that assumption and the answer reverses.
+    </p>
+    <div class="badges" id="badges"></div>
+    <div class="chips">
+      <span class="chip">240 stored runs</span>
+      <span class="chip">Three mechanisms, matched seeds</span>
+      <span class="chip">Control arm always shown</span>
+      <span class="chip">Two findings retracted</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Sections"><div class="wrap" id="tabs" role="tablist"></div></nav>
+
+<!-- ============================================================ OVERVIEW -->
+<section class="page on" id="p-overview" role="tabpanel"><div class="wrap" id="main-content" tabindex="-1">
+  <h2>The question</h2>
+  <p class="sub">
+    Holding the total number of arrivals fixed, does it matter whether they come from
+    one culture or ten? Thirty per cent arriving as a single group and thirty per cent
+    arriving as ten groups of three are the same migration and a different cultural
+    environment. The instrument exists to find out whether that difference does anything.
+  </p>
+
+  <div class="card">
+    <p class="ptitle">What is held identical</p>
+    <p style="margin:0 0 10px">
+      Runs sharing a seed share a <strong>byte-identical city</strong> before anyone
+      arrives, and — across mechanisms — <strong>byte-identical arrivals</strong>: the
+      same source cultures, the same group sizes, the same schedule. Random number
+      streams are seeded in three nested tiers to guarantee it, and the guarantee is
+      tested rather than assumed.
+    </p>
+    <p style="margin:0;color:var(--rf-muted)">
+      So a difference between two arms is attributable to the thing that differs
+      between them, and nothing else.
+    </p>
+  </div>
+
+  <h2>The control arm is the point</h2>
+  <p class="sub">
+    Every comparison here is read against a third arm in which <em>nobody influences
+    anybody</em>. Under it, cultural retention is exactly <code>1 − M·D</code> —
+    migration share times cultural distance. That is arithmetic. If a mechanism
+    reproduces it, the mechanism is reproducing arithmetic, and the model has found
+    nothing. The control is not a formality; it is the floor.
+  </p>
+
+  <h2>What the runs show</h2>
+  <div class="grid2">
+    <div class="card">
+      <p class="ptitle">The mechanisms disagree about direction</p>
+      <p style="margin:0">
+        Homophilous copying pulls residents <em>towards</em> the arrivals. Conformist
+        transmission absorbs the arrivals into the residents almost completely. Same
+        city, same arrivals, same seeds, opposite outcomes — one below the compositional
+        baseline, one far above it. A study using either mechanism alone would have been
+        confident and wrong.
+      </p>
+    </div>
+    <div class="card">
+      <p class="ptitle">The number of incoming cultures did not matter</p>
+      <p style="margin:0">
+        Splitting the same arrivals into ten cultures instead of one moved retention by
+        an amount indistinguishable from noise, under <em>both</em> mechanisms. Three
+        competing hypotheses in this project's registry each predict an effect here, in
+        various directions. None of them appeared.
+      </p>
+    </div>
+  </div>
+
+  <div class="card warn">
+    <p class="ptitle">Read this before the numbers</p>
+    <p style="margin:0 0 8px">
+      This is an <strong>uncalibrated model with an invented mechanism</strong>. The
+      transmission rules were specified in its own source code, not extracted from any
+      published paper — the literature review was deliberately skipped, and that is
+      recorded as the least-supported decision in the project. No parameter is fitted to
+      anything. Nothing here is a claim about any real population.
+    </p>
+    <p style="margin:0">
+      Two of this instrument's own earlier headline findings were retracted by its later
+      runs. Both retractions are on the <em>What was retracted</em> tab, kept rather than
+      quietly deleted.
+    </p>
+  </div>
+</div></section>
+
+<!-- ========================================================== MECHANISMS -->
+<section class="page" id="p-mechanisms" role="tabpanel"><div class="wrap">
+  <h2>Three ways a person can be influenced</h2>
+  <p class="sub">
+    The same city, the same arrivals, three assumptions about what makes someone adopt a
+    cultural trait. The third column of each card is what actually happened, at a single
+    incoming culture.
+  </p>
+  <div class="grid2" id="mechanisms-cards"></div>
+
+  <h2>Why two rules rather than one</h2>
+  <p class="sub">
+    The project's assumption registry required it. The transmission mechanism cannot be
+    observed and was not extracted from the literature, so a result that holds under only
+    one rule is a result about that rule. Running two families — one gated on similarity,
+    one on frequency — is the cheapest available check, and it immediately found a
+    disagreement about the sign of the effect.
+  </p>
+  <div class="card quiet">
+    <p class="ptitle">The difference that matters between them</p>
+    <p style="margin:0">
+      Homophily has a <strong>similarity gate</strong>: agents with nothing in common
+      cannot influence each other at all, so cultural distance defends itself. Conformist
+      transmission has no such gate — an agent is pulled towards whatever is common
+      around it, however alien. That single structural difference is enough to reverse
+      the direction of the migration effect.
+    </p>
+  </div>
+</div></section>
+
+<!-- ============================================================= RESULTS -->
+<section class="page" id="p-results" role="tabpanel"><div class="wrap">
+  <h2>Results</h2>
+  <p class="sub">
+    Real output from stored runs. Every mark is one simulation; nothing is smoothed,
+    modelled or fitted. Pick a measurement.
+  </p>
+  <div class="toolbar" id="result-toolbar"></div>
+
+  <div class="legend">
+    <span><i style="background:var(--cf-null)"></i>No transmission (control)</span>
+    <span><i style="background:var(--cf-homophily)"></i>Homophilous copying</span>
+    <span><i style="background:var(--cf-conformist)"></i>Conformist transmission</span>
+    <span><i style="background:var(--cf-baseline)"></i>Composition alone</span>
+  </div>
+
+  <figure id="strip"></figure>
+
+  <h2>Against the central manipulation</h2>
+  <figure id="lines"></figure>
+
+  <h2>The contrast, stated plainly</h2>
+  <p class="sub">
+    The difference in resident cultural retention between the most and least fragmented
+    incoming population, per mechanism. A <code>z</code> below about 2 is not a signal.
+    It is reported as a z rather than a p-value on purpose: this is one comparison from
+    an exploratory design, and a p-value would imply a pre-registration that does not exist.
+  </p>
+  <div class="tablewrap" id="contrast-table"></div>
+
+  <div class="card warn">
+    <p class="ptitle">What these runs cannot tell you</p>
+    <p style="margin:0">
+      One value each of migration share, cultural distance, drift rate, conformity
+      strength, network configuration and neighbourhood size. The fragmentation
+      hypothesis in the registry concerns the <em>probability</em> that an incoming
+      culture becomes dominant — that happened zero times here, and estimating a rate
+      would take hundreds of runs per cell rather than twenty.
+    </p>
+  </div>
+</div></section>
+
+<!-- =========================================================== RETRACTED -->
+<section class="page" id="p-retracted" role="tabpanel"><div class="wrap">
+  <h2>What was retracted</h2>
+  <p class="sub">
+    Two findings this instrument produced, wrote up, and then overturned with its own
+    later runs. They are kept here because the reasons they were wrong are more useful
+    than the findings would have been, and because a research instrument that only shows
+    its successes is not showing its work.
+  </p>
+
+  <div class="card">
+    <p class="ptitle"><span class="tag retracted">Retracted</span> &nbsp;A sharp threshold in long-range interaction</p>
+    <p style="margin:0 0 10px" class="strike">
+      Below roughly 0.2% of encounters being with strangers, neighbourhood cultures persist
+      indefinitely; above 0.75%, the city homogenises completely. A critical region, with
+      between-run variance peaking inside it.
+    </p>
+    <p style="margin:0 0 8px"><strong>Why it was wrong.</strong>
+      Extending the runs showed there is no threshold — only a difference in <em>how long</em>
+      the collapse takes. What had been located was the boundary at which collapse happened
+      to fall inside a 2,000-year observation window at one population size. A property of
+      the horizon, not of the model.
+    </p>
+    <p style="margin:0;color:var(--rf-muted)">
+      Two runs held about thirty distinct cultures for <strong>1,600 simulated years</strong> —
+      stable, with diversity drifting slightly <em>upward</em> — and then collapsed to one.
+      Anyone reporting the state at year 1,000 would have reported a robust multicultural
+      equilibrium and been wrong.
+    </p>
+  </div>
+
+  <div class="card">
+    <p class="ptitle"><span class="tag retracted">Retracted</span> &nbsp;Monoculture is the only long-run outcome</p>
+    <p style="margin:0 0 10px" class="strike">
+      Every configuration in which the city forms one connected component collapses to a
+      single culture. Only exact disconnection sustains diversity.
+    </p>
+    <p style="margin:0 0 8px"><strong>Why it was wrong.</strong>
+      It was conditional on a cultural drift rate of exactly zero — a default inherited
+      from the rule family rather than chosen by anyone. Turn drift up and the collapse
+      stops entirely. Nobody had examined the default, which is precisely the failure the
+      project's assumption registry exists to catch, and it was caught late.
+    </p>
+  </div>
+
+  <div class="card quiet">
+    <p class="ptitle">And one result discarded before publication</p>
+    <p style="margin:0">
+      A first version of the comparison on the Results tab was run at a higher drift rate
+      and produced a dramatic effect. A control — the same model with <em>no interaction
+      whatsoever</em> — reproduced it. The arm was measuring the noise floor, so that
+      attempt was discarded rather than reported. Every result now has to state whether it
+      is transmission-dominated or drift-dominated.
+    </p>
+  </div>
+
+  <h2>What survived</h2>
+  <p class="sub">
+    The hazard, which generalises well past the parameter that produced it: a finite
+    observation window can present a plateau as an equilibrium. Every outcome this project
+    was built to study — multicultural equilibrium, integration, fragmentation — is exposed
+    to it, and so is any migration threshold. Every run now records whether it reached an
+    absorbing state, tracked by counting actual trait changes rather than by watching
+    whether the summary statistics stopped moving. They stopped moving for 1,600 years
+    while the traits underneath them did not.
+  </p>
+</div></section>
+
+<!-- ============================================================== METHOD -->
+<section class="page" id="p-method" role="tabpanel"><div class="wrap">
+  <h2>Method, in brief</h2>
+  <p class="sub">
+    Full specification, parameters, simplifications and validation status are on the
+    <a href="methods.html">methods page</a>. This is the shape of it.
+  </p>
+
+  <div class="grid2">
+    <div class="card">
+      <p class="ptitle">Culture</p>
+      <p style="margin:0">
+        A vector of categorical features, each holding one of several traits. Cultural
+        distance is the fraction of features on which two people differ. Culture is a
+        separate, mutable array from where a person came from — no mechanism is permitted
+        to branch on origin, so "ancestry is not culture" is a property of the code rather
+        than a sentence in a readme.
+      </p>
+    </div>
+    <div class="card">
+      <p class="ptitle">Population share is not influence</p>
+      <p style="margin:0">
+        They are different objects. The runs here use a model in which they coincide — but
+        as the output of a named, replaceable null, with the gap between them measured
+        every run, rather than as an unexamined identity.
+      </p>
+    </div>
+    <div class="card">
+      <p class="ptitle">The city</p>
+      <p style="margin:0">
+        Households, neighbourhoods, workplaces and a weak tail of encounters with
+        strangers, each supplying interaction partners in proportion to a weight. Those
+        weights are invented. One of them turned out to govern the entire outcome.
+      </p>
+    </div>
+    <div class="card">
+      <p class="ptitle">Time</p>
+      <p style="margin:0">
+        Simulation step, simulated year and generation are kept distinct and are never
+        interchangeable. Migration is expressed in years because that is how migration is
+        reported; interaction happens per step.
+      </p>
+    </div>
+  </div>
+
+  <h2>No outcome is named in the instrument</h2>
+  <p class="sub">
+    There is no assimilation index and no transformation threshold anywhere in the
+    engine — a test enforces it. Those are regions of a measured space whose boundaries
+    are the open question, and an instrument that sorts runs into them cannot discover
+    where they lie, only restate its own definitions.
+  </p>
+
+  <h2>Reproducibility</h2>
+  <p class="sub">
+    A run is identified by model version, configuration hash and seed. The same three
+    reproduce the same result, verified across two Python and NumPy versions, and every
+    run directory carries a hash over its scientific content that excludes timestamps and
+    paths. The engine runs headless; this page never runs the model, it reads what the
+    model stored.
+  </p>
+</div></section>
+
+<!-- ========================================================== PROVENANCE -->
+<section class="page" id="p-provenance" role="tabpanel"><div class="wrap">
+  <h2>Provenance</h2>
+  <p class="sub">
+    Every figure on this page was generated from the run directories listed below by
+    <code>analysis/export_web_data.py</code>. There is no second implementation of the
+    model in this page and no network request; regenerating from a new batch is the only
+    supported way to change what it shows.
+  </p>
+
+  <h3>The batch</h3>
+  <div class="tablewrap"><table><tbody id="prov-spec"></tbody></table></div>
+
+  <h3>Assumptions that decide these numbers</h3>
+  <p class="sub">
+    The full registry runs to thirty-one entries with justification, expected effect and
+    a sensitivity requirement each. These five are the ones that would most change what
+    you see above.
+  </p>
+  <div class="tablewrap"><table><tbody id="prov-assumptions"></tbody></table></div>
+
+  <h3>Every run behind the figures</h3>
+  <div class="tablewrap" id="prov-runs" style="max-height:420px;overflow-y:auto"></div>
+</div></section>
+
+<footer class="foot"><div class="wrap" style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;width:100%">
+  <div><a href="../index.html">← All instruments</a></div>
+  <div><a href="methods.html">Methods &amp; limitations →</a></div>
+  <div>Candice Cantrelle · 2026</div>
+</div></footer>
+
+<script src="culture-flux.data.js"></script>
+<script src="js/config.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/screens.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -7,7 +7,7 @@ were run before any pre-registered analysis plan exists, so nothing here may be
 reported as a finding, and every number below should be expected to move.
 
 Model versions 0.2.0-homophily (P-1 to P-3), 0.3.0-structure (P-4, P-5) 0.4.0-metastability (P-6)
-0.5.0-two-rules (P-7 to P-9). Rule: `axelrod_homophily` as specified in
+0.5.0-two-rules (P-7 to P-10). Rule: `axelrod_homophily` as specified in
 `dynamics/homophily.py` (assumption A-016), batched update scheme (A-017),
 uniform influence (A-009), well-mixed network (A-010).
 
@@ -483,6 +483,64 @@ estimate one.
 So: a pilot pointing at a design, not a result. But it is the first time the
 instrument has been asked its own central question and returned an answer, and
 the answer was "no effect, under either mechanism".
+
+---
+
+## P-10 — The design, executed
+
+**No longer a pilot.** P-9's four-seed comparison specified a design; this is that
+design run at full replication. 240 runs, 0 failures, 8,786 s of compute:
+three mechanisms × K ∈ {1, 2, 4, 10} × 20 seeds, all sharing a baseline and
+scenario key so every arm faces a byte-identical city and byte-identical arrivals.
+Configuration: `configs/sweeps/rq2_three_arm.json`. Compositional baseline 0.850.
+
+| mechanism | K=1 | K=2 | K=4 | K=10 | sd |
+|---|---|---|---|---|---|
+| null (control) | 0.8501 | 0.8501 | 0.8501 | 0.8501 | 0.0000 |
+| homophilous copying | 0.6959 | 0.7364 | 0.7892 | 0.7070 | ~0.11 |
+| conformist | 0.9999 | 0.9999 | 0.9999 | 0.9999 | ~0.0001 |
+
+**Effect of K on retention (K=10 minus K=1):**
+
+| mechanism | difference | se | z |
+|---|---|---|---|
+| null | +0.0000 | 0.0000 | — (arithmetic) |
+| homophilous copying | +0.0111 | 0.0322 | 0.35 |
+| conformist | +0.0000 | 0.0000 | 0.88 |
+
+### Both P-9 findings hold at five times the replication
+
+1. **The mechanisms disagree about direction, by a lot.** Homophily lands 0.15
+   *below* the compositional baseline; conformist transmission lands 0.15 *above* it,
+   at near-total assimilation of the arrivals. The gap between the two mechanisms is
+   0.30 — an order of magnitude larger than anything the migration variables did.
+
+2. **Source count does nothing.** Under both active rules the K effect is well inside
+   noise. The homophily arm wobbles non-monotonically across K (0.696, 0.736, 0.789,
+   0.707), which is what a null looks like at sd ≈ 0.11 and se ≈ 0.03 — not a trend.
+
+**H0-1 is not rejected**, now with twenty seeds per cell. H1, H2 and H3 each predict a
+K effect and none appears.
+
+### The control arm's own behaviour is worth noticing
+
+The null arm returns 0.8501 with a standard deviation of **exactly zero** across all
+80 of its runs. That is the compositional arithmetic reproducing itself perfectly, and
+it is the sharpest available demonstration that the seeds, the arrivals and the city
+really are matched: if anything differed between conditions, this number would move.
+
+### What still limits it
+
+One value each of M, D, drift rate, conformity exponent, network configuration,
+arrangement and neighbourhood size. The conformist arm's variance is so small
+(sd ≈ 0.0001) that its parameter is almost certainly saturating the outcome — A-030
+says as much, and a saturated arm cannot show an effect of anything else. The
+fragmentation hypothesis remains untestable here: no incoming culture became dominant
+in any of the 240 runs.
+
+So the honest summary is that the *migration* variables are not where the action is in
+this model, and the thing that decides the outcome — the transmission mechanism — is
+the one thing the project has no evidence about.
 
 ---
 
