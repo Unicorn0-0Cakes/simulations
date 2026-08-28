@@ -1,0 +1,11 @@
+{
+  "name": "source-count-at-fixed-M",
+  "description": "The central contrast of the research programme, in its smallest form. Total incoming share is held at 0.30 in every condition; only the number of source cultures varies. Scenario 1 (K=1) is one incoming culture at 30%; scenario 4 (K=10) is ten at 3% each. Identical migration magnitude, different cultural information environment. Under the v0.1 null transmission rule these conditions will differ ONLY in composition metrics, which is the point: that difference is the baseline any transmission result must exceed.",
+  "base": "../baseline_v0.json",
+  "axes": {
+    "migration.source_count": [1, 2, 3, 10],
+    "migration.source_distribution": ["even"]
+  },
+  "replicates": 3,
+  "seed_start": 1
+}

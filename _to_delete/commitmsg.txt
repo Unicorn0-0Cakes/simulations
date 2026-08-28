@@ -1,0 +1,64 @@
+culture-flux v0.4.0-metastability: the equilibria are plateaus
+
+This release retracts the previous release's headline finding.
+
+v0.3 reported a sharp threshold in how much long-range interaction a city
+can sustain before homogenising. Extending the runs shows there is no
+threshold. Two seeds at N=1000 hold ~30 distinct cultures for 1,600
+simulated years -- stable, with richness drifting slightly upward -- and
+then collapse to a single culture within about 800 more. What v0.3 located
+was the boundary at which that collapse happens to fall inside a 2,000-year
+observation window at N=500. A property of the horizon, not of the model.
+
+Every connected configuration tested ends in monoculture. The parameters
+govern how long that takes. Only exact disconnection sustains diversity,
+and that is true by construction rather than by observation.
+
+The generalisation is the point, and it is a hazard rather than a result
+(A-028): every outcome state in the research brief -- multicultural
+equilibrium, integration, fragmentation -- and any migration threshold could
+be a horizon artefact in exactly the same way. Recorded in
+docs/research/pilot_notes.md as P-6, with P-5 marked partially retracted and
+its original entry kept as recorded.
+
+"The metrics stopped moving" is not evidence of equilibrium: cultural
+richness was flat while traits changed underneath it continuously. So:
+
+- every manifest now carries an `absorption` block -- absorbed, quiescent
+  years, quiescent fraction, and a confidence that is NEVER "certain" under
+  an active rule, because a long plateau can still break
+- absorption tracks TRAIT CHANGES, never metric stability, which is the
+  distinction P-6 turns on
+- the time series carries steps_since_last_change
+- no result may use "equilibrium", "stable" or "persists" unless the runs
+  behind it are absorbed
+
+L-Q13 answered. There is an established literature on exactly this: Klemm,
+Eguiluz, Toral & San Miguel (Phys Rev E 67, 026120, 2003); Flache & Macy
+(J Math Sociology 35, 146-176, 2011); Battiston, Nicosia, Latora & San
+Miguel (Sci Rep 7, 1809, 2017). Citations verified, contents not extracted.
+The network pilots are therefore replications, registered as internal
+validation target V-6 rather than as findings -- and V-6 is explicitly NOT
+marked reproduced, because resembling what a title suggests is not
+validation. S3's title indicates the multiplex ground is also taken; read it
+before designing further network work.
+
+Also:
+- sweeps are parallel and resumable. Resume never trusts a directory just
+  because it exists: a half-written run, a corrupt manifest or a manifest
+  from another model version is re-run. Serial and parallel execution
+  produce identical run hashes -- determinism comes from (seed, config)
+  alone, never from worker count or completion order.
+- every batch writes run_summary.csv (one row per run, swept parameters plus
+  every final metric) and batch_manifest.json, which lists failures
+  individually rather than only counting them
+- the CLI no longer tracebacks when piped to head
+- 263 tests (up from 244); 30 assumptions (up from 29)
+- MODEL_VERSION bumped, smoke hash re-pinned, verified identical on NumPy
+  2.2.6 and 2.4.4
+
+Phase 1 (literature extraction of the six-paper core corpus) remains skipped
+and outstanding. V-1 remains open.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01WrUcjv8jNXrSfSmMWdR8Bz

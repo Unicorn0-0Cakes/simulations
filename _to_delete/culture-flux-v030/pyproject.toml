@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "culture-flux"
+version = "0.3.0"
+description = "An experimental instrument for cultural dynamics under migration"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+# Storage. Without it, runs fall back to CSV and say so in the manifest.
+storage = ["pyarrow>=14.0"]
+# YAML configurations. JSON always works without it.
+yaml = ["pyyaml>=6.0"]
+# Analysis, from Phase 2 onward.
+analysis = ["polars>=0.20", "duckdb>=0.10", "scipy>=1.11", "statsmodels>=0.14", "matplotlib>=3.8"]
+# Networks, from Phase 3 onward, when structured layers arrive.
+networks = ["networkx>=3.0"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+culture-flux = "culture_flux.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error"]
