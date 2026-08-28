@@ -6,18 +6,31 @@ Design rules (see docs/model/ARCHITECTURE.md and docs/research/validation_strate
    between processes, so adding a new stochastic mechanism cannot shift the draws
    consumed by an existing one.
 
-2. Streams listed in ``BASELINE_STREAMS`` are seeded from the run seed and the
-   *baseline key* only. The baseline key is derived from the parts of the
-   configuration that define the pre-migration city (population size and culture
-   schema). Two runs that share a seed and a baseline key therefore start from a
-   byte-identical resident population, whatever their migration settings.
+2. Streams are seeded in three tiers, so that each experimental contrast holds
+   constant exactly what it should:
 
-   This is what makes the central comparison of the project valid: "30% arriving
-   as one culture" and "30% arriving as ten cultures" must differ only in the
-   incoming cultural environment, never in the city they arrive into.
+   ``BASELINE_STREAMS`` -- seed + baseline key (population size, culture schema).
+       Two runs sharing these start from a byte-identical resident population,
+       whatever else differs. This is what makes "30% arriving as one culture"
+       and "30% arriving as ten" a comparison of cultural environments rather
+       than of two different cities.
 
-3. All other streams are seeded from (seed, baseline_key, condition_key, stream)
-   and are free to diverge between conditions.
+   ``SCENARIO_STREAMS`` -- the above plus the scenario key (the migration
+       configuration). Two runs sharing these face the *same arrivals*: the same
+       source cultures, the same relative sizes, the same arrival schedule.
+       This is what makes "same migration, different transmission rule" a
+       controlled contrast -- which assumption A-016 requires, since no result
+       may rest on a single rule.
+
+   ``CONDITION_STREAMS`` -- the above plus the condition key (network, dynamics).
+       Free to diverge.
+
+   The tiers are nested: changing the network cannot perturb who arrived, and
+   changing migration cannot perturb the city they arrived into.
+
+3. Adding a stream name at the END of a tuple is safe -- existing stream indices
+   are unchanged, so old runs still replay. Inserting in the middle is not, and
+   requires bumping ``RNG_LAYOUT_VERSION``.
 
 4. The mapping from (seed, keys, stream name) to a Generator is pure and
    version-stamped (``RNG_LAYOUT_VERSION``), so a run can be replayed from its
@@ -42,20 +55,25 @@ BASELINE_STREAMS = (
     "resident_init",  # the initial resident population
 )
 
-#: Streams that may legitimately differ between experimental conditions.
-CONDITION_STREAMS = (
+#: Streams fixed by the migration scenario. Identical across runs that differ
+#: only in network or dynamics.
+SCENARIO_STREAMS = (
     "source_culture_gen",  # cultural profiles assigned to incoming source populations
     "source_shares",  # relative sizes of incoming source populations
     "migrant_init",  # individual migrant agents
-    "migration_schedule",  # arrival timing / stochastic rounding
-    "network_init",  # NOT USED IN v0.1 -- reserved so later layers do not shift draws
-    "network_rewire",  # NOT USED IN v0.1
-    "interaction",  # NOT USED IN v0.1 -- reserved for transmission dynamics
-    "vital_events",  # NOT USED IN v0.1 -- reserved for births/deaths/emigration
+    "migration_schedule",  # arrival timing / stochastic rounding / displacement
+)
+
+#: Streams that may legitimately differ between experimental conditions.
+CONDITION_STREAMS = (
+    "network_init",
+    "network_rewire",
+    "interaction",
+    "vital_events",  # reserved for births/deaths/emigration
     "misc",
 )
 
-ALL_STREAMS = BASELINE_STREAMS + CONDITION_STREAMS
+ALL_STREAMS = BASELINE_STREAMS + SCENARIO_STREAMS + CONDITION_STREAMS
 
 
 def _stream_index(name: str) -> int:
@@ -85,30 +103,50 @@ class RunRNG:
     baseline_key:
         Stable string describing the pre-migration city. Runs sharing
         (seed, baseline_key) share an identical resident population.
+    scenario_key:
+        Stable string describing the migration scenario. Runs sharing it face
+        identical arrivals.
     condition_key:
-        Stable string describing the experimental condition (migration,
-        dynamics, network settings...). Ignored by baseline streams.
+        Stable string describing network and dynamics settings.
     """
 
-    def __init__(self, seed: int, baseline_key: str = "", condition_key: str = "") -> None:
+    def __init__(
+        self,
+        seed: int,
+        baseline_key: str = "",
+        scenario_key: str = "",
+        condition_key: str = "",
+    ) -> None:
         seed = int(seed)
         if seed < 0:
             raise ValueError(f"seed must be non-negative, got {seed}")
         self.seed = seed
         self.baseline_key = baseline_key
+        self.scenario_key = scenario_key
         self.condition_key = condition_key
         self._baseline_int = key_to_int(baseline_key)
+        self._scenario_int = key_to_int(scenario_key)
         self._condition_int = key_to_int(condition_key)
         self._gens: dict[str, np.random.Generator] = {}
 
     def _make(self, name: str) -> np.random.Generator:
         idx = _stream_index(name)
         if name in BASELINE_STREAMS:
-            entropy = (self.seed, self._baseline_int, 0, idx, RNG_LAYOUT_VERSION)
+            entropy = (self.seed, self._baseline_int, 0, 0, idx, RNG_LAYOUT_VERSION)
+        elif name in SCENARIO_STREAMS:
+            entropy = (
+                self.seed,
+                self._baseline_int,
+                self._scenario_int,
+                0,
+                idx,
+                RNG_LAYOUT_VERSION,
+            )
         else:
             entropy = (
                 self.seed,
                 self._baseline_int,
+                self._scenario_int,
                 self._condition_int,
                 idx,
                 RNG_LAYOUT_VERSION,
@@ -131,6 +169,7 @@ class RunRNG:
         return {
             "seed": self.seed,
             "baseline_key": self.baseline_key,
+            "scenario_key": self.scenario_key,
             "condition_key": self.condition_key,
             "layout_version": RNG_LAYOUT_VERSION,
             "streams": {k: g.bit_generator.state for k, g in self._gens.items()},
@@ -144,8 +183,10 @@ class RunRNG:
             )
         self.seed = int(state["seed"])
         self.baseline_key = state["baseline_key"]
+        self.scenario_key = state.get("scenario_key", "")
         self.condition_key = state["condition_key"]
         self._baseline_int = key_to_int(self.baseline_key)
+        self._scenario_int = key_to_int(self.scenario_key)
         self._condition_int = key_to_int(self.condition_key)
         self._gens = {}
         for name, bg_state in state["streams"].items():
@@ -156,5 +197,6 @@ class RunRNG:
     def __repr__(self) -> str:  # pragma: no cover - debugging aid
         return (
             f"RunRNG(seed={self.seed}, baseline_key={self.baseline_key!r}, "
-            f"condition_key={self.condition_key!r}, touched={sorted(self._gens)})"
+            f"scenario_key={self.scenario_key!r}, condition_key={self.condition_key!r}, "
+            f"touched={sorted(self._gens)})"
         )

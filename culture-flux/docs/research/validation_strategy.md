@@ -22,7 +22,7 @@ The only one of the three currently in progress.
 
 ### What is verified
 
-263 invariant tests, all passing, run under warnings-as-errors. They test
+297 invariant tests, all passing, run under warnings-as-errors. They test
 scientifically meaningful properties, not that functions return without raising:
 
 **Determinism and provenance**
@@ -110,6 +110,38 @@ scientifically meaningful properties, not that functions return without raising:
   see A-017) and obey the same invariants.
 - The hybridisation placeholder still returns NaN even though novel profiles now
   exist and it would return a plausible number.
+
+**The conformist rule and the scenario tier (v0.5)**
+- Each regime is pinned to a distinguishing behaviour: conformity > 1 amplifies
+  an existing majority beyond its own frequency, conformity < 1 erodes it, and
+  conformity = 1 shows no systematic direction while the conformist case
+  demonstrably does.
+- An agent can never adopt a trait nobody it observed was carrying — `0 ** 0` is
+  1 in NumPy, which at conformity = 0 would otherwise conjure traits from nowhere.
+- Copying without drift introduces no new trait; a homogeneous population is
+  absorbing; resistance and zero transmission rate lock a feature exactly.
+- There is no similarity gate, unlike the homophily rule: agents with nothing in
+  common still influence each other. That is the substantive difference between
+  the two families and it is tested rather than asserted.
+- Influence weighting biases which traits are counted.
+- **RNG streams are seeded in three nested tiers.** Baseline streams ignore both
+  the scenario and the condition; scenario streams ignore the condition. So a
+  comparison across transmission rules faces a byte-identical city *and*
+  byte-identical arrivals — which is what makes the A-016 three-arm comparison a
+  controlled contrast rather than three different experiments. Tested in both
+  directions: the tiers must also *respond* to their own keys.
+
+**Cultural drift (v0.5)**
+- Drift can reintroduce a trait nobody held, breaking the copying-only invariant
+  deliberately and verifiably; zero drift preserves it exactly.
+- Drifting agents are drawn **without replacement** and the replacement trait
+  always differs, so `drift_rate` is the rate at which culture actually changes.
+  Measured: 4,997 changes against an expectation of 5,000.
+- Drift never produces an inadmissible trait, and works with interaction
+  switched off, so a drift-only model is meaningful rather than a silent no-op.
+- A drifting run reports `confidence: "no absorbing state"` rather than "not
+  absorbed" — a categorically different statement from "the run was too short",
+  and one that must not read the same way.
 
 **Absorption and metastability (v0.4)**
 - A null run reports certain absorption; an active run never does, at any length,

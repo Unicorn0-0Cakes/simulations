@@ -18,10 +18,9 @@ dominant cultural configuration?**
 - **Manipulated:** M ∈ [0, 0.6].
 - **Measured:** `resident_trait_retention`, `min_trait_persistence`,
   `dominant_profile_share`, and their trajectories.
-- **Answerable now?** Only compositionally. Under the null rule retention is
-  exactly `1 − M·D̄`, which is arithmetic, not a finding. This is the baseline
-  RQ1 must be reported against.
-- **Blocked on:** a transmission rule.
+- **Answerable now?** Yes, under two rules, against the compositional baseline.
+  Not yet swept over M.
+- **Watch for:** the drift regime (P-8). Above ~10⁻³ the answer is about noise.
 
 ---
 
@@ -40,8 +39,12 @@ cultures affect cultural transformation?**
 - **Confound to control:** K cannot be varied without also changing
   distance-between-sources unless `arrangement` is held fixed and reported —
   see A-006.
-- **Blocked on:** a transmission rule. Under the null, K affects composition
-  metrics only, in a way that is exactly predictable.
+- **First answer (pilot P-9, not a result):** no detectable effect, under either
+  transmission rule, at M = 0.30 / D = 0.50 / drift 10⁻⁴ with four seeds. H0-1 not
+  rejected. The mechanism mattered far more than K did.
+- **Now blocked on:** a proper design — more seeds, M and D swept, `arrangement`
+  crossed with K, and distributions rather than means (the homophily arm looks
+  bimodal at K = 4).
 
 ---
 
@@ -85,8 +88,10 @@ held constant?**
   same endpoint.
 - **Answerable now?** The null answer is proven: velocity has *no* effect on the
   endpoint, exactly (tested). Any velocity effect a future model shows is
-  therefore attributable to the mechanism, not to accounting.
-- **Blocked on:** a transmission rule and a decision on A-014 (arrival profiles).
+  therefore attributable to the mechanism, not to accounting. Not yet run under
+  an active rule.
+- **Blocked on:** a decision on A-014 (arrival profiles), and on the horizon
+  question — with drift there is no endpoint to compare (P-6, P-8).
 
 ---
 
@@ -123,8 +128,10 @@ badly.
   variance peaking at the same location — the standard signature of a critical
   region. Hysteresis would require running the parameter up and down, which
   requires path-dependent dynamics, which requires transmission.
-- **Blocked on:** a transmission rule, plus an analysis plan that does not yet
-  exist.
+- **Blocked on:** an analysis plan that does not yet exist — and on A-028, since
+  a design that cannot tell a plateau from an equilibrium cannot locate a
+  transition between states. Note that the one sharp transition the instrument
+  has produced so far (P-5) turned out not to be one.
 
 ---
 
@@ -134,8 +141,13 @@ Worth stating, because a negative answer to any of these is publishable and
 several are currently the *most likely* outcomes:
 
 - **RQ2-null.** Source count has no detectable effect on any outcome once M is
-  held constant. (H3 in the hypothesis registry predicts an effect in the
-  opposite direction to the intuitive one; the null is that neither happens.)
+  held constant. **This is currently the leading candidate** — pilot P-9 found
+  nothing under either rule. (H3 predicts an effect in the opposite direction to
+  the intuitive one; the null is that neither happens.)
+- **RQ-mechanism.** The transmission mechanism dominates every migration
+  variable. P-9's rules disagreed about the *direction* of the migration effect
+  by more than K moved anything. If that holds, the project's questions are
+  aimed at the wrong variable.
 - **RQ7-null.** Outcomes vary smoothly with parameters and no transition regions
   exist. A smooth response surface is a real finding about cultural dynamics and
   should be reported as one, not treated as a failed search.

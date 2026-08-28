@@ -895,6 +895,71 @@ as certain under an active rule, because a long plateau can still break.
 
 ---
 
+## A-029 — Drift is one undifferentiated mechanism
+
+**Description.** `drift_rate` covers copying error, individual innovation, and
+exogenous noise with a single parameter: per agent per step, one randomly chosen
+feature becomes a randomly chosen different trait.
+
+**Justification.** One parameter, and the module stays agnostic about which
+story it tells. Distinguishing them would require evidence about their relative
+magnitudes that no source has supplied.
+
+**Evidence.** None extracted. These are three different processes in the
+literature — error is proportional to transmission, innovation is a property of
+individuals, exogenous noise is a property of the environment — and collapsing
+them assumes they act alike.
+
+**Implementation.** `dynamics/drift.py::apply_drift`.
+
+**Expected effect.** Given P-7, large. The three components would scale
+differently with interaction rate: copying error would rise with it, innovation
+would not. A model that separated them could give a different answer to whether
+more interaction destroys or sustains diversity.
+
+**Uncertainty.** High, and it now sits directly beneath a load-bearing result.
+
+**Sensitivity test.** `required-later` — needs the components separated first.
+
+**Status.** `provisional`
+
+---
+
+## A-030 — Conformity, neutrality and anti-conformity are one parameter
+
+**Description.** The conformist rule adopts trait *t* with probability
+proportional to `f_t ** conformity`, so a single exponent spans anti-conformity
+(< 1), neutral unbiased transmission (= 1) and conformity (> 1).
+
+**Justification.** It makes the neutral case a *value* rather than a separate
+rule, which matters for the hypotheses: H2 claims the resident culture's
+advantage comes from a conformity asymmetry, so H2 predicts an effect that should
+vanish at `conformity = 1` and reverse below it. That is a directly testable
+structure, and it would not exist if conformity and anti-conformity were separate
+mechanisms.
+
+**Evidence.** The exponent form is conventional in cultural-evolution modelling;
+no source has been extracted, so the convention is being followed rather than
+justified. Open question L-Q3.
+
+**Implementation.** `dynamics/conformist.py`.
+
+**Expected effect.** The default of 3.0 is a strong bias, chosen to make the
+mechanism visible rather than to represent anything. Pilot P-9 shows it produces
+near-total assimilation (retention 0.9999 with zero variance across seeds), which
+is almost certainly too strong to be interesting: a parameter that saturates the
+outcome cannot show an effect of anything else.
+
+**Uncertainty.** High, and the default is probably wrong. Conformity should be
+swept before it is used, and 3.0 should not be treated as a reference value.
+
+**Sensitivity test.** `required`. Sweep conformity across the neutral point at
+minimum: {0.5, 1.0, 2.0, 3.0}.
+
+**Status.** `provisional`
+
+---
+
 ## Registry maintenance
 
 - A new assumption gets the next free ID. IDs are never reused.

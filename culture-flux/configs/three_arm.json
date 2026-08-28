@@ -1,0 +1,40 @@
+{
+  "name": "three-arm",
+  "description": "Base configuration for the comparison A-016 requires: the same city, the same arrivals, three mechanisms. drift_rate is set to 1e-4, in the transmission-dominated regime -- above ~1e-3 the homophily arm becomes indistinguishable from drift alone and measures the noise floor (pilot P-8). Every parameter is a placeholder.",
+  "seed": 1,
+  "schema_version": 3,
+  "population": {"initial_size": 500, "within_source_noise": 0.0},
+  "culture": {"features": 10, "traits_per_feature": 5, "distance_metric": "hamming"},
+  "migration": {
+    "mode": "addition",
+    "total_share": 0.30,
+    "source_count": 1,
+    "source_distribution": "single",
+    "cultural_distance": "medium",
+    "arrangement": "independent",
+    "start_year": 0.0,
+    "duration_years": 10.0,
+    "arrival_profile": "uniform"
+  },
+  "network": {
+    "layers": {
+      "neighbourhood": {"weight": 0.95, "target_size": 50},
+      "citywide": {"weight": 0.05}
+    },
+    "assignment": "random",
+    "clustering": 0.0,
+    "rewire_every_steps": 12
+  },
+  "dynamics": {
+    "transmission_rule": "null",
+    "rule_params": {
+      "axelrod_homophily": {"events_per_agent_per_step": 1.0, "update_scheme": "batched", "drift_rate": 0.0001},
+      "conformist": {"conformity": 3.0, "n_models": 5, "events_per_agent_per_step": 1.0, "drift_rate": 0.0001}
+    },
+    "influence_model": "uniform",
+    "influence_params": {}
+  },
+  "runtime": {"total_years": 1500.0, "steps_per_year": 12, "years_per_generation": 25.0, "measure_every_steps": 180},
+  "metrics": {"include": null, "include_placeholders": true},
+  "output": {"directory": "results", "write_final_population": false, "write_timeseries": true, "format": "auto"}
+}

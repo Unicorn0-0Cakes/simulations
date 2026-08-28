@@ -114,6 +114,36 @@ about a widely-assumed phenomenon.
 
 ---
 
+## Status against the pilots
+
+**Nothing below is a test.** These are exploratory runs at a single parameter
+point with four seeds, recorded so that a later pre-registered test cannot be
+mistaken for the first look. Every row is provisional and several are close to
+uninformative.
+
+| Hypothesis | Predicted | Pilot P-9 observed | Status |
+|---|---|---|---|
+| H1 Concentration | retention **rises** with K | +0.03 ± 0.06 (homophily); 0.00 (conformist) | not supported; not excluded |
+| H2 Diversity | retention **falls** with K | same | not supported; not excluded |
+| H3 Fragmentation | dominance-by-an-incoming-culture **falls** with K | untested — no incoming culture became dominant in any arm | **untestable at this parameter point** |
+| H4 Emergent synthesis | novel hybrid equilibrium at high K and interaction | untested — "hybrid" still undefined (A-012) | blocked |
+| **H0-1** K has no effect at fixed M | — | consistent with both rules | **not rejected** |
+
+Three things worth stating plainly:
+
+1. **H1 and H2 predict opposite signs and the pilot separates neither.** The
+   homophily estimate is +0.57 standard errors from zero. That is not weak
+   evidence for H1; it is no evidence about either.
+2. **H3 could not be tested.** It concerns the *probability* that an incoming
+   culture becomes dominant, and that happened zero times in 36 runs. Estimating
+   a rate needs hundreds of runs per condition, which the design must budget for.
+3. **The mechanism matters more than K did.** The two rules disagreed about
+   whether the resident culture erodes (homophily, 0.73) or absorbs the migrants
+   (conformist, 0.9999) against a compositional baseline of 0.850 — a much larger
+   effect than anything K produced. If that survives a proper design, the
+   headline is about transmission mechanism, not source diversity, and the
+   research questions would need reframing around it.
+
 ## Pre-registration discipline
 
 These hypotheses are recorded **before** any transmission mechanism exists, so

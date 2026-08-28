@@ -310,6 +310,38 @@ const CATALOGUE = [
 
     blurb: "Three societies of a hundred thousand people, five hundred years, the same disasters in each. A research instrument rather than a game — matched seeds, preregistered effect sizes, and a model built so that no single number is allowed to explain a person.",
     chips: ["Matched-seed design", "500 simulated years", "Real run data", "Reproducible & checksummed"]
+  },
+
+  /* ---------------------------------------------------------------- */
+  {
+    id: "culture-flux",
+    title: "Culture Flux",
+    href: "culture-flux/culture-flux.html",
+    methods: "culture-flux/methods.html",
+    preview: "cultureflux",
+    thumb: null,
+
+    domain: "Society",
+    mode: ["Infer", "Measure", "Observe"],
+    duration: "10\u201330 minutes",
+    complexity: "Advanced",
+    model: ["Agent-based", "Statistical"],
+    state: "Research preview",
+    evidence: "Uncalibrated prototype",
+    /* No `basis` field, deliberately. That badge names a documented source, and
+       this model's transmission mechanisms were specified in its own source code
+       rather than extracted from any paper \u2014 the reading step was skipped, and
+       naming a source here would be false. */
+
+    version: "0.5.0-two-rules",
+    updated: "Aug 2026",
+    flags: ["New", "Experimental"],
+
+    question: "Thirty per cent of a city arrives from elsewhere \u2014 does it matter whether they come from one culture or ten?",
+    role: "Read three mechanisms against a control arm in which nobody influences anybody, and judge whether any difference clears the noise.",
+
+    blurb: "Two hundred and forty stored runs of the same city under three assumptions about how people influence each other. The assumptions disagree about the direction of the effect \u2014 one erodes the resident culture, one absorbs the arrivals \u2014 while the thing the study was built to test, the number of incoming cultures, does nothing at all. An instrument that has retracted two of its own findings and kept the retractions.",
+    chips: ["Control arm always shown", "Matched seeds across mechanisms", "240 stored runs", "Two findings retracted"]
   }
 ];
 

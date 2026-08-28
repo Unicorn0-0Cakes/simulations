@@ -9,6 +9,9 @@ build/
 dist/
 *.egg-info/
 
+# Transfer archives should never live inside the project tree.
+*.tar.gz
+
 # Run output. Manifests and configs are small and reproducible; the runs
 # themselves are regenerable from them, so they are not tracked by default.
 results/*

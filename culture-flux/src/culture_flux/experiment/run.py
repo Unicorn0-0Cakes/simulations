@@ -114,6 +114,7 @@ class ExperimentRun:
         self.rng = RunRNG(
             seed=self.seed,
             baseline_key=config.baseline_key,
+            scenario_key=config.scenario_key,
             condition_key=config.condition_key,
         )
         self.schema = CultureSchema.uniform(config.culture.features, config.culture.traits_per_feature)
@@ -351,6 +352,7 @@ class ExperimentRun:
             "run_hash": kw["run_hash"],
             "config_hash": cfg.config_hash,
             "baseline_key": cfg.baseline_key,
+            "scenario_key": cfg.scenario_key,
             "condition_key": cfg.condition_key,
             "seed": self.seed,
             "experiment_name": cfg.name,
@@ -368,6 +370,7 @@ class ExperimentRun:
                 last_change_step=kw["last_change_step"],
                 steps_per_year=cfg.runtime.steps_per_year,
                 changes_culture=self.rule.changes_culture,
+                drift_rate=float(getattr(self.rule, "drift_rate", 0.0)),
             ),
             "dynamics": {
                 "transmission_rule": self.rule.describe(),
@@ -415,7 +418,12 @@ class ExperimentRun:
 
 
 def _absorption_report(
-    *, total_steps: int, last_change_step: int, steps_per_year: int, changes_culture: bool
+    *,
+    total_steps: int,
+    last_change_step: int,
+    steps_per_year: int,
+    changes_culture: bool,
+    drift_rate: float = 0.0,
 ) -> dict:
     """Whether the run ended in an absorbing state, and how confidently.
 
@@ -435,6 +443,23 @@ def _absorption_report(
             "reason": "null transmission rule: no change is possible by construction",
             "quiescent_years": total_steps / steps_per_year,
             "confidence": "certain",
+        }
+    if drift_rate > 0:
+        # With drift there is NO absorbing state, so "not absorbed" here means
+        # something categorically different from "the run was too short". Saying
+        # so prevents the two being read the same way.
+        return {
+            "absorbed": False,
+            "reason": (
+                f"drift_rate={drift_rate:g}: no absorbing state exists, because culture "
+                "is continually regenerated. Judge stationarity from the metric "
+                "trajectory, not from absorption."
+            ),
+            "quiescent_years": (total_steps - last_change_step) / steps_per_year,
+            "quiescent_fraction_of_run": (total_steps - last_change_step) / total_steps
+            if total_steps
+            else 0.0,
+            "confidence": "no absorbing state",
         }
     quiescent_steps = total_steps - last_change_step
     quiescent_years = quiescent_steps / steps_per_year

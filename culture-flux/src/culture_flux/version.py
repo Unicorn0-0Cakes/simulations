@@ -8,10 +8,10 @@ model versions.
 
 from __future__ import annotations
 
-MODEL_VERSION = "0.4.0-metastability"
+MODEL_VERSION = "0.5.0-two-rules"
 
 # Bump when the RNG stream layout changes in a way that breaks replay.
-RNG_LAYOUT_VERSION = 1
+RNG_LAYOUT_VERSION = 2
 
 # Bump when the on-disk output schema changes.
 OUTPUT_SCHEMA_VERSION = 1

@@ -15,7 +15,7 @@ that difference matters is what this instrument exists to find out.
 
 ---
 
-## Status: v0.4.0-metastability — the equilibria are plateaus
+## Status: v0.5.0-two-rules — the mechanism matters more than the migration
 
 **Read this before using any result.** The model now has an active transmission
 rule, `axelrod_homophily`. It is a rule *in the family* Axelrod (1997)
@@ -30,40 +30,53 @@ The null rule remains and remains mandatory: retention under it is exactly
 any result. A rule that reproduces the plane is reproducing arithmetic.
 `configs/sweeps/null_vs_homophily.json` runs both arms by construction.
 
-**The most important thing found so far is a hazard, not a result.**
+The model now has two transmission rules from different families, and they
+**disagree about the direction of the migration effect**.
 
-Two cultural configurations held ~30 distinct cultures for **1,600 simulated
-years** — stable, with richness even drifting slightly upward — and then
-collapsed to a single culture. Both seeds. Anyone reporting the year-1,000 state
-of those runs would have reported a robust multicultural equilibrium and been
-wrong.
+Same city, same arrivals, same seeds, M = 0.30, compositional baseline 0.850:
 
-That retracted this project's own previous headline. v0.3 reported a sharp
-threshold in how much long-range interaction a city can sustain; extending the
-runs showed it was the boundary at which collapse happened to fall inside the
-observation window. There is no threshold — there is a plateau whose *duration*
-depends on the parameters. Every connected configuration tested ends in
-monoculture. Only exact disconnection sustains diversity, and that is true by
-construction rather than by observation.
+| mechanism | resident-culture retention |
+|---|---|
+| null (composition only) | 0.850 |
+| homophilous copying | 0.73 — residents pulled towards the migrants |
+| conformist transmission | 0.9999 — migrants almost entirely assimilated |
 
-**"The metrics stopped moving" is not evidence of equilibrium.** Cultural
-richness was flat while traits changed underneath it continuously. So absorption
-is now tracked by trait changes, written into every manifest, and never reported
-as certain under an active rule.
+A single-rule study here would have been confidently wrong in whichever direction
+its author happened to pick. Assumption **A-016** required two rules before any
+result; this is what that requirement was for.
 
-This generalises past the parameter that produced it: every outcome state in the
-research brief — multicultural equilibrium, integration, fragmentation — and any
-migration threshold could be a horizon artefact in exactly the same way.
+**And the project's central question returned a null.** Holding total migration
+constant and splitting the incoming population into ten cultures instead of one
+made no detectable difference to retention under *either* rule: +0.011 ± 0.032
+(z = 0.35) and +0.0000 (z = 0.88), across 240 runs at 20 seeds per cell. That is
+H0-1, and it contradicts H1, H2 and H3 alike. Still one point in a
+six-dimensional parameter space — but it is a designed comparison, not a pilot.
 
-Details in [docs/research/pilot_notes.md](docs/research/pilot_notes.md)
-(P-4 to P-6). **L-Q13 is answered:** this is established territory — Klemm et al.
-(2003), Flache & Macy (2011), Battiston et al. (2017) — so the network pilots are
-replications, and are registered as validation target V-6 rather than as findings.
+**The mechanism moved the outcome far more than the source diversity did.** If
+that survives a proper design, the research questions are aimed at the wrong
+variable.
+
+Two hazards found along the way, both of which retracted earlier headlines of
+this project:
+
+* **A plateau can look exactly like an equilibrium** (A-028). Two runs held ~30
+  cultures for 1,600 years, richness drifting slightly *upward*, then collapsed.
+  That retracted v0.3's "sharp threshold", which turned out to be the boundary at
+  which collapse fell inside the observation window.
+* **Above a drift rate of ~10⁻³ the homophily rule is indistinguishable from
+  drift alone** (P-8). A first attempt at the comparison above ran there and was
+  measuring the noise floor. Every result must state its regime.
+
+Details in [docs/research/pilot_notes.md](docs/research/pilot_notes.md) (P-1 to
+P-9). **L-Q13 is answered:** the network results are established territory — Klemm
+et al. (2003), Flache & Macy (2011), Battiston et al. (2017) — so those pilots are
+replications registered as validation target V-6. **S5 is the priority read:** its
+title points the opposite way from what pilot P-7 observed about drift.
 
 | | Declared | Implemented |
 |---|---|---|
 | Agent attributes | 19 | 5 |
-| Transmission rules | 7 | 2 (null, homophily) |
+| Transmission rules | 7 | 3 (null, homophily, conformist) |
 | Sweep execution | — | parallel, resumable |
 | Network layers | 5 | **5** |
 | Influence models | — | 2 (uniform, network degree) |
@@ -104,6 +117,22 @@ usually bring to this topic:
 
 ---
 
+## The instrument page
+
+`culture-flux.html` is a self-contained results explorer — real output from the
+stored runs, embedded at build time, with no second implementation of the model
+and no network access. Open it in any browser. Regenerate it from stored output
+with:
+
+```bash
+python3 -m culture_flux.cli sweep configs/sweeps/rq2_three_arm.json \
+        --out results/rq2 --workers 0
+python3 analysis/export_web_data.py --batch results/rq2
+```
+
+See `USER_MANUAL.md` for how to read it, and `methods.html` for the full
+specification, parameters and validation status.
+
 ## Quick start
 
 ```bash
@@ -131,7 +160,7 @@ python3 -m culture_flux.cli sweep configs/sweeps/source_count_at_fixed_M.json --
 python3 -m culture_flux.cli sweep configs/sweeps/null_vs_homophily.json \
         --out results/batch-1 --workers 0
 
-# the invariant suite (263 tests)
+# the invariant suite (297 tests)
 python3 tests/run_tests.py        # no dependencies
 pytest                            # if pytest is installed
 ```
@@ -150,15 +179,22 @@ back to CSV when pyarrow is absent and says so in the manifest.
 
 ## The central contrast
 
-`configs/sweeps/source_count_at_fixed_M.json` is the research question in its
-smallest form: total incoming share fixed at 0.30, source count varying over
-{1, 2, 3, 10}. Identical migration magnitude, different cultural environment.
+`configs/sweeps/rq2_three_arm.json` is the research question as a design: total
+incoming share fixed at 0.30, source count varying over {1, 2, 4, 10}, run under
+all three mechanisms on matched seeds.
 
-For that contrast to be valid, the cities being compared must be identical. They
-are, by construction: RNG streams for the pre-migration population are seeded
-from the run seed and a *baseline key* that excludes all migration settings, so
-two runs sharing a seed have byte-identical resident populations whatever their
-migration configuration. This is tested directly, not assumed.
+For that contrast to be valid, three things must be held identical, and RNG
+streams are seeded in three nested tiers to guarantee each:
+
+| tier | held constant across | guarantees |
+|---|---|---|
+| **baseline key** | any change to migration, network or dynamics | a byte-identical pre-migration city |
+| **scenario key** | any change to network or dynamics | byte-identical arrivals: same source cultures, sizes, schedule |
+| **condition key** | — | free to diverge |
+
+So "same M, different K" compares cultural environments rather than two different
+cities, and "same migration, different rule" compares mechanisms rather than two
+different migrations. Both are tested directly, not assumed.
 
 ---
 
@@ -179,13 +215,13 @@ src/culture_flux/
   migration/     source composition and geometry, arrival accounting
   influence/     cultural influence, separate from population share
   networks/      household, neighbourhood, workplace, attention ties, citywide
-  dynamics/      transmission rules (null + homophilous trait copying)
+  dynamics/      transmission rules (null, homophilous copying, conformist) + drift
   metrics/       diversity indices, outcome metrics, registry
   experiment/    configuration, run, sweep
   io/            manifests, writers, run directories
   cli.py
-configs/         smoke (json + yaml), three reference baselines, four sweeps
-tests/           263 invariant tests + a dependency-free runner
+configs/         smoke (json + yaml), four reference baselines, five sweeps
+tests/           297 invariant tests + a dependency-free runner
 results/         run output (gitignored)
 notebooks/       analysis (empty — nothing worth analysing yet)
 ```
@@ -194,18 +230,21 @@ notebooks/       analysis (empty — nothing worth analysing yet)
 
 ## Where the assumptions are
 
-Thirty registered in
+Thirty-one registered in
 [docs/research/assumption_registry.md](docs/research/assumption_registry.md),
 each with justification, implementation location, expected effect, uncertainty
 and whether a sensitivity analysis is required before publication. The ones most
 likely to change conclusions:
 
+- **A-016** the transmission rule was specified without the literature — and
+  pilot P-9 shows the rule choice dominates every migration variable
 - **A-028** a finite horizon may report a plateau as an equilibrium — the hazard
   that retracted this project's own previous headline
+- **A-018** no innovation, now parameterised: the drift rate decides whether
+  monoculture is inevitable, and above ~10⁻³ it decides everything
 - **A-019** how encounters divide across social settings — the weak-tie weight
   governs how long diversity lasts, and the default sits in the fast-collapse
   regime
-- **A-016** the transmission rule was specified here, not extracted from any paper
 - **A-027** connectivity, not locality, is what determines whether diversity
   persists — recorded as a finding that constrains interpretation
 - **A-018** no innovation, error or drift: traits are only ever copied, so

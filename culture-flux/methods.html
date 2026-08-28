@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Methods — Culture Flux</title>
+<meta name="description" content="Methods and limitations for Culture Flux: source, rules, parameters, simplifications, what it cannot establish, validation status and version history.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/orbital.css">
+<link rel="stylesheet" href="../assets/methods.css">
+<script src="../assets/orbital.js" data-title="Culture Flux" data-tag="Methods"></script>
+<script src="../assets/catalogue.js"></script>
+</head>
+<body>
+<a class="rf-skip" href="#s1">Skip to methods</a>
+<div class="wrap">
+  <header class="mhead">
+    <span class="rf-regmark rm-tl"></span>
+    <span class="rf-regmark rm-tr"></span>
+    <div class="kicker">Methods &amp; limitations</div>
+    <h1>Culture Flux</h1>
+    <p class="q">Thirty per cent of a city arrives from elsewhere — does it matter whether they come from one culture or ten?</p>
+    <div class="badges" id="badges"></div>
+    <div class="actions">
+      <a class="rf-btn primary" href="culture-flux.html">Run instrument</a>
+      <a class="rf-btn" href="../index.html#catalogue">All instruments</a>
+    </div>
+    <dl class="spec" id="spec"></dl>
+    <nav class="toc" aria-label="Sections">
+      <a href="#s1">01 Source</a><a href="#s2">02 Rules &amp; equations</a>
+      <a href="#s3">03 Parameters</a><a href="#s4">04 What is simplified</a>
+      <a href="#s5">05 What this cannot establish</a><a href="#s6">06 Validation</a>
+      <a href="#s7">07 Version history</a>
+    </nav>
+  </header>
+
+  <section id="s1"><h2><span class="idx">01</span> The source <span class="trail"></span></h2>
+    <div class="panel warn">
+      <p class="ptitle">There isn't one, and that is the most important thing on this page</p>
+      <p>
+        The transmission mechanisms in this model were <strong>specified in its own source
+        code</strong>. They were not extracted from any published paper. A reading corpus
+        was assembled at the start of the project and the extraction step was deliberately
+        skipped, at the operator's direction, in order to build the mechanism sooner.
+      </p>
+      <p style="margin-bottom:0">
+        This is registered in the project's assumption registry as <code>A-016</code> and
+        described there as the least-supported decision in the codebase. It is why this
+        page carries no <em>basis</em> badge: that badge names a documented source, and
+        naming one here would be false.
+      </p>
+    </div>
+
+    <h3>The corpus that was not read</h3>
+    <p>
+      Held in <code>docs/literature/literature_matrix.md</code> with citations verified —
+      venue, year and DOI checked against publisher pages — and every column describing
+      what the papers actually contain marked <code>NOT YET EXTRACTED</code>. Nothing in
+      this model derives from any of them.
+    </p>
+    <ul>
+      <li>Mesoudi, A. (2018). Migration, acculturation, and the maintenance of between-group cultural variation. <em>PLOS ONE</em> 13(10), e0205573.</li>
+      <li>Paolillo, R. &amp; Jager, W. (2020). Simulating acculturation dynamics between migrants and locals in relation to network formation. <em>Social Science Computer Review</em> 38(4), 365–386.</li>
+      <li>Axelrod, R. (1997). The dissemination of culture. <em>Journal of Conflict Resolution</em> 41(2), 203–226.</li>
+      <li>Erten, E. Y., van den Berg, P. &amp; Weissing, F. J. (2018). Acculturation orientations affect the evolution of a multicultural society. <em>Nature Communications</em> 9, 58.</li>
+      <li>Chuang, Y.-L., Chou, T. &amp; D'Orsogna, M. R. (2019). A network model of immigration. <em>Networks and Heterogeneous Media</em>.</li>
+      <li>Kunst, J. R. &amp; Mesoudi, A. (2025). Decoding the dynamics of cultural change. <em>Personality and Social Psychology Review</em> 29(2).</li>
+    </ul>
+
+    <h3>Prior art found afterwards</h3>
+    <p>
+      Two of this instrument's own findings turned out to sit inside an existing
+      literature, discovered only when they were checked before write-up. Both are
+      therefore treated as replications rather than results, and neither has been
+      compared quantitatively against the published work, because that work has not been
+      read either.
+    </p>
+    <ul>
+      <li>Klemm, K., Eguíluz, V. M., Toral, R. &amp; San Miguel, M. (2003). Nonequilibrium transitions in complex networks. <em>Phys. Rev. E</em> 67, 026120.</li>
+      <li>Klemm, K., Eguíluz, V. M., Toral, R. &amp; San Miguel, M. (2003). Global culture: a noise-induced transition in finite systems. <em>Phys. Rev. E</em> 67, 045101(R).</li>
+      <li>Flache, A. &amp; Macy, M. W. (2011). Small worlds and cultural polarization. <em>Journal of Mathematical Sociology</em> 35(1–3), 146–176.</li>
+      <li>Battiston, F., Nicosia, V., Latora, V. &amp; San Miguel, M. (2017). Layered social influence promotes multiculturality in the Axelrod model. <em>Scientific Reports</em> 7, 1809.</li>
+    </ul>
+    <p class="dim">
+      The second of these is the priority read: its title states that noise drives a
+      system <em>towards</em> a global culture, while this model observed drift
+      <em>sustaining</em> diversity. Either the title compresses a non-monotone result,
+      the noise enters differently, or this implementation is wrong. That is unresolved.
+    </p>
+  </section>
+
+  <section id="s2"><h2><span class="idx">02</span> Rules and equations <span class="trail"></span></h2>
+    <h3>Culture</h3>
+    <p>
+      An agent's culture is a vector of <em>F</em> categorical features, each holding one
+      of <em>Q</em> traits: <code>C = (c₁ … c_F)</code>. Cultural distance is the
+      normalised Hamming distance — the fraction of features on which two agents differ,
+      which is a true metric on this space and is verified as one in the test suite.
+      Provenance (<code>source_id</code>) is a separate, immutable array; no mechanism may
+      branch on it.
+    </p>
+
+    <h3>Migration</h3>
+    <p>
+      Migration share <em>M</em> is defined on the <strong>final</strong> population, so
+      the addition and replacement modes end at the same composition and a contrast
+      between them isolates whether residents left. Arrivals are allocated across source
+      cultures by largest remainder — deterministic, conserving the total exactly, error
+      bounded by one agent per source.
+    </p>
+    <p>
+      A source culture at target distance <em>d</em> differs from the resident profile on
+      <code>round(d·F)</code> features. Only multiples of <code>1/F</code> are achievable,
+      so the realised distance matrix is measured and stored with each run; analysis uses
+      the realised values, never the requested ones.
+    </p>
+
+    <h3>Transmission — the null</h3>
+    <p>
+      Nobody influences anybody. Retention is exactly <code>1 − M·D̄</code>. This arm is
+      permanent, not a placeholder: it is the control against which the others are read.
+    </p>
+
+    <h3>Transmission — homophilous copying</h3>
+    <p>
+      Per event: draw a focal agent; draw a partner through the multiplex network;
+      compute cultural overlap <code>ω = 1 − distance</code>; with probability
+      <code>ω · attention(partner)</code> the focal agent copies one feature on which they
+      differ. Overlap of zero blocks influence entirely, so cultural distance is
+      self-reinforcing and frozen configurations are reachable. Copying creates no new
+      traits.
+    </p>
+
+    <h3>Transmission — conformist</h3>
+    <p>
+      Per event: draw a focal agent; sample <em>n</em> models from its network
+      neighbourhood; choose one feature; adopt trait <em>t</em> with probability
+      proportional to <code>f_t^α</code>, where <code>f_t</code> is that trait's frequency
+      among the models. The exponent α spans anti-conformity (α&lt;1), neutral unbiased
+      transmission (α=1) and conformity (α&gt;1) continuously. There is no similarity gate.
+    </p>
+
+    <h3>Cultural drift</h3>
+    <p>
+      Per agent per step, with probability <code>δ</code>, one feature changes to a
+      different random trait. Without it, the set of traits present can only shrink and
+      monoculture is the sole absorbing state; with it, there is no absorbing state at all.
+      Drifting agents are drawn without replacement and the replacement trait always
+      differs, so <code>δ</code> is the rate at which culture changes rather than at which
+      a change is attempted.
+    </p>
+
+    <h3>The city</h3>
+    <p>
+      Household, neighbourhood and workplace layers assign each agent to one disjoint
+      group; a friendship layer gives each agent a fixed number of directed attention ties
+      that may rewire towards culturally similar agents; a citywide layer connects
+      everyone. Each interaction event picks a layer in proportion to its weight, then a
+      neighbour within it.
+    </p>
+
+    <h3>Measurement</h3>
+    <p>
+      Diversity indices are Hill numbers, so richness, exponentiated Shannon entropy and
+      inverse Simpson are one family and directly comparable. Segregation is Theil's
+      multi-group information index over residential units — chosen over the index of
+      dissimilarity because dissimilarity is defined for two groups and cultural profiles
+      are many, and collapsing them would require choosing which division matters.
+    </p>
+  </section>
+
+  <section id="s3"><h2><span class="idx">03</span> Parameters <span class="trail"></span></h2>
+    <p>
+      The values used for the runs on the instrument page. <strong>None is calibrated
+      against data.</strong> The "where it came from" column is the honest provenance;
+      each registry ID links to a full entry with justification, expected effect,
+      uncertainty and whether a sensitivity analysis is required before publication.
+    </p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Parameter</th><th>Value</th><th>Units</th><th>Where it came from</th></tr></thead>
+      <tbody id="params"></tbody>
+    </table></div>
+    <p class="dim">
+      Thirty-one assumptions are registered in <code>docs/research/assumption_registry.md</code>.
+      Six carry a <em>required</em> sensitivity analysis that has not yet been run.
+    </p>
+  </section>
+
+  <section id="s4"><h2><span class="idx">04</span> What is simplified <span class="trail"></span></h2>
+    <div class="panel">
+      <p class="ptitle">No demography</p>
+      <p style="margin-bottom:0">
+        Nobody is born, ages, dies or leaves. Migration generation only ever takes the
+        values 0 and 1. Acculturation is usually studied across generations, and this
+        model cannot see that timescale at all.
+      </p>
+    </div>
+    <div class="panel">
+      <p class="ptitle">Cultural features are interchangeable</p>
+      <p style="margin-bottom:0">
+        Every feature has equal weight, equal transmission rate and no resistance. Real
+        cultures have cores and peripheries, and a model without them cannot represent
+        partial retention — someone keeping what matters and shedding what does not —
+        which is one of the outcomes the project was built to look for.
+      </p>
+    </div>
+    <div class="panel">
+      <p class="ptitle">Influence is uniform across people</p>
+      <p style="margin-bottom:0">
+        In these runs, everyone is equally likely to be copied, so group influence equals
+        group population share. A model that reads influence from network position exists
+        and was not used here. Any percentage threshold found under these runs is a
+        statement about a world where influence is uniform.
+      </p>
+    </div>
+    <div class="panel">
+      <p class="ptitle">Group membership is single and fixed</p>
+      <p style="margin-bottom:0">
+        One household, one neighbourhood, one workplace, never changing. Arrivals are
+        placed at random — real migration is strongly chain-structured, and random
+        placement makes enclaves <em>harder</em> to obtain, which is the conservative error.
+      </p>
+    </div>
+    <div class="panel">
+      <p class="ptitle">One undifferentiated noise term</p>
+      <p style="margin-bottom:0">
+        Copying error, individual innovation and exogenous change are one parameter.
+        They would scale differently with interaction rate, and a model separating them
+        could answer differently.
+      </p>
+    </div>
+    <div class="panel">
+      <p class="ptitle">No economics, politics, institutions, media or law</p>
+      <p style="margin-bottom:0">
+        Nothing constrains anybody except who they meet. Discrimination, legal status and
+        residential steering are all real mechanisms and none is present — and because no
+        mechanism may branch on origin, adding them would require an explicit treatment
+        layer rather than a quiet coupling.
+      </p>
+    </div>
+  </section>
+
+  <section id="s5"><h2><span class="idx">05</span> What this cannot establish <span class="trail"></span></h2>
+    <div class="panel warn">
+      <p class="ptitle">Nothing about any real population</p>
+      <p style="margin-bottom:0">
+        No output has ever been compared against data from any real city, and no parameter
+        is fitted to anything. Every statement this instrument supports takes the form
+        "conditional on these assumptions, the model does X". It cannot say what migration
+        does to a place.
+      </p>
+    </div>
+    <p><strong>It cannot say which transmission mechanism is right.</strong> The two
+      implemented rules disagree about the <em>direction</em> of the migration effect. The
+      model has no way to adjudicate between them; that is an empirical question about
+      people, and it was skipped.</p>
+    <p><strong>It cannot report an equilibrium from a finite run.</strong> Two runs held a
+      stable-looking cultural configuration for 1,600 simulated years before collapsing.
+      Absorption is now recorded per run, and confidence is never reported as certain
+      while a transmission rule is active.</p>
+    <p><strong>It cannot estimate the probability of an outcome.</strong> The
+      fragmentation hypothesis concerns how often an incoming culture becomes dominant.
+      That happened zero times in 240 runs. Estimating a rate needs hundreds of runs per
+      condition.</p>
+    <p><strong>It cannot yet distinguish a null result from an underpowered one.</strong>
+      The central finding — that the number of incoming cultures does not matter — rests
+      on twenty seeds at one point in a six-dimensional parameter space.</p>
+    <p><strong>It cannot claim novelty.</strong> Its two network findings were located
+      inside an existing literature after the fact.</p>
+  </section>
+
+  <section id="s6"><h2><span class="idx">06</span> Validation status <span class="trail"></span></h2>
+    <p>
+      Three kinds of validation are kept separate here, because conflating them is the
+      usual way simulation work overclaims.
+    </p>
+
+    <h3>Verification — does the code implement the stated rules? <span class="v">Substantially complete</span></h3>
+    <p>
+      297 invariant tests, all passing under warnings-as-errors. They test scientifically
+      meaningful properties rather than that functions return:
+    </p>
+    <ul>
+      <li>Cultural distance satisfies the metric axioms — identity, symmetry, boundedness, triangle inequality — and treats categorical traits as unordered.</li>
+      <li>Diversity indices match their closed forms: fractionalisation is exactly 1−1/k for k even categories, Hill numbers recover richness, exp-Shannon and inverse Simpson, and are non-increasing in order.</li>
+      <li>Migration accounting conserves totals exactly at every size tested; population never goes negative, including at 95% replacement.</li>
+      <li>Retention under the null equals <code>1 − M·D</code> to machine precision — the compositional arithmetic, verified analytically rather than asserted.</li>
+      <li>Copying introduces no trait nobody held; zero overlap blocks influence exactly; a homogeneous population is absorbing.</li>
+      <li>Identical seed and configuration reproduce identical results, verified across Python 3.10/NumPy 2.2.6 and Python 3.11/NumPy 2.4.4, and pinned as a regression tripwire.</li>
+      <li>Serial and parallel sweep execution produce identical run hashes: determinism comes from seed and configuration alone, never from worker count or completion order.</li>
+      <li>No metric name encodes an outcome category or a threshold — enforced by a test, so the instrument cannot prejudge its own question.</li>
+    </ul>
+    <p class="dim">Not verified: the parquet writer, behaviour above 20,000 agents, a second CPU architecture.</p>
+
+    <h3>Internal validation — does it behave like its predecessors? <span class="vno">Open</span></h3>
+    <p>
+      Three targets are registered and <strong>none is closed</strong>. Two concern
+      behaviour that qualitatively resembles what the titles of published papers describe,
+      which is not validation — resembling what a title suggests is exactly the failure
+      the project's extraction protocol exists to prevent. Closing them requires reading
+      the papers.
+    </p>
+
+    <h3>Empirical validation — does it correspond to reality? <span class="vno">Not started</span></h3>
+    <p>
+      Not started, and not appropriate to start. The preconditions are recorded: a
+      validated mechanism, the required sensitivity analyses run, a target observable named
+      in advance, and a statement of what the model would have to produce to be wrong.
+      There is also a deeper obstacle — no real dataset measures cultural-profile
+      distributions over synthetic features, so any comparison needs a much coarser
+      observable, and choosing one is itself unscheduled research.
+    </p>
+
+    <div class="panel">
+      <p class="ptitle">Why the badge reads "Uncalibrated prototype"</p>
+      <p style="margin-bottom:0">
+        That badge claims exactly two things: the model is internally consistent, and
+        nothing is fitted to data. Both hold, and the list above is the work behind the
+        first. It claims nothing about the mechanism being correct, which is just as well,
+        because that is unknown.
+      </p>
+    </div>
+  </section>
+
+  <section id="s7"><h2><span class="idx">07</span> Version history <span class="trail"></span></h2>
+    <div class="vhist">
+      <p><strong>0.5.0-two-rules</strong> — Aug 2026. Conformist transmission added as a
+        second mechanism family; cultural drift; random streams re-tiered so that a
+        comparison across mechanisms faces byte-identical arrivals as well as a
+        byte-identical city. First answer to the central question, and it is a null. The
+        two mechanisms disagree about the direction of the migration effect.</p>
+      <p><strong>0.4.0-metastability</strong> — Aug 2026. Retracted the previous release's
+        threshold: extended runs showed a 1,600-year plateau that then collapsed, so what
+        had been located was an observation horizon. Absorption tracking added, by counting
+        trait changes rather than watching whether summary statistics stopped moving.</p>
+      <p><strong>0.3.0-structure</strong> — Aug 2026. Household, neighbourhood, workplace
+        and attention-tie layers; segregation and modularity metrics; network-degree
+        influence. Found that structure did not rescue cultural diversity — connectivity
+        does, and overlapping local groups are one connected component.</p>
+      <p><strong>0.2.0-homophily</strong> — Aug 2026. First transmission rule, chosen
+        without the literature and registered as such.</p>
+      <p><strong>0.1.0-skeleton</strong> — Aug 2026. Scientific skeleton: registries,
+        determinism, culture representation, metrics, experiment runner. No dynamics — the
+        null model only, as the permanent control arm.</p>
+    </div>
+  </section>
+
+  <footer class="mfoot">
+    <div><a href="../index.html">← All instruments</a></div>
+    <div><a href="culture-flux.html">Run Culture Flux →</a></div>
+    <div>Candice Cantrelle · 2026</div>
+  </footer>
+</div>
+
+<script>
+/* Badges and the spec block come from assets/catalogue.js so this page can
+   never disagree with the card that links to it. */
+(function () {
+  var s = byId("culture-flux");
+  if (!s) return;
+  document.getElementById("badges").innerHTML =
+    Orbital.evidenceBadge(s.evidence) + Orbital.basisBadge(s.basis) +
+    Orbital.stateBadge(s.state) + Orbital.flagChips(s.flags);
+  document.getElementById("spec").innerHTML = [
+    ["Domain", s.domain],
+    ["What you do", s.mode.join(", ")],
+    ["Duration", s.duration],
+    ["Difficulty", s.complexity],
+    ["Model type", s.model.join(" + ")],
+    ["Version", "v" + s.version + " · " + s.updated]
+  ].map(function (r) {
+    return "<div class=\"" + (r[2] || "") + "\"><dt>" + r[0] + "</dt><dd>" + r[1] + "</dd></div>";
+  }).join("");
+})();
+</script>
+<script src="culture-flux.data.js"></script>
+<script>
+/* The parameter table is generated from the same embedded run data as the
+   instrument page, so the two can never disagree about what was run. */
+(function () {
+  var d = DATA.design, rows = [
+    ["Population", d.population, "agents", "Convenience. Large enough for the metrics, small enough to run to convergence."],
+    ["Cultural features (F)", d.features, "count", "Convenience — A-013. Sets the resolution of cultural distance to 1/F."],
+    ["Traits per feature (Q)", d.traits, "count", "Convenience — A-013. Known to affect convergence in this model family."],
+    ["Migration share (M)", d.migration_share, "share of final population", "The manipulated variable. Defined on the final population — A-008."],
+    ["Cultural distance (D)", d.cultural_distance, "0–1", "A named preset; the label is convenience, the realised value is measured per run — A-007."],
+    ["Source cultures (K)", d.source_counts.join(", "), "count", "The central manipulation."],
+    ["Drift rate (δ)", d.drift, "per agent per step", "Chosen to sit in the transmission-dominated regime — above ~1e-3 the homophily arm becomes indistinguishable from drift alone."],
+    ["Conformity exponent (α)", d.conformity, "exponent", "Invented — A-030. Saturates the outcome and should be swept, not treated as a reference value."],
+    ["Simulated span", d.years, "years", "Long enough for the metrics to stabilise. Stability is not equilibrium — A-028."],
+    ["Replicates", d.replicates, "seeds per cell", "Sized for a mean, not for a rate."],
+    ["Layer weights", JSON.stringify(d.network), "share of encounters", "Invented — A-019. One of these governs the entire outcome."]
+  ];
+  document.getElementById("params").innerHTML = rows.map(function (r) {
+    return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td><td>" + r[3] + "</td></tr>";
+  }).join("");
+})();
+</script>
+</body>
+</html>
