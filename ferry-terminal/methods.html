@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Methods — Ferry Terminal</title>
+<meta name="description" content="Methods and limitations for the Ferry Terminal instrument: the bulk-service queue family, the two-component arrival mixture and the evidence that motivated it, lane-metre capacity, right-censored time to service and the Kaplan-Meier estimator, every parameter marked not established, validity domain, failure conditions and validation status.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/orbital.css">
+<link rel="stylesheet" href="../assets/methods.css">
+<script src="../assets/orbital.js" data-title="Ferry Terminal" data-tag="Methods"></script>
+<script src="../assets/catalogue.js"></script>
+</head>
+<body>
+<a class="rf-skip" href="#s1">Skip to methods</a>
+<div class="wrap">
+  <header class="mhead">
+    <span class="rf-regmark rm-tl"></span>
+    <span class="rf-regmark rm-tr"></span>
+    <div class="kicker">Methods &amp; limitations</div>
+    <h1>Ferry Terminal</h1>
+    <p class="q">How do vehicle arrival patterns and ferry loading policies jointly affect time to service, queue length, throughput, and missed departures at a small single-berth ferry terminal?</p>
+    <div class="badges" id="badges"></div>
+    <div class="actions">
+      <a class="rf-btn primary" href="ferry-terminal.html">Run instrument</a>
+      <a class="rf-btn" href="tests/model-tests.html">Run the model tests</a>
+      <a class="rf-btn" href="../index.html#catalogue">All instruments</a>
+    </div>
+    <dl class="spec" id="spec"></dl>
+    <nav class="toc" aria-label="Sections">
+      <a href="#s1">01 Source</a><a href="#s2">02 Rules &amp; equations</a>
+      <a href="#s3">03 Parameters</a><a href="#s4">04 What is simplified</a>
+      <a href="#s5">05 What this cannot establish</a><a href="#s6">06 Validation</a>
+      <a href="#s7">07 Version history</a>
+    </nav>
+  </header>
+
+  <!-- ================================================== 01 -->
+  <section id="s1"><h2><span class="idx">01</span> The source <span class="trail"></span></h2>
+
+    <h3>The research question</h3>
+    <p>
+      A single-berth ferry terminal is a queue that is not served continuously. Between departures nothing
+      happens; at a departure a whole batch leaves at once, or as much of it as fits. The question is how
+      the pattern of arrivals and the discipline used to load the deck jointly determine who waits, for how
+      long, and who does not sail at all.
+    </p>
+
+    <h3>The model family, and why this one</h3>
+    <p>
+      This is a discrete-event stochastic simulation of a <b>bulk-service queue</b> with deterministic
+      service epochs and finite batch capacity. That structure — service only at discrete epochs, a finite
+      batch, and carry-over of whoever did not fit — is the bulk-service queue of Bailey (1954), written
+      M<sup>X</sup>/M<sup>Y</sup>/1 in Kendall notation. A continuously available server cannot represent
+      carry-over or denied boarding at all, and denied boarding is not a detail here: Hanssen and colleagues
+      attribute about a fifth of observed terminal waiting to users unable to board their preferred
+      departure because the vessel was full.
+    </p>
+
+    <h3>The assumption that did not survive</h3>
+    <p>
+      The instrument was first specified with arrivals stationary and independent of the timetable. That
+      assumption was <b>rejected on published evidence</b> before anything was built. Hanssen, Jørgensen and
+      Larsen find that waiting time rises <i>concavely</i> with headway, which they read as fewer users
+      arriving at random as service becomes less frequent; Whitt documents that scheduled and
+      appointment-based systems are frequently <i>under-dispersed</i> relative to Poisson, with
+      variance-to-mean ratios around one half, and warns that lessons from the stationary model do not
+      necessarily carry over.
+    </p>
+    <p>
+      Rather than replace one fixed assumption with another, arrivals are modelled as an explicit
+      two-component mixture and the mixing fraction ρ is handed to the user as a control. This is a
+      <b>model choice</b>, not a claim that any source specifies ρ. It converts a structural uncertainty
+      into the instrument's central investigable question instead of hiding it inside a parameter.
+    </p>
+
+    <h3>Source register</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>ID</th><th>Source</th><th>Type</th><th>What it supports here</th><th>Strength</th></tr></thead>
+      <tbody>
+        <tr><td>S1</td><td>Bailey, N.T.J. (1954). <i>On Queueing Processes with Bulk Service.</i></td><td>Foundational theory</td><td>Equilibrium properties of bulk-service queues; justifies the model family</td><td>Strong — <span class="estimated">citation obtained from a secondary reference</span></td></tr>
+        <tr><td>S2</td><td>Downton (1955); Neuts (1967); Deb &amp; Serfozo (1973)</td><td>Foundational theory</td><td>Waiting time in bulk-service queues and optimal control of batch service; establishes that a policy-comparison literature exists</td><td>Moderate — <span class="estimated">secondary-sourced</span></td></tr>
+        <tr><td>S3</td><td>Hanssen, T.E.S., Jørgensen, F. &amp; Larsen, B. (2020). Determinants affecting ferry users' waiting time at ferry terminals. <i>Transportation</i> 47(4), 1711–1732. doi:10.1007/s11116-019-09979-5</td><td>Peer-reviewed empirical</td><td>Concave headway effect; ~20% of waiting from capacity-denied boarding; 10,952 interviews across 16 Norwegian routes</td><td><span class="documented">Strong</span></td></tr>
+        <tr><td>S4</td><td>Puisa, R. (2018). <i>Optimal stowage on Ro-Ro decks for efficiency and safety.</i> Maritime Safety Research Centre, University of Strathclyde</td><td>Technical</td><td>Ro-Ro capacity as a heterogeneous packing problem; vehicle dimensions from 0.78 × 2.00 m to 2.80 × 13.57 m; justifies lane-metre capacity</td><td>Moderate–strong — large-vessel context</td></tr>
+        <tr><td>S5</td><td>Whitt, W. (2017). <i>Time-Varying Queues</i> (survey), Columbia University</td><td>Authoritative survey</td><td><b>Counterevidence.</b> Stationary Poisson frequently violated in both directions; NHPP recommended</td><td><span class="documented">Strong</span></td></tr>
+        <tr><td>S6</td><td>Kaplan, E.L. &amp; Meier, P. (1958). Nonparametric estimation from incomplete observations. <i>Journal of the American Statistical Association</i> 53(282), 457–481.</td><td>Foundational statistics</td><td>The product-limit estimator used for right-censored time to service</td><td><span class="documented">Strong</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">No source was invented. Where a citation was obtained from a secondary reference rather than the primary document, the strength column says so.</p>
+  </section>
+
+  <!-- ================================================== 02 -->
+  <section id="s2"><h2><span class="idx">02</span> Rules and equations <span class="trail"></span></h2>
+
+    <h3>Arrivals</h3>
+    <p>Vehicle arrivals over the horizon are a two-component mixture.</p>
+    <div class="eq">
+      <b>Random component</b>, fraction ρ of expected volume — a Poisson process, generated by drawing
+      successive exponential inter-arrival times, so that the arrival <i>count</i> is itself a random
+      variable with variance of order λ·T.
+    </div>
+    <div class="eq">
+      <b>Targeted component</b>, fraction (1 − ρ) — for each sailing k a Poisson number of vehicles is
+      drawn, each arriving at t<sub>k</sub> − D with lead time D drawn from an exponential distribution
+      truncated below the headway.
+    </div>
+    <p>
+      ρ = 1 recovers pure random arrival; ρ = 0 gives fully timetable-driven arrival. Note what the second
+      component does to the count: it is <i>per sailing</i> and random, not a fixed total distributed over
+      the horizon. Fixing a count and randomising only positions produces an order-statistics process, not
+      a Poisson one, and makes arrival-count variability identically zero. That was a real defect in an
+      earlier build and is now the first thing the model tests check.
+    </p>
+
+    <h3>Service</h3>
+    <p>
+      At each departure epoch a sailing of capacity C lane-metres departs. The queue is ordered by the
+      active loading policy and boarding proceeds sequentially: a vehicle of length ℓ boards if and only if
+      the running loaded length plus ℓ does not exceed C. This is <b>first-fit, not optimal packing</b> — a
+      terminal loads a queue, it does not solve a bin-packing problem at the ramp. Capacity accumulates in
+      integer centimetres so that floating-point accumulation cannot let a sailing exceed C.
+    </p>
+    <p>
+      Setting every vehicle length equal reproduces unit-count capacity exactly. The unit-count model is
+      therefore a selectable special case rather than a discarded rival, and which representation to use is
+      a question the user can investigate rather than one the modeller settled.
+    </p>
+
+    <h3>Carry-over and the two missed-departure measures</h3>
+    <p>
+      Vehicles that do not board remain queued with their accumulated wait and are eligible for the next
+      sailing. Two different things are counted, and they are never added together:
+    </p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Measure</th><th>Counts</th><th>Unit</th></tr></thead>
+      <tbody>
+        <tr><td>Denied boarding</td><td>A vehicle present at a sailing that did not board it</td><td>Events. One vehicle can contribute several.</td></tr>
+        <tr><td>Never sailed</td><td>A vehicle still queueing when the horizon ended</td><td>Vehicles. Each contributes at most one.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Right-censored time to service</h3>
+    <p>
+      A vehicle still queueing when observation ends has not produced a missing measurement. It has
+      produced a <b>lower bound</b>: its time to service is at least the time it has already waited. Discarding
+      those vehicles and reporting the distribution of the rest measures only the vehicles a policy chose to
+      serve, which is survivorship bias, and it is severe here because the loading policy is exactly the
+      thing that decides who is left out.
+    </p>
+    <div class="eq">
+      The primary time-to-service display is therefore the <b>Kaplan–Meier product-limit estimator</b>
+      (S6) of the probability that a vehicle is still waiting, computed over observed service times and
+      censored lower bounds together. Censoring marks are drawn on the curve and are never hidden. Where
+      fewer than one in ten vehicles remain at risk, the region is hatched rather than smoothed to look
+      continuous.
+    </div>
+    <p>
+      The observed-only distribution is retained, because it answers a real question, but it is secondary
+      and there is no view in the instrument that renders it without the served-and-censored composition
+      beside it. There is likewise no interaction path that compares two loading policies on observed-only
+      distributions. That configuration is what made one policy look better than it was, and it is
+      unreachable rather than merely discouraged — see §06.
+    </p>
+
+    <h3>Stability</h3>
+    <div class="eq">
+      load ratio = λ·h ⁄ (C ⁄ 𝔼[ℓ]) &nbsp;&nbsp;— the system is stable when this is below 1.
+    </div>
+    <p>
+      The ratio is computed against the <i>expected</i> vehicle length, so it is defined under every length
+      distribution and not only when all vehicles are the same size.
+    </p>
+  </section>
+
+  <!-- ================================================== 03 -->
+  <section id="s3"><h2><span class="idx">03</span> Parameters <span class="trail"></span></h2>
+    <p class="warn"><b>Every default in this instrument is NOT ESTABLISHED.</b> This is the central
+      scientific fact about it. The instrument operates in user-specified parameter space, not in a
+      calibrated empirical space, and the starting configuration is a neutral exploratory point rather than
+      a typical or measured one.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Parameter</th><th>Symbol</th><th>Units</th><th>Default</th><th>Status</th><th>What is actually known</th></tr></thead>
+      <tbody>
+        <tr><td>Headway</td><td>h</td><td>minutes</td><td class="num">—</td><td><span class="invented">NOT ESTABLISHED</span></td><td>S3 reports a 52-minute mean on Norwegian routes. That is not a default for anywhere else.</td></tr>
+        <tr><td>Sailing capacity</td><td>C</td><td>lane-metres</td><td class="num">—</td><td><span class="invented">NOT ESTABLISHED</span></td><td>Vessel-specific.</td></tr>
+        <tr><td>Mean arrival rate</td><td>λ</td><td>vehicles/hour</td><td class="num">—</td><td><span class="invented">NOT ESTABLISHED</span></td><td>Route-specific.</td></tr>
+        <tr><td>Arrival mixture</td><td>ρ</td><td>—</td><td class="num">—</td><td><span class="invented">NOT ESTABLISHED</span></td><td>S3 gives the <i>direction</i> of the effect only. No value is measured.</td></tr>
+        <tr><td>Targeted lead time</td><td>D</td><td>minutes</td><td class="num">—</td><td><span class="invented">NOT ESTABLISHED</span></td><td>Exploratory. The distribution's shape is a modelling choice.</td></tr>
+        <tr><td>Vehicle length</td><td>ℓ</td><td>metres</td><td class="num">—</td><td><span class="invented">NOT ESTABLISHED</span></td><td>S4 gives the <i>range</i> 2.00–13.57 m. No small-terminal, car-dominated distribution was located; the mixed set here is exploratory.</td></tr>
+        <tr><td>Per-vehicle loading time</td><td>τ</td><td>seconds</td><td class="num">—</td><td><span class="cannot">NOT EXPOSED</span></td><td>Not located in any source. An ungrounded control would invite false precision, so there is no control for it.</td></tr>
+        <tr><td>Turnaround dwell</td><td>δ</td><td>minutes</td><td class="num">—</td><td><span class="cannot">NOT EXPOSED</span></td><td>Not located. Excluded with τ.</td></tr>
+        <tr><td>No-show rate</td><td>ν</td><td>—</td><td class="num">—</td><td><span class="cannot">NOT EXPOSED</span></td><td>Not located. Deferred with the booked/standby distinction.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ================================================== 04 -->
+  <section id="s4"><h2><span class="idx">04</span> What is simplified <span class="trail"></span></h2>
+    <ul>
+      <li><b>Loading takes no time.</b> A sailing loads instantaneously at its epoch. Per-vehicle loading time and turnaround dwell are absent because no source gives them, not because they are small.</li>
+      <li><b>The arrival rate is constant within the run.</b> Non-homogeneous rate profiles λ(t) — the form S5 actually recommends — are not implemented. The mixture captures timetable coupling, not the daily peak.</li>
+      <li><b>Packing is one-dimensional.</b> Lane-metres only. Real Ro-Ro capacity is constrained by area, weight and floor pressure together (S4).</li>
+      <li><b>Loading is first-fit within a queue order.</b> No look-ahead, no re-sequencing at the ramp, no partial deck reservation.</li>
+      <li><b>The loading policies are abstract disciplines.</b> They were not surveyed from practice. Comparing invented policies tests the modeller's imagination unless that is said plainly, so it is said plainly.</li>
+      <li><b>One berth, one vessel class, no cancellation demand response.</b> A disruption changes a sailing; it does not change how people behave afterwards.</li>
+      <li><b>No no-shows, no reservations that expire, no pricing.</b></li>
+    </ul>
+  </section>
+
+  <!-- ================================================== 05 -->
+  <section id="s5"><h2><span class="idx">05</span> What this cannot establish <span class="trail"></span></h2>
+
+    <h3>The strongest objection, reproduced in full</h3>
+    <p class="warn">
+      With every parameter NOT ESTABLISHED, it is a well-structured toy. Its outputs are determined by
+      user-chosen inputs, so any "finding" is a property of the settings, not of ferry terminals. A
+      skeptical operations researcher would say: the batch-service queue is already solved analytically for
+      the simple cases, and the cases the simulation adds — heterogeneous lengths, mixed arrivals — are
+      precisely the ones with no data.
+    </p>
+    <p>
+      <b>That objection is largely correct and is not dismissed.</b> The defence is narrow and is stated
+      narrowly: the instrument's value is that it makes the <i>structure</i> manipulable. A user can
+      discover that carry-over is a threshold phenomenon, that policy differences may live in the tail
+      rather than in the mean, and that arrival coupling and capacity representation are choices with
+      consequences. Those insights survive parameter ignorance. Any claim beyond them is unsupported.
+    </p>
+
+    <h3>Equifinality</h3>
+    <p>
+      Different combinations of ρ, λ and C produce similar waiting distributions. The instrument
+      <b>cannot be inverted</b> to infer real parameters from observed waits and must not be presented as if
+      it could.
+    </p>
+
+    <h3>Specifically not established</h3>
+    <ul>
+      <li>That any loading policy is operationally better than another. The instrument will not say this and the interface has no path that implies it.</li>
+      <li>Any number for a real terminal, named or unnamed.</li>
+      <li>Any forecast. Nothing here predicts.</li>
+      <li>That the mixed vehicle-length set describes a small terminal. It spans a documented range; it is not a measured distribution.</li>
+      <li>The analytic bulk-service benchmark as a numerical comparison. The primary sources for it were not retrieved, so it has not been checked against the model numerically.</li>
+    </ul>
+  </section>
+
+  <!-- ================================================== 06 -->
+  <section id="s6"><h2><span class="idx">06</span> Validation <span class="trail"></span></h2>
+
+    <h3>What independent validation found, and what it cost</h3>
+    <p>
+      The first build passed every test written for it and was wrong in four ways. Independent validation
+      found all four. They are recorded here rather than quietly fixed, because how an instrument failed is
+      part of what a reader needs in order to trust it.
+    </p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Defect</th><th>What was wrong</th><th>How it was corrected</th></tr></thead>
+      <tbody>
+        <tr><td>D1 — blocking</td><td>The random arrival component fixed the arrival count and randomised only positions. Arrival-count variance was identically zero, which no Poisson process has.</td><td>Rebuilt as an actual Poisson process from exponential inter-arrival times, and the targeted component made per-sailing random too.</td></tr>
+        <tr><td>D2</td><td>The load ratio was computed against a single vehicle length, so it was unavailable under the mixed distribution — the very case where capacity representation matters.</td><td>Computed against expected vehicle length, defined under every distribution.</td></tr>
+        <tr><td>D3</td><td>Sailings were processed by index. A delay larger than one headway let a sailing be processed before one that departed earlier.</td><td>Fixed at the scheduling layer — the event loop is driven by actual departure time — not by sorting the output afterwards. Sailing identity is preserved.</td></tr>
+        <tr><td>D4</td><td>Time to service was reported over served vehicles only. Under a policy that leaves long vehicles behind, that measures the survivors of the policy's own selection.</td><td>Resolved by changing what is measured, not how it is displayed: censored lower bounds are recovered for every unserved vehicle and the primary estimate is Kaplan–Meier.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>What correcting D4 revealed</h3>
+    <p>
+      Before the correction, the shortest-first policy showed a shorter observed median time to service than
+      first-come — 278 minutes against 391 — and moved about one per cent more lane-metres. After the
+      correction, in the same configuration, it served <b>zero</b> long vehicles against first-come's 4.7
+      per run: a long-vehicle service rate of 0.0000 against 0.0913. Those figures are from the validation
+      run of the Python reference implementation, which is where the defect was found.
+      The flattering conclusion did not survive the better measure. Correcting the measure did not make the
+      conclusion available; it made the bias visible. This is why the instrument has no view that compares
+      two policies on served vehicles alone.
+    </p>
+    <p>
+      The instrument reproduces the <i>signature</i> rather than the numbers, as it must, because it uses a
+      different generator: in the regression suite on this page's model, first-come serves 16.1 per cent of
+      long vehicles and shortest-first serves 0.0 per cent, on one shared arrival realisation.
+    </p>
+
+    <h3>The stability test, including the version that was wrong</h3>
+    <p>
+      Validation first asserted that no vehicle should be left unserved below the stability boundary, and
+      reported three mismatches against that expectation. <b>The expectation was the error, not the model:</b>
+      a finite horizon leaves vehicles queueing near the boundary regardless of stability. The corrected
+      criterion is the <i>signature</i> — a small, roughly flat count below the boundary and an
+      order-of-magnitude climb above it — and it is what the test suite checks. The mistaken expectation is
+      preserved in the validation record rather than deleted.
+    </p>
+
+    <h3>Status</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Aspect</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Model behaviour</td><td><span class="documented">Validated.</span> Every defect corrected and independently revalidated; the regression suite runs in the browser at <a href="tests/model-tests.html">tests/model-tests.html</a>.</td></tr>
+        <tr><td>Reproducibility</td><td><span class="documented">Fully reproducible.</span> Identical seed and configuration reproduce identical output; distinct seeds differ in both timing and count.</td></tr>
+        <tr><td>Cross-language equality</td><td><span class="estimated">Not claimed.</span> The model was specified and first validated in Python and is implemented here in JavaScript with a different generator. Reproducibility is a property of this instrument; the numbers are not bit-identical across the two, and the properties validation established are distributional and structural.</td></tr>
+        <tr><td>Calibration</td><td><span class="invented">Deliberately absent.</span> Nothing is fitted to data.</td></tr>
+        <tr><td>Analytic benchmark</td><td><span class="estimated">Not compared numerically.</span> Primary sources not retrieved.</td></tr>
+        <tr><td>Non-homogeneous arrival profiles</td><td><span class="cannot">Not implemented.</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ================================================== 07 -->
+  <section id="s7"><h2><span class="idx">07</span> Version history <span class="trail"></span></h2>
+    <div class="vhist">
+      <div class="v">
+        <b>0.1.0</b> — first build of the instrument.
+        Model: bulk-service queue, two-component arrival mixture, lane-metre capacity with first-fit
+        loading, three loading disciplines, disruption, right-censored time to service with a Kaplan–Meier
+        primary estimate.
+      </div>
+      <div class="vno">
+        Not yet done: registration in the catalogue, so the badges above are absent rather than asserted;
+        numerical comparison against the analytic bulk-service benchmark; non-homogeneous arrival rate
+        profiles; any comparison against measured data; a source-verified length distribution for a small
+        terminal.
+      </div>
+    </div>
+  </section>
+
+  <footer class="mfoot">
+    <div><a href="../index.html">← All instruments</a></div>
+    <div><a href="ferry-terminal.html">Run Ferry Terminal →</a></div>
+    <div>Candice Cantrelle · 2026</div>
+  </footer>
+</div>
+
+<script>
+/* Badges and the spec block come from assets/catalogue.js so this page can
+   never disagree with the card that links to it. Until the instrument is
+   registered there, the absence is stated rather than filled in. */
+(function () {
+  var s = (typeof byId === "function") ? byId("ferry-terminal") : null;
+  if (!s) {
+    document.getElementById("badges").innerHTML =
+      '<span class="rf-badge ev-pending" title="This instrument is not yet registered in the catalogue">Not yet in the catalogue</span>';
+    document.getElementById("spec").innerHTML =
+      '<div class="wide"><dt>Catalogue status</dt><dd>No record yet. Evidence, state and version badges will appear here once the instrument is registered, and are deliberately not asserted on this page in the meantime.</dd></div>';
+    return;
+  }
+  document.getElementById("badges").innerHTML =
+    Orbital.evidenceBadge(s.evidence) + Orbital.basisBadge(s.basis) +
+    Orbital.stateBadge(s.state) + Orbital.flagChips(s.flags);
+  document.getElementById("spec").innerHTML = [
+    ["Domain", s.domain],
+    ["What you do", s.mode.join(", ")],
+    ["Duration", s.duration],
+    ["Difficulty", s.complexity],
+    ["Model type", s.model.join(" + ")],
+    ["Version", "v" + s.version + " · " + s.updated]
+  ].concat(s.basis ? [["Built on", s.basis.detail, "wide"]] : []).map(function (r) {
+    return "<div class=\"" + (r[2] || "") + "\"><dt>" + r[0] + "</dt><dd>" + r[1] + "</dd></div>";
+  }).join("");
+})();
+</script>
+</body>
+</html>
