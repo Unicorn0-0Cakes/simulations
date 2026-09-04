@@ -1,0 +1,53 @@
+culture-flux v0.5.0-two-rules: the mechanism matters more than the migration
+
+Adds a second transmission rule from a different family, cultural drift, and
+a third RNG tier -- and with them, the first answer to the project's own
+central question.
+
+The two rules disagree about the DIRECTION of the migration effect. Same
+city, same arrivals, same seeds, M=0.30, compositional baseline 0.850:
+homophilous copying gives retention 0.73 (residents pulled towards the
+migrants), conformist transmission gives 0.9999 (migrants almost entirely
+assimilated). A single-rule study would have been confidently wrong in
+whichever direction its author happened to pick. A-016 required two rules
+before any result; this is what that requirement was for.
+
+And RQ2 returns a null. Holding total migration constant, splitting the
+incoming population into ten cultures instead of one made no detectable
+difference to retention under either rule (+0.03 +/- 0.06 and -0.00). That
+is H0-1, and it contradicts H1, H2 and H3 alike. Four seeds at one parameter
+point -- a pilot pointing at a design, not a result -- but the mechanism
+moved the outcome far more than the source diversity did. If that survives a
+proper design, the research questions are aimed at the wrong variable.
+
+Cultural drift (the A-018 sensitivity) shows the monoculture result of every
+earlier pilot was conditional on drift_rate=0, a default inherited from the
+rule family rather than chosen. Above ~1e-3 the city stops collapsing at
+all. But a control (P-8) shows the homophily arm at that rate is
+indistinguishable from drift with no interaction whatsoever -- it was
+measuring the noise floor. The first attempt at the three-arm comparison ran
+there and is discarded rather than reported. Every result must now state
+whether it is transmission- or drift-dominated.
+
+RNG streams are now seeded in three nested tiers -- baseline (the city),
+scenario (the arrivals), condition (network and dynamics) -- so a comparison
+across transmission rules faces byte-identical arrivals as well as a
+byte-identical city. Without it the three arms were not a controlled
+contrast, which a test written for that purpose caught. RNG_LAYOUT_VERSION
+bumped accordingly.
+
+Also:
+- conformity is one parameter spanning anti-conformity (<1), neutral
+  unbiased transmission (=1) and conformity (>1), so H2's claim about a
+  conformity asymmetry is directly testable (A-030). The default of 3.0
+  saturates the outcome and should be swept, not treated as a reference.
+- configs/sweeps/rq2_three_arm.json is RQ2 as a design
+- 297 tests (up from 263); 31 assumptions (up from 30)
+- smoke hash re-pinned to 87c45b24b5e46fd3f6fc4603ab2ea713, verified
+  identical on NumPy 2.2.6 and 2.4.4
+
+Phase 1 (literature extraction) remains skipped. V-1 open. V-7 unresolved and
+now the priority read: S5's title points the opposite way from pilot P-7.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01WrUcjv8jNXrSfSmMWdR8Bz

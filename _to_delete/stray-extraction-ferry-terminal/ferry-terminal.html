@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferry Terminal — Queue and loading policy</title>
+<meta name="description" content="A single-berth ferry terminal served only at scheduled departures. Change how vehicles arrive and how the deck is loaded, and see who waits, how long, and who never sails — with the vehicles that never sailed kept in the measurement rather than dropped from it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/orbital.css">
+<script src="../assets/orbital.js" data-title="Ferry Terminal" data-tag="Queue &amp; loading policy" data-sim="ferry-terminal" data-motion="on" data-pause-target="#btnPlay"></script>
+<link rel="stylesheet" href="css/ferry-terminal.css">
+<link rel="stylesheet" href="../assets/orbital-sim.css">
+<script src="../assets/catalogue.js"></script>
+</head>
+<body>
+<a class="rf-skip" href="#home">Skip to the instrument</a>
+
+<!-- ============================ home ============================ -->
+<div id="home">
+  <div class="hero">
+    <span class="rf-regmark" style="top:14px;left:14px"></span>
+    <span class="rf-regmark" style="top:14px;right:14px"></span>
+    <div class="eyebrow upper">Batch service · single berth · scheduled departures</div>
+    <h1>Ferry<br>Terminal</h1>
+    <p class="lede">
+      A queue at a ferry terminal is not a queue at a counter. Nothing is served between departures. The
+      berth is empty, vehicles accumulate, and then a whole batch leaves at once — or as much of it as fits.
+    </p>
+    <p class="lede sm">
+      You set how vehicles arrive, how much deck there is, how often the boat goes, and the order in which
+      the queue is offered to it. Then you have to say who waited, how long, and who never sailed at all.
+      The last group is the difficult one: a vehicle still queueing when the observation ends has not
+      produced a missing measurement, it has produced a lower bound, and dropping it would measure only the
+      vehicles a policy chose to serve.
+    </p>
+    <span class="pill">Space runs · S steps to the next departure · T switches theme</span>
+  </div>
+
+  <div class="modes" id="homeModes">
+    <button class="modecard" type="button" data-act="begin">
+      <span class="mc-tag">Start here</span>
+      <h3>Open the terminal</h3>
+      <p>Loads a neutral exploratory starting point and runs it once. Nothing here is measured from a real port.</p>
+    </button>
+    <a class="modecard" href="methods.html">
+      <span class="mc-tag">Before you conclude anything</span>
+      <h3>Methods &amp; limitations</h3>
+      <p>The model family, the evidence behind the arrival mixture, every parameter marked not established, and what this instrument cannot establish.</p>
+    </a>
+  </div>
+
+  <div class="hero" style="padding-top:0">
+    <div class="assumption">
+      <b>On the model.</b> This is a bulk-service queue: arrivals accumulate and are served in batches at
+      discrete epochs, in the sense of Bailey's 1954 formulation, with a finite lane-metre capacity rather
+      than a fixed vehicle count. The arrival process is a mixture — one component indifferent to the
+      timetable, one targeting a specific sailing — because the assumption that terminal arrivals are simply
+      Poisson did not survive the evidence.
+      <b>No parameter here is calibrated against a real terminal, and no preset is named after one.</b>
+      What the instrument reproduces is the structure of the problem, not the numbers of any port.
+      <a href="methods.html">Methods &amp; limitations →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ app ============================= -->
+<div id="app">
+
+  <div class="topbar">
+    <span class="tb-title">FERRY TERMINAL <span class="tb-phase" id="tbPhase"></span></span>
+    <span class="sp"></span>
+    <button class="btn primary" type="button" id="btnPlay" data-act="play">Run</button>
+    <button class="btn" type="button" id="btnStep" data-act="step">Step to next departure</button>
+    <button class="btn" type="button" data-act="reset">Reset</button>
+    <button class="btn" type="button" id="btnCompare" data-act="compare">Compare policies</button>
+    <button class="btn" type="button" data-act="single">Single run</button>
+    <a class="btn" href="methods.html">Methods</a>
+    <button class="btn" type="button" data-act="home">Home</button>
+  </div>
+
+  <div class="layout">
+
+    <aside class="rail" id="rail" aria-label="Arrival, service, policy and run controls"></aside>
+
+    <section class="scopewrap" aria-label="Instrument scopes">
+
+      <div id="notices" aria-live="polite"></div>
+
+      <div id="mainScopes">
+
+        <!-- PRIMARY. The survival curve and the composition are ONE scope.
+             There is no markup in this file that renders either alone. -->
+        <div class="scope primary" id="survivalUnit">
+          <div class="sh">
+            <h4>Time to service — censoring-aware</h4>
+            <span class="sp"></span>
+            <span class="cursorval">primary measure</span>
+          </div>
+          <canvas id="survCv" data-h="260" role="img"
+            aria-label="Kaplan-Meier estimate of the probability that a vehicle is still waiting, against time since arrival. Vertical ticks mark vehicles whose time to service is censored. The hatched region marks where fewer than one in ten vehicles remain at risk."></canvas>
+          <div class="legend">
+            <span><i class="obs"></i>this run</span>
+            <span><i class="ghost"></i>baseline, same arrival realisation</span>
+            <span><i class="tick"></i>censored — still queueing when the horizon ended</span>
+          </div>
+          <div class="pairline">Who this describes — always shown with the curve above</div>
+          <canvas id="compCv" data-h="86" role="img"
+            aria-label="Proportion of vehicles that sailed within the horizon against the proportion that never sailed."></canvas>
+        </div>
+
+        <div class="scope">
+          <div class="sh"><h4>Queue length, with departure epochs</h4></div>
+          <canvas id="queueCv" data-h="230" role="img"
+            aria-label="Number of vehicles queueing against time. Vertical rules mark scheduled departures; dashed red marks a cancelled sailing and amber a delayed or reduced one."></canvas>
+          <div class="legend">
+            <span><i style="background:var(--rf-line);border:0;width:2px;height:12px"></i>departure epoch</span>
+            <span><i style="background:var(--rf-amber);border:0;width:2px;height:12px"></i>delayed or reduced</span>
+            <span><i style="background:var(--rf-oxide);border:0;width:2px;height:12px"></i>cancelled</span>
+            <span><i class="ghost"></i>baseline</span>
+          </div>
+        </div>
+
+        <div class="cols">
+          <div class="scope">
+            <div class="sh"><h4>Per-sailing load against capacity</h4></div>
+            <canvas id="loadCv" data-h="200" role="img"
+              aria-label="Lane-metres loaded on each sailing inside an outline showing the capacity. The gap between the fill and the outline is unused deck."></canvas>
+            <div class="legend"><span><i class="obs"></i>loaded</span><span><i class="resid"></i>residual — deck left empty</span></div>
+          </div>
+          <div class="scope">
+            <div class="sh"><h4>Throughput against the analytic bound</h4></div>
+            <canvas id="thruCv" data-h="200" role="img"
+              aria-label="Cumulative vehicles sailed against time, with a dashed reference line at the analytic service bound."></canvas>
+            <div class="legend"><span><i class="obs"></i>sailed</span><span><i class="bound"></i>min(λ, C/h)</span></div>
+          </div>
+        </div>
+
+        <!-- The two missed-departure measures. Separate cards, different
+             treatments. Nothing in this document sums them. -->
+        <div class="cols">
+          <div class="scope measure-a">
+            <div class="sh"><h4>Denied boarding — a count of events</h4></div>
+            <canvas id="deniedCv" data-h="180" role="img"
+              aria-label="Vehicles present at each sailing that did not board it."></canvas>
+            <div class="note">One vehicle may appear at several sailings. This counts vehicle-departures missed.</div>
+          </div>
+          <div class="scope measure-b">
+            <div class="sh"><h4>Never sailed — a count of vehicles</h4></div>
+            <div class="bigfig" id="unservedFig">—</div>
+            <div class="note">Distinct vehicles still queueing when the horizon ended. A different quantity from
+              denied boarding, held on its own card because adding the two together would be meaningless.</div>
+          </div>
+        </div>
+
+        <div class="scope">
+          <div class="sh"><h4>Carry-over depth after each departure</h4></div>
+          <canvas id="carryCv" data-h="170" role="img"
+            aria-label="Number of vehicles still queueing immediately after each departure."></canvas>
+        </div>
+
+        <!-- SECONDARY, DEMOTED. Retained because it answers a real
+             question. Its composition is in the same scope and is not
+             behind any disclosure control. -->
+        <div class="scope secondary" id="observedUnit">
+          <div class="sh">
+            <h4>Observed time to service — served vehicles only</h4>
+            <span class="sp"></span>
+            <span class="cursorval">secondary</span>
+          </div>
+          <canvas id="histCv" data-h="190" role="img"
+            aria-label="Distribution of time to service among vehicles that sailed. This excludes every vehicle that never sailed."></canvas>
+          <div class="pairline">This distribution describes only part of the arrivals — the part shown below</div>
+          <canvas id="histCompCv" data-h="86" role="img"
+            aria-label="Proportion of vehicles included in the distribution above against the proportion excluded because they never sailed."></canvas>
+        </div>
+
+      </div>
+
+      <!-- policy comparison: curves and composition as ONE unit -->
+      <div class="scope hide" id="compareScope">
+        <div class="sh">
+          <h4>Three loading policies on one arrival realisation</h4>
+          <span class="sp"></span>
+          <span class="cursorval">same seed, same arrivals</span>
+        </div>
+        <canvas id="cmpCurveCv" data-h="260" role="img"
+          aria-label="Kaplan-Meier time-to-service curves for the three loading policies, with censoring ticks."></canvas>
+        <div class="pairline">Who each policy actually served, by vehicle length — shown with the curves, never apart from them</div>
+        <canvas id="cmpCompCv" data-h="100" role="img"
+          aria-label="Share of short, medium and long vehicles served by each loading policy."></canvas>
+        <div class="note">A policy can shorten the observed waiting time by serving a shorter, smaller
+          subpopulation. That is why the composition is here and why no view in this instrument compares
+          two policies on served vehicles alone.</div>
+      </div>
+
+      <div class="scope">
+        <div class="sh"><h4>Text equivalent</h4></div>
+        <div class="srtext" id="srSummary"></div>
+      </div>
+
+      <div class="scope">
+        <div class="sh"><h4>Data tables</h4></div>
+        <div id="tables"></div>
+      </div>
+
+    </section>
+
+    <aside class="inspector" id="inspector" aria-label="Readouts"></aside>
+  </div>
+</div>
+
+<!-- ============================ modal =========================== -->
+<div class="veil" id="veil" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="mh">
+      <div class="upper muted" id="modalKicker"></div>
+      <h2 id="modalTitle"></h2>
+    </div>
+    <div class="mb" id="modalBody">
+      <p></p>
+      <textarea id="ioText" rows="10" aria-label="Configuration as JSON"></textarea>
+    </div>
+    <div class="mf">
+      <button class="btn" type="button" id="modalClose" data-act="modal-close">Close</button>
+      <button class="btn primary" type="button" id="modalOk" data-act="modal-ok">Apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="rf-sr" id="live" role="status" aria-live="polite"></div>
+
+<script src="js/config.js"></script>
+<script src="js/model.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/events.js"></script>
+<script src="js/screens.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

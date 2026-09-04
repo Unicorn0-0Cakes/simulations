@@ -1,0 +1,17 @@
+Untrack _to_delete/: transfer scratch, not repository content
+
+Commit afa220e ("update 1") swept in 316 files under _to_delete/ -- three
+superseded copies of culture-flux, transfer tarballs, and stale git lock
+files. These were staging scratch created while moving work onto this
+machine; none of it is repository content.
+
+This removes them from tracking (git rm -r --cached) and ignores the
+directory going forward. The files stay on disk so nothing is lost -- delete
+the folder by hand when convenient.
+
+History is left alone: the blobs remain reachable from afa220e. If the ~47MB
+of .git is worth reclaiming, that needs a deliberate history rewrite, which
+is not something to do incidentally.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01WrUcjv8jNXrSfSmMWdR8Bz

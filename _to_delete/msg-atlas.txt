@@ -1,0 +1,63 @@
+culture-flux: add the atlas entry, backed by a 240-run design
+
+The instrument existed as a headless Python engine with no way into the
+catalogue. This adds the three things an entry needs -- an instrument page, a
+methods page, and a catalogue record -- and the run data behind them.
+
+Publishing was gated on having something to show. The gate is now cleared:
+configs/sweeps/rq2_three_arm.json executed at full replication. 240 runs, 0
+failures, 8,786 s of compute. Three mechanisms x K in {1,2,4,10} x 20 seeds,
+all sharing a baseline and scenario key so every arm faces a byte-identical
+city and byte-identical arrivals.
+
+What it shows, against a compositional baseline of 0.850:
+
+  null (control)        0.8501   sd 0.0000 across all 80 runs
+  homophilous copying   0.696-0.789   sd ~0.11
+  conformist            0.9999   sd ~0.0001
+
+The two mechanisms disagree about the DIRECTION of the migration effect by
+0.30 -- an order of magnitude more than any migration variable moved
+anything. And the study's central manipulation does nothing: K=10 against
+K=1 gives +0.011 +/- 0.032 and +0.0000. H0-1 not rejected at twenty seeds
+per cell. Recorded as pilot note P-10.
+
+The control arm's standard deviation of exactly zero is worth its own line:
+that is the compositional arithmetic reproducing itself perfectly, and the
+sharpest available check that the seeds, arrivals and city really are matched
+across conditions.
+
+Added:
+- culture-flux/culture-flux.html   results explorer, six tabs, all data
+  embedded at build time. No second implementation of the model, no network
+  request, no localStorage, no hex colours -- everything on --rf-* tokens.
+  One tab is "What was retracted", carrying both findings this instrument
+  produced and then overturned, because the reasons they were wrong are more
+  useful than the findings would have been.
+- culture-flux/methods.html        the seven house sections. Section 01 says
+  plainly that there is no source: the transmission mechanisms were specified
+  in this codebase and the reading step was skipped.
+- culture-flux/USER_MANUAL.md, css/culture-flux.css, js/{config,charts,screens,main}.js
+- culture-flux/analysis/export_web_data.py   regenerates the embedded data
+  from stored run directories; the only supported way to change what the
+  page shows
+- assets/catalogue.js              the record
+- index.html                       a preview plate drawing the three arms
+  against the compositional baseline
+
+Badge choices, deliberately:
+- evidence: "Uncalibrated prototype". Section 06 justifies exactly what that
+  badge claims -- internally consistent, nothing fitted to data -- and lists
+  what is NOT validated, including three open internal-validation targets.
+- basis: omitted entirely. That badge names a documented source, and naming
+  one here would be false.
+- state: "Research preview".
+
+Pre-publish review passes on files, catalogue vocabulary, methods structure,
+design-system conformance, offline operation and link integrity. Runtime was
+verified headlessly -- every renderer run against the real catalogue and real
+data -- rather than in a browser, because the browser pane and the mounted
+filesystem are on different hosts.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01WrUcjv8jNXrSfSmMWdR8Bz
