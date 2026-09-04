@@ -310,6 +310,53 @@ const CATALOGUE = [
 
     blurb: "Three societies of a hundred thousand people, five hundred years, the same disasters in each. A research instrument rather than a game — matched seeds, preregistered effect sizes, and a model built so that no single number is allowed to explain a person.",
     chips: ["Matched-seed design", "500 simulated years", "Real run data", "Reproducible & checksummed"]
+  },
+
+  /* ----------------------------------------------------------------
+     SYSTEM_EXTENSION_CANDIDATE — model classification.
+     The `model` vocabulary below offers Agent-based, Differential
+     equation, Statistical and Historical reconstruction. This
+     instrument is a discrete-event stochastic simulation of a
+     bulk-service queue, which is none of them. "Statistical" is
+     recorded as the LEAST WRONG EXISTING TERM — it is a stochastic
+     process model whose outputs are distributions — and NOT as a
+     correct description. No taxonomy value was added from inside this
+     publication; that needs system-level approval. `magnetic-ocean`
+     already stretches the same field for a forward model plus a noise
+     process, so the gap is in the vocabulary rather than in either
+     instrument. Flagged for curation review.
+     ------------------------------------------------------------- */
+  {
+    id: "ferry-terminal",
+    title: "Ferry Terminal",
+    href: "ferry-terminal/ferry-terminal.html",
+    methods: "ferry-terminal/methods.html",
+    preview: "ferryterminal",
+    thumb: null,
+
+    domain: "Society",
+    mode: ["Measure", "Diagnose"],
+    duration: "10–30 minutes",
+    complexity: "Intermediate",
+    model: ["Statistical"],
+    state: "Research preview",
+    evidence: "Uncalibrated prototype",
+    basis: { label: "After Hanssen et al., 2020", detail: "Determinants affecting ferry users' waiting time at ferry terminals, Transportation 47(4) — 10,952 interviews across 16 Norwegian routes. Grounds the timetable-coupled arrival mechanism, and the finding that about a fifth of terminal waiting comes from being unable to board a full vessel." },
+
+    version: "0.1.0",
+    updated: "Sep 2026",
+    flags: ["New", "Experimental"],
+
+    question: "When a queue is only served at scheduled departures, who waits, how long, and who never sails at all?",
+    role: "Set how vehicles arrive, how much deck there is and the order the queue is offered to it, then read a censoring-aware survival curve rather than the waiting times of whoever happened to be served.",
+
+    blurb: "Nothing is served between departures. Vehicles accumulate at an empty berth and then a whole batch leaves at once, or as much of it as fits. The hard part is not the queue: a vehicle still waiting when you stop watching has not given you a missing measurement, it has given you a lower bound — and dropping it measures only the vehicles a loading policy chose to serve.",
+    chips: [
+      "Bulk-service queue",
+      "Lane-metre capacity",
+      "Right-censored time to service",
+      "Shared-realisation policy comparison"
+    ]
   }
 ];
 

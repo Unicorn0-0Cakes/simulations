@@ -718,6 +718,28 @@ function previewSVG(key) {
       <text x="306" y="118" fill="${PLATE.x}" font-size="6.4" font-family="monospace" text-anchor="end">NOISE FLOOR</text>`,
       "GLOBAL SENSITIVITY — DECOY-VALIDATED");
   }
+  if (key === "ferryterminal") {
+    /* The batch-service signature, not a motif: a queue that drops at each
+       departure rule but never back to its previous floor, which is carry-over
+       accumulating; a deck bar with the residual left visibly empty, which is
+       the packing constraint; and baseline ticks for vehicles still waiting
+       when observation ended, which is the censoring. */
+    let epochs = "", saw = "M10 118", ticks = "";
+    for (let k = 1; k <= 6; k++) {
+      const x = 10 + k * 44;
+      epochs += `<line x1="${x}" y1="16" x2="${x}" y2="118" stroke="${PLATE.rule}" stroke-width="1" opacity=".85"/>`;
+      const peak = 118 - (16 + k * 8), floor = 118 - (k * 6);
+      saw += ` L${x - 4} ${peak} L${x} ${floor}`;
+    }
+    saw += " L306 76";
+    for (let i = 0; i < 9; i++) ticks += `<line x1="${18 + i * 33}" y1="122" x2="${18 + i * 33}" y2="130" stroke="${PLATE.x}" stroke-width="1.4"/>`;
+    return frame(`
+      ${epochs}
+      <path d="${saw}" stroke="${PLATE.t}" stroke-width="2" fill="none"/>
+      <rect x="10" y="136" width="296" height="10" fill="none" stroke="${PLATE.rule}" stroke-width=".8"/>
+      <rect x="10.8" y="136.8" width="188" height="8.4" fill="${PLATE.t}" opacity=".55"/>
+      ${ticks}`, "PLATE — DEPARTURE EPOCHS, QUEUE AND DECK");
+  }
   return frame(`<circle cx="160" cy="90" r="34" fill="none" stroke="${PLATE.o}" stroke-width="2" opacity=".8"/>
     <circle cx="160" cy="90" r="6" fill="${PLATE.o}"/>`, "PLATE — UNTITLED");
 }
