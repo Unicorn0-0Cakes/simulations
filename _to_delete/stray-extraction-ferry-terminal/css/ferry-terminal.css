@@ -1,0 +1,302 @@
+/* =====================================================================
+   FERRY TERMINAL — instrument stylesheet
+   ---------------------------------------------------------------------
+   Loaded BEFORE assets/orbital-sim.css, which supplies the finish. All
+   colour comes from the --rf-* tokens so the instrument follows the
+   catalogue's day and night worlds without redefining either.
+
+   Two rules here are structural rather than cosmetic.
+     · .scope.primary and .scope.secondary keep the survival curve and
+       the observed-only histogram each welded to their composition bar.
+       Neither pairing can be collapsed, and the pairing survives every
+       breakpoint, because the composition is what makes the number above
+       it readable.
+     · .measure-a and .measure-b are visually different treatments of the
+       two missed-departure measures, so they never read as two halves of
+       one total.
+   ===================================================================== */
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--rf-bg);
+  color: var(--rf-ink);
+  font-family: var(--rf-sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+h1, h2, h3, h4 { margin: 0 0 .4em; }
+a { color: var(--rf-orange); }
+
+.mono, .num { font-family: var(--rf-mono); }
+.dim  { color: var(--rf-ink-dim); }
+.muted { color: var(--rf-muted); }
+.tiny { font-size: 11px; }
+.upper { text-transform: uppercase; letter-spacing: var(--rf-track); }
+.hide { display: none !important; }
+.sp   { flex: 1 1 auto; }
+
+/* ---- home -------------------------------------------------------- */
+#home { display: block; }
+body.launched #home { display: none; }
+#app { display: none; }
+body.launched #app { display: block; }
+
+#home .hero {
+  position: relative;
+  max-width: 860px; margin: 0 auto; padding: 56px 22px 34px;
+}
+#home .eyebrow { font-family: var(--rf-mono); font-size: 10.5px; color: var(--rf-muted); }
+#home h1 { font-size: clamp(38px, 7vw, 68px); line-height: 1.02; margin: 14px 0 18px; }
+#home .lede { font-size: 16px; max-width: 62ch; color: var(--rf-ink); }
+#home .lede.sm { font-size: 14px; color: var(--rf-ink-dim); }
+#home .pill {
+  display: inline-block; margin-top: 16px; padding: 6px 12px;
+  border: 1px solid var(--rf-line); background: var(--rf-panel);
+  font-family: var(--rf-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--rf-ink-dim);
+}
+
+.modes {
+  max-width: 860px; margin: 0 auto; padding: 0 22px 10px;
+  display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.modecard {
+  display: block; text-align: left; text-decoration: none;
+  background: var(--rf-panel); border: 1px solid var(--rf-line);
+  padding: 16px 16px 18px; color: inherit; cursor: pointer;
+}
+.modecard:hover { border-color: var(--rf-orange); }
+.modecard .mc-tag {
+  font-family: var(--rf-mono); font-size: 9.5px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--rf-orange);
+}
+.modecard h3 { font-size: 19px; margin: 8px 0 6px; }
+.modecard p { margin: 0; font-size: 13px; color: var(--rf-ink-dim); }
+
+.assumption {
+  max-width: 860px; margin: 20px auto 60px; padding: 16px 18px;
+  border-left: 3px solid var(--rf-teal); background: var(--rf-panel2);
+  font-size: 13.5px; color: var(--rf-ink-dim);
+}
+.assumption b { color: var(--rf-ink); }
+
+/* ---- app chrome -------------------------------------------------- */
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  padding: 7px 14px;
+  background: var(--rf-panel2); border-bottom: 1px solid var(--rf-line);
+}
+.topbar .tb-title {
+  font-family: var(--rf-mono); font-size: 11px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--rf-ink);
+}
+.topbar .tb-phase { color: var(--rf-orange); margin-left: 8px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 32px; padding: 5px 11px;
+  background: var(--rf-panel); border: 1px solid var(--rf-line);
+  color: var(--rf-ink); cursor: pointer; text-decoration: none;
+}
+.btn:hover:not(:disabled) { border-color: var(--rf-orange); color: var(--rf-orange); }
+.btn.primary { background: var(--rf-orange); border-color: var(--rf-orange); color: var(--rf-on-accent); }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.06); color: var(--rf-on-accent); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.sm { min-height: 28px; padding: 3px 8px; font-size: 10px; }
+:focus-visible { outline: 2px solid var(--rf-orange); outline-offset: 2px; }
+
+/* ---- layout ------------------------------------------------------ */
+.layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 280px;
+  gap: 14px; padding: 14px; align-items: start;
+}
+.rail, .inspector {
+  position: sticky; top: 96px; max-height: calc(100vh - 110px); overflow: auto;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.scopewrap { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.cols { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+/* ---- panels ------------------------------------------------------ */
+.panel { background: var(--rf-panel); border: 1px solid var(--rf-line); padding: 11px 12px; }
+.panel .ptitle {
+  font-family: var(--rf-mono); font-size: 10px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--rf-muted); margin-bottom: 8px;
+}
+.panel.warn { border-color: var(--rf-watch); background: var(--rf-panel2); }
+.panel.warn .ptitle { color: var(--rf-watch); }
+.panel.baseline { border-left: 3px solid var(--rf-teal); }
+.panel .bigv { font-family: var(--rf-mono); font-size: 26px; line-height: 1.1; }
+.panel .note, .note { font-size: 11.5px; color: var(--rf-muted); margin-top: 6px; }
+
+/* Stacked rather than two-column: a label like "sailed within the horizon"
+   and a qualified figure like "76.3 min — of the 58.9% who sailed" both need
+   room, and the qualifier is not optional text that may be squeezed away. */
+.readout { margin: 0; display: block; }
+.readout dt {
+  font-family: var(--rf-mono); font-size: 9.5px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--rf-muted); margin-top: 9px;
+}
+.readout dt:first-child { margin-top: 0; }
+.readout dd { margin: 1px 0 0; font-family: var(--rf-mono); font-size: 13px; color: var(--rf-ink); }
+.qual { display: block; font-family: var(--rf-sans); font-size: 11px; color: var(--rf-muted); letter-spacing: 0; }
+
+/* ---- fields ------------------------------------------------------ */
+.field { margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: 12px; color: var(--rf-ink); margin-bottom: 4px;
+}
+.field label .sym { font-family: var(--rf-mono); color: var(--rf-orange); }
+.field label .unit { font-size: 10.5px; color: var(--rf-muted); }
+.field label .v { margin-left: auto; font-family: var(--rf-mono); font-size: 12px; color: var(--rf-ink-dim); }
+.field input[type="range"] { width: 100%; min-height: 24px; }
+.field input[type="number"], .field select, .field textarea {
+  width: 100%; min-height: 32px; padding: 4px 7px;
+  background: var(--rf-panel3); border: 1px solid var(--rf-line); color: var(--rf-ink);
+}
+.field .ends {
+  display: flex; justify-content: space-between;
+  font-family: var(--rf-mono); font-size: 9px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--rf-muted);
+}
+.field.changed { box-shadow: inset 3px 0 0 var(--rf-orange); padding-left: 8px; }
+.rowbtns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+
+.seg { display: flex; border: 1px solid var(--rf-line); }
+.seg button {
+  flex: 1 1 0; min-height: 32px; padding: 4px 6px;
+  background: var(--rf-panel3); border: 0; border-right: 1px solid var(--rf-line);
+  color: var(--rf-ink-dim); cursor: pointer;
+}
+.seg button:last-child { border-right: 0; }
+.seg button.on { background: var(--rf-panel); color: var(--rf-orange); }
+
+/* ---- scopes ------------------------------------------------------ */
+.scope { background: var(--rf-panel); border: 1px solid var(--rf-line); }
+.scope .sh {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 8px 12px; border-bottom: 1px solid var(--rf-line-soft);
+}
+.scope .sh h4 { font-size: 13px; margin: 0; }
+.scope .sh .cursorval {
+  font-family: var(--rf-mono); font-size: 9.5px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--rf-muted);
+}
+.scope canvas { display: block; width: 100%; background: var(--rf-panel3); }
+.scope .note { padding: 0 12px 10px; }
+.scope.primary { border-color: var(--rf-teal); }
+.scope.primary .sh .cursorval { color: var(--rf-teal); }
+.scope.secondary { border-style: dashed; }
+
+/* The line that welds a distribution to its composition. Deliberately
+   not a collapsible header: there is no control that hides what follows. */
+.pairline {
+  padding: 6px 12px 4px;
+  font-family: var(--rf-mono); font-size: 9.5px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--rf-muted);
+  border-top: 1px solid var(--rf-line-soft);
+}
+
+.bigfig {
+  font-family: var(--rf-mono); font-size: 54px; line-height: 1;
+  padding: 22px 12px 6px; color: var(--rf-ink);
+}
+/* the two missed-departure measures, deliberately unlike each other */
+.measure-a { border-top: 3px solid var(--rf-amber); }
+.measure-b { border-top: 3px double var(--rf-slate); }
+
+.legend {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  padding: 7px 12px 9px; font-size: 11px; color: var(--rf-ink-dim);
+}
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { display: inline-block; width: 12px; height: 3px; background: var(--rf-teal); }
+.legend i.obs   { background: var(--rf-teal); }
+.legend i.ghost { background: var(--rf-muted); height: 2px; }
+.legend i.resid { background: transparent; border: 1px solid var(--rf-line); height: 10px; width: 10px; }
+.legend i.bound { background: var(--rf-muted); height: 2px; }
+.legend i.tick  { background: var(--rf-teal); width: 2px; height: 11px; }
+
+/* ---- callouts ---------------------------------------------------- */
+.callout {
+  padding: 8px 12px; font-size: 12.5px;
+  background: var(--rf-panel); border: 1px solid var(--rf-line);
+  border-left: 3px solid var(--rf-muted); color: var(--rf-ink-dim);
+}
+.callout + .callout { margin-top: 6px; }
+.callout b { color: var(--rf-ink); }
+.callout.lv-mark  { border-left-color: var(--rf-teal); }
+.callout.lv-warn  { border-left-color: var(--rf-watch); background: var(--rf-panel2); }
+.callout.lv-block { border-left-color: var(--rf-danger); background: var(--rf-panel2); }
+
+/* ---- tables ------------------------------------------------------ */
+.tablewrap { max-height: 300px; overflow: auto; border: 1px solid var(--rf-line-soft); margin: 8px 12px 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+caption { text-align: left; padding: 6px 8px; font-size: 11px; color: var(--rf-muted); }
+th, td { padding: 4px 8px; border-bottom: 1px solid var(--rf-line-soft); text-align: left; }
+th { position: sticky; top: 0; background: var(--rf-panel2); color: var(--rf-muted); }
+td.num { font-family: var(--rf-mono); text-align: right; }
+#tables h4 { padding: 8px 12px 0; font-size: 12px; }
+
+.srtext { padding: 10px 12px; font-size: 12.5px; color: var(--rf-ink-dim); }
+
+/* ---- modal ------------------------------------------------------- */
+.veil {
+  display: none; position: fixed; inset: 0; z-index: 90;
+  background: rgba(36, 28, 20, .55); padding: 24px;
+  align-items: center; justify-content: center;
+}
+.veil.on { display: flex; }
+.modal {
+  background: var(--rf-panel); border: 1px solid var(--rf-line);
+  max-width: 560px; width: 100%; max-height: 88vh; overflow: auto;
+  box-shadow: var(--rf-shadow-lg);
+}
+.modal .mh { padding: 14px 16px 6px; border-bottom: 1px solid var(--rf-line-soft); }
+.modal .mh h2 { font-size: 20px; margin: 4px 0 8px; }
+.modal .mb { padding: 12px 16px; font-size: 13px; }
+.modal .mb textarea {
+  width: 100%; margin-top: 10px; padding: 8px;
+  font-family: var(--rf-mono); font-size: 11.5px;
+  background: var(--rf-panel3); border: 1px solid var(--rf-line); color: var(--rf-ink);
+}
+.modal .mf { display: flex; gap: 8px; justify-content: flex-end; padding: 10px 16px 14px; }
+
+/* ---- responsive --------------------------------------------------
+   The comparison capability never disappears. At every width the
+   survival curve keeps its composition bar and the compare view stays
+   reachable from the toolbar: it is the instrument's core function, not
+   a desktop luxury.                                                   */
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 280px minmax(0, 1fr); }
+  .inspector { position: static; max-height: none; grid-column: 1 / -1; }
+  .inspector { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+}
+@media (max-width: 760px) {
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 10px; }
+  .rail {
+    position: static; max-height: none; order: 3;
+    display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .scopewrap { order: 1; }
+  .inspector { order: 2; }
+  .topbar { position: static; }
+  .tablewrap { margin: 8px; }
+  .bigfig { font-size: 42px; }
+  /* The persistent marker and every warning keep full weight. The purely
+     informative notices are condensed so the safeguards cannot push the
+     instrument itself below the fold — none is removed or made dismissible. */
+  .callout.lv-notice { padding: 5px 10px; font-size: 11.5px; }
+  #notices { display: flex; flex-direction: column; }
+}
+
+/* ---- reduced motion ---------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

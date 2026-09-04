@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model tests — Ferry Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../../assets/orbital.css">
+<script src="../../assets/orbital.js" data-title="Ferry Terminal" data-tag="Model tests"></script>
+<style>
+  .wrap { max-width: 900px; margin: 0 auto; padding: 26px 20px 60px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .sum { font-family: var(--rf-mono); font-size: 13px; margin: 14px 0 18px; padding: 10px 12px;
+         border: 1px solid var(--rf-line); background: var(--rf-panel); }
+  .sum.bad { border-color: var(--rf-danger); }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { padding: 5px 8px; border-bottom: 1px solid var(--rf-line-soft); text-align: left; vertical-align: top; }
+  th { font-family: var(--rf-mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--rf-muted); }
+  td.st { font-family: var(--rf-mono); width: 60px; }
+  td.st.ok { color: var(--rf-ok); }
+  td.st.no { color: var(--rf-danger); font-weight: 700; }
+  td.d { font-family: var(--rf-mono); font-size: 11px; color: var(--rf-muted); }
+  p.lead { color: var(--rf-ink-dim); font-size: 13.5px; max-width: 70ch; }
+</style>
+</head>
+<body>
+<a class="rf-skip" href="#out">Skip to results</a>
+<div class="wrap">
+  <h1>Ferry Terminal — model tests</h1>
+  <p class="lead">
+    The regression suite the instrument's validation record requires to be preserved. Each assertion names
+    the property it protects. The arrival-count dispersion test is the one that would have caught the
+    original blocking defect at build time and must never be removed.
+  </p>
+  <div id="sum" class="sum">running…</div>
+  <table id="out"><thead><tr><th>Result</th><th>Assertion</th><th>Observed</th></tr></thead><tbody id="rows"></tbody></table>
+  <p style="margin-top:22px"><a href="../methods.html">← Methods &amp; limitations</a> &nbsp;·&nbsp; <a href="../ferry-terminal.html">Run the instrument →</a></p>
+</div>
+<script src="../js/config.js"></script>
+<script src="../js/model.js"></script>
+<script src="model-tests.js"></script>
+<script>
+(function () {
+  var r = window.FerryModelTests;
+  var s = document.getElementById("sum");
+  s.textContent = r.pass + " passed, " + r.fail + " failed";
+  if (r.fail) s.className = "sum bad";
+  document.getElementById("rows").innerHTML = r.lines.map(function (l) {
+    return '<tr><td class="st ' + (l[0] === "ok" ? "ok" : "no") + '">' + l[0] +
+      "</td><td>" + l[1] + '</td><td class="d">' + (l[2] || "") + "</td></tr>";
+  }).join("");
+})();
+</script>
+</body>
+</html>

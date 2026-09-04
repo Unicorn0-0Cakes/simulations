@@ -114,11 +114,19 @@
   }
 
   function rootPath() {
-    // Pages live either at the site root or one directory below it.
+    /* This script is always loaded from assets/, and assets/ sits at the Atlas
+       root, so the prefix on our own src IS the path back to the root — at any
+       nesting depth, and under any deployment prefix. Pages two folders deep
+       (a simulation's tests/ directory, say) declare "../../assets/orbital.js"
+       and get "../../" rather than a guess. */
+    var src = script && script.getAttribute("src");
+    var m = src && /^(.*?)assets\//.exec(src);
+    if (m) return m[1] || "./";
+    // Fallback for a page that loads this script from somewhere else: the
+    // original one-folder-below-root heuristic, unchanged.
     var parts = location.pathname.split("/").filter(Boolean);
     var file = parts[parts.length - 1] || "";
     var depth = /\.html?$/i.test(file) ? parts.length - 1 : parts.length;
-    // Heuristic: a simulation page sits in exactly one folder of its own.
     return /\//.test(location.pathname) && depth > 0 && !/^index\.html?$/i.test(file)
       ? "../" : "./";
   }

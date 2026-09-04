@@ -719,11 +719,10 @@ function previewSVG(key) {
       "GLOBAL SENSITIVITY — DECOY-VALIDATED");
   }
   if (key === "ferryterminal") {
-    /* The batch-service signature, not a motif: a queue that drops at each
-       departure rule but never back to its previous floor, which is carry-over
-       accumulating; a deck bar with the residual left visibly empty, which is
-       the packing constraint; and baseline ticks for vehicles still waiting
-       when observation ended, which is the censoring. */
+    /* The batch-service signature: a queue that does not drain, it drops.
+       Vertical rules are departure epochs; the deck bar below shows lane-metres
+       loaded against capacity, with the residual left visibly empty; the ticks
+       on the baseline are vehicles still waiting when observation ended. */
     let epochs = "", saw = "M10 118", ticks = "";
     for (let k = 1; k <= 6; k++) {
       const x = 10 + k * 44;
